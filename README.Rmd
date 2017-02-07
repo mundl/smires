@@ -12,7 +12,7 @@ This git repository hosts the R-package `smires`, one of several outcomes of Wor
 
 # Installation of the R-package
 
-In order to use the development version of the package `smires`  you will need to have to install the package `devtools`. 
+In order to use the development version of the package `smires`  you will need to install the package `devtools`. 
 
 ``` r
 install.packages("devtools")
@@ -25,12 +25,81 @@ install_github("mundl/smires")
 Each participating country was asked to suggest metrics and to submit a few time series with intermittent streamflow. 
 
 
+### Time Series 
+
+```{r results = 'asis', echo = FALSE} 
+
+contrib_ts <- function(country, contact, ts = NA, publish = FALSE, comment = NA)
+{
+  data.frame("country" = country, "contact" = contact, "time series" = ts,
+             "include" = if(is.na(ts)) NA else publish,
+             "comment" = comment,
+             check.names = FALSE, stringsAsFactors = FALSE)
+}
+
+series <- list(
+  contrib_ts(country = "ch",
+             contact = "ilja.vanmeerveld@geo.uzh.ch",
+             ts = "Altlandenberg"),
+  
+  contrib_ts(country = "lt",
+             contact = "hydro@mail.lei.lt"),
+  
+  contrib_ts(country = "it",
+             contact = "giuseppe.verdiani@adb.puglia.it",
+             ts = "Carapelle Torrent",
+             comment = "Region Puglia"),
+  
+  contrib_ts(country = "uk",
+             contact = "catsef@ceh.ac.uk",
+             ts = "Balder at [Balderhead Reservoir](http://nrfa.ceh.ac.uk/data/station/info/25022), Ampney Brook at [Ampney St Peter](http://nrfa.ceh.ac.uk/data/station/info/39099)",
+             publish = TRUE,
+             comment = "Balder: human influence, Ampney Brook: chalk stream that dries naturally"), 
+  
+  contrib_ts(country = "pl",
+             contact = "kazimierz_banasik@sggw.pl",
+             ts = "Plachty Stare",
+             comment = "uses hydrological year, starting with November"),
+  
+  contrib_ts(country = "fr", 
+             contact = "eric.sauquet@irstea.fr",
+             ts = "H1333010, H1503910, H1513210, H1603010, H1713010, H1932020"),
+  
+  contrib_ts(country = "es", 
+             contact = "francesc.gallart@idaea.csic.es",
+             ts = "Riu Manol"),
+  
+  contrib_ts(country = "it", 
+             contact = "annamaria.degirolamo@ba.irsa.cnr.it",
+             ts = "Celone, Salsola"),
+  
+  contrib_ts(country = "pt", 
+             contact = "teresal@ipcb.pt",
+             ts = NA))
+
+series <- do.call(rbind, series)
+series <- series[order(series$country), ]
+row.names(series) <- NULL
+
+
+options(knitr.kable.NA = '')
+knitr::kable(series, caption = "Participants", format = "markdown")
+```
+
+### Metrics
 
 
 ```{r results = 'asis', echo = FALSE} 
-part <- data.frame("country" = c("lt", "es", "pl", "it", "fr", "gb"),
-                   "time series" = T, 
-                   "metrics" = NA, 
-                   check.names = FALSE)
-knitr::kable(part, caption = "Participants")
+
+contrib_metric <- function(name, type = "NA", description = NA, comment = NA, country)
+{
+  data.frame("metric" = name, type = "type", "description" = description, 
+             "comment" = ts, country = sort(country),
+             check.names = FALSE, stringsAsFactors = FALSE)
+}
+
+#metrics <- list(
+#  contrib_metric()
+#)
+#knitr::kable(metric, caption = "Participants")
 ```
