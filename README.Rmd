@@ -109,10 +109,12 @@ knitr::kable(series, caption = "Participants", format = "markdown")
 
 ```{r results = 'asis', echo = FALSE} 
 
-contrib_metric <- function(name, type = "NA", description = NA, comment = NA, country)
+contrib_metric <- function(name, type = "NA", description = NA, comment = NA, 
+                           dt = c("daily", "weekly", "monthly"), country)
 {
-  list("metric" = name, type = type, "description" = description, 
-       "comment" = comment, country = sort(country))
+  dt <- match.arg(dt)
+  list("metric" = name, type = type, "description" = description,
+       "\U0394t" = dt, "comment" = comment, country = sort(country))
 }
 
 metrics <- list(
@@ -140,7 +142,7 @@ metrics <- data.frame(metrics, cm)
 metrics <- metrics[order(metrics$type), ]
 row.names(metrics) <- NULL
 
-knitr::kable(cbind(metrics, cm), caption = "Participants")
+knitr::kable(metrics, caption = "Participants")
 ```
 
 

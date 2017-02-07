@@ -132,10 +132,10 @@ Each participating country was asked to suggest metrics and to submit a few time
 
 ### Metrics
 
-| metric                        | type      | description                                                                                   | comment | at  | ch  | gb  | es  | at  | ch  | gb  | es  |
-|:------------------------------|:----------|:----------------------------------------------------------------------------------------------|:--------|:----|:----|:----|:----|:----|:----|:----|:----|
-| Number of days with zero flow | duration  | Total number of days with zero flow                                                           | NA      | ✔   | ✔   | ✔   |     | ✔   | ✔   | ✔   |     |
-| Recession constant            | magnitude | Recession constant during the period with the lowest flow or slope of the flow duration curve | NA      |     | ✔   |     | ✔   |     | ✔   |     | ✔   |
+| metric                        | type      | description                                                                                   | Δt    | comment | at  | ch  | gb  | es  |
+|:------------------------------|:----------|:----------------------------------------------------------------------------------------------|:------|:--------|:----|:----|:----|:----|
+| Number of days with zero flow | duration  | Total number of days with zero flow                                                           | daily | NA      | ✔   | ✔   | ✔   |     |
+| Recession constant            | magnitude | Recession constant during the period with the lowest flow or slope of the flow duration curve | daily | NA      |     | ✔   |     | ✔   |
 
 Getting in Contact
 ==================
