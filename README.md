@@ -5,23 +5,37 @@ SMIRES is a COST Action addressing the Science and Management of Intermittent Ri
 
 This git repository hosts the R-package `smires`, one of several outcomes of Working Group 1 (WG1, Prevalence, distribution and trends of IRES). Given time series of daily (weekly, monthly) discharges, its purpose is:
 
--   to estimate if it was observed at an intermittent river,
--   to calculate relevant low flow and drought metrics.
+-   to identify gauging stations that have an IRES flow regime;
+-   to calculate relevant flow and intermittency metrics.
 
 Installation of the R-package
 =============================
 
-In order to use the development version of the package `smires` you will need to install the package `devtools`.
+In order to use the development version of the package `smires` you will need to install the package `devtools` once.
 
 ``` r
 install.packages("devtools")
+```
+
+It provides the convenient commant `install_github()` which installs the most recent version of a package hosted on github. To do so, simply execute the following three lines:
+
+``` r
+library(devtools)
 install_github("mundl/smires")
+library(smires)
+```
+
+The current version is `0.1.0`. To load this package in an R session, `library(smires)` has to be called.
+
+``` r
+library(smires)
+packageVersion("smires")
 ```
 
 Examples
 ========
 
-Each participating country was asked to suggest metrics and to submit a few time series with intermittent streamflow.
+Each participating country was asked to suggest metrics and to submit a few time series with intermittent streamflow. As we plan to integrate the provided time series in the R package, we need permission of the copyright holder to make the data availabe. The column **include** of the following table indicates if the data can be published.
 
 ### Time Series
 
@@ -93,13 +107,20 @@ Each participating country was asked to suggest metrics and to submit a few time
 <td align="left">uses hydrological year, starting with November</td>
 </tr>
 <tr class="even">
-<td align="left">pt</td>
-<td align="left"><a href="mailto:teresal@ipcb.pt">teresal@ipcb.pt</a></td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
+<td align="left">pl</td>
+<td align="left"><a href="mailto:rmrutkow@cyf-kr.edu.pl">rmrutkow@cyf-kr.edu.pl</a></td>
+<td align="left">Goryczkowa</td>
+<td align="left">FALSE</td>
+<td align="left">only 3 years of observation</td>
 </tr>
 <tr class="odd">
+<td align="left">pt</td>
+<td align="left"><a href="mailto:teresal@ipcb.pt">teresal@ipcb.pt</a></td>
+<td align="left">Coruche, Monforte, Pavia, Moinho</td>
+<td align="left">FALSE</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
 <td align="left">uk</td>
 <td align="left"><a href="mailto:catsef@ceh.ac.uk">catsef@ceh.ac.uk</a></td>
 <td align="left">Balder at <a href="http://nrfa.ceh.ac.uk/data/station/info/25022">Balderhead Reservoir</a>, Ampney Brook at <a href="http://nrfa.ceh.ac.uk/data/station/info/39099">Ampney St Peter</a></td>
@@ -110,3 +131,13 @@ Each participating country was asked to suggest metrics and to submit a few time
 </table>
 
 ### Metrics
+
+| metric                        | type      | description                                                                                   | comment | at  | ch  | gb  | es  | at  | ch  | gb  | es  |
+|:------------------------------|:----------|:----------------------------------------------------------------------------------------------|:--------|:----|:----|:----|:----|:----|:----|:----|:----|
+| Number of days with zero flow | duration  | Total number of days with zero flow                                                           | NA      | ✔   | ✔   | ✔   |     | ✔   | ✔   | ✔   |     |
+| Recession constant            | magnitude | Recession constant during the period with the lowest flow or slope of the flow duration curve | NA      |     | ✔   |     | ✔   |     | ✔   |     | ✔   |
+
+Getting in Contact
+==================
+
+In case you are interested or you want to contribute to the package `smires` (even though you are not part of the [SMIRES cost action](http://www.smires.eu/)) please contact <t.gauster@boku.ac.at>.

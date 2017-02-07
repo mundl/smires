@@ -7,22 +7,35 @@ SMIRES is a COST Action addressing the Science and Management of Intermittent Ri
 
 This git repository hosts the R-package `smires`, one of several outcomes of Working Group 1 (WG1, Prevalence, distribution and trends of IRES). Given time series of daily (weekly, monthly) discharges, its purpose is:
 
-* to estimate if it was observed at an intermittent river,
-* to calculate relevant low flow and drought metrics.
+
+* to identify gauging stations that have an IRES flow regime;
+* to calculate relevant flow and intermittency metrics.
 
 # Installation of the R-package
 
-In order to use the development version of the package `smires`  you will need to install the package `devtools`. 
+In order to use the development version of the package `smires`  you will need to install the package `devtools` once. 
 
 ``` r
 install.packages("devtools")
-install_github("mundl/smires")
 ```
 
 
+It provides the convenient commant `install_github()` which installs the most recent version of a package hosted on github. To do so, simply execute the following three lines:
+``` r
+library(devtools)
+install_github("mundl/smires")
+library(smires)
+```
+
+The current version is ``r packageVersion("smires")``. To load this package in an R session, `library(smires)` has to be called. 
+``` r
+library(smires)
+packageVersion("smires")
+```
+
 # Examples
 
-Each participating country was asked to suggest metrics and to submit a few time series with intermittent streamflow. 
+Each participating country was asked to suggest metrics and to submit a few time series with intermittent streamflow. As we plan to integrate the provided time series in the R package, we need permission of the copyright holder to make the data availabe. The column **include** of the following table indicates if the data can be published. 
 
 
 ### Time Series 
@@ -59,7 +72,12 @@ series <- list(
   contrib_ts(country = "pl",
              contact = "kazimierz_banasik@sggw.pl",
              ts = "Plachty Stare",
-             comment = "uses hydrological year, starting with November"),
+             comment = "uses hydrological year, starting with November"),  
+  
+  contrib_ts(country = "pl",
+             contact = "rmrutkow@cyf-kr.edu.pl",
+             ts = "Goryczkowa",
+             comment = "only 3 years of observation"),
   
   contrib_ts(country = "fr", 
              contact = "eric.sauquet@irstea.fr",
@@ -75,7 +93,7 @@ series <- list(
   
   contrib_ts(country = "pt", 
              contact = "teresal@ipcb.pt",
-             ts = NA))
+             ts = "Coruche, Monforte, Pavia, Moinho"))
 
 series <- do.call(rbind, series)
 series <- series[order(series$country), ]
@@ -93,13 +111,39 @@ knitr::kable(series, caption = "Participants", format = "markdown")
 
 contrib_metric <- function(name, type = "NA", description = NA, comment = NA, country)
 {
-  data.frame("metric" = name, type = "type", "description" = description, 
-             "comment" = ts, country = sort(country),
-             check.names = FALSE, stringsAsFactors = FALSE)
+  list("metric" = name, type = type, "description" = description, 
+       "comment" = comment, country = sort(country))
 }
 
-#metrics <- list(
-#  contrib_metric()
-#)
-#knitr::kable(metric, caption = "Participants")
+metrics <- list(
+  contrib_metric(name = "Number of days with zero flow",
+                 description = "Total number of days with zero flow", 
+                 type = "duration",
+                 country = c("ch", "at", "gb")),
+  contrib_metric(name = "Recession constant",
+                 description = "Recession constant during the period with the lowest flow or slope of the flow duration curve", 
+                 type = "magnitude",
+                 country = c("ch", "es"))
+)
+
+countries <- unique(unlist(lapply(metrics, function(x) x$country), 
+                           use.names = FALSE))
+# matrix of country using a metric
+cm <- used <- t(sapply(metrics, function(x) countries %in% x$country))
+cm[used] <- "\U2714"
+cm[!used] <- ""
+colnames(cm) <- countries
+
+metrics <- do.call(rbind, lapply(metrics, function(x) 
+  as.data.frame(x[setdiff(names(x), "country")], as.is = TRUE) ))
+metrics <- data.frame(metrics, cm)
+metrics <- metrics[order(metrics$type), ]
+row.names(metrics) <- NULL
+
+knitr::kable(cbind(metrics, cm), caption = "Participants")
 ```
+
+
+
+# Getting in Contact
+In case you are interested or you want to contribute to the package `smires` (even though you are not part of the [SMIRES cost action](http://www.smires.eu/)) please contact <t.gauster@boku.ac.at>. 
