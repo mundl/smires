@@ -6,7 +6,6 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
-library(dplyr)
 ```
 
 This document was created with package version ``r packageVersion("smires")``.  Currently the following datasets are already included in the package:

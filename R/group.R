@@ -44,6 +44,34 @@ start_season <- function(x)
   return(day)
 }
 
+multiperiod <- function(x, verbose = FALSE)
+{
+  span <- tapply(x$period, x$event, function(x) length(unique(x)))
+  multi <- span[span > 1]
+  if(verbose)
+  {
+    return(x[x$event %in% multi, ])
+  }
+
+  m <- split(names(multi), multi)
+  class(m) <- "multiperiod"
+
+  return(m)
+}
+
+print.multiperiod <- function(x, ...)
+{
+  events <- sapply(x, paste, collapse = ", ")
+  cat("Events spanning", names(events), "periods:", events)
+}
+
+.warn_multiperiod <- function(x)
+{
+  n <- length(unlist(multiperiod(x)))
+  warning("There are ", n, " events spanning multiple periods.",
+          call. = FALSE)
+}
+
 # Detect events ----
 dry_events <- function(x, na, threshold = 0.1)
 {

@@ -9,4 +9,5 @@ Description: Science and Management of Intermittent Rivers and Ephemeral Streams
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
-Suggests: testthat
+Depends: dplyr
+Suggests: testthat, ggplot2
