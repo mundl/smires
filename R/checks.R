@@ -12,11 +12,11 @@
   units(dtMed) <- "days"
 
   dt <- if(dtMed == 1) {
-    "daily"
+    "day"
   } else if(dtMed == 7) {
-    "weekly"
+    "week"
   } else if(dtMed %in% 30:31) {
-    "monthly"
+    "month"
   } else {
     stop("Unable to derive dt from time series, median dt is probably larger than 31 days.")
   }
@@ -31,6 +31,43 @@
   sum(d < median(d))
 }
 
+.fill_na <- function(x, max.len = Inf, warn = TRUE, ...)
+{
+  # copied from lfstat
+  g <- .event(is.na(x), as.factor = FALSE)
+  rl <- rle(g)
+  len <- rep(rl$lengths, rl$lengths)
+
+  # indices, for which interpolation is required
+  idx <- seq_along(x)[is.na(x) & len <= max.len]
+  x[idx] <- approx(seq_along(x), x, xout = idx, ...)$y
+
+  if(length(idx))
+    message(sum(diff(idx) > 1) + 1, " gaps (", length(idx),
+            " obsevations) were filled using linear interpolation.")
+
+  return(x)
+}
+
+.make_ts_regular <- function(x, interval = .guess_deltat(balder$time))
+  {
+  # modified from drought2015
+  x <- x[!is.na(x$time), ]
+
+  fullseq <- seq(from = min(x$time), to = max(x$time), by = interval)
+  missing <- fullseq[!fullseq %in% x$time]
+
+  if(length(missing)) {
+    gaps <-data.frame(time = missing, value = NA_real_)
+    x <- rbind(x, gaps, make.row.names = FALSE)
+    x <- x[order(x$time), ]
+    rownames(x) <- NULL
+  }
+
+  return(x)
+}
+
+
 .msg_ratio <- function(value, total, text)
 {
   if(value) {
@@ -41,7 +78,7 @@
   }
 }
 
-check_ts <- function(x, accuracy = 0)
+check_ts <- function(x, accuracy = 0, approx.missing = 5)
 {
   # make sure, columns are of correct class
   x$time <- as.Date(x$time)
@@ -52,12 +89,19 @@ check_ts <- function(x, accuracy = 0)
   x <- x[order(x$time), ]
 
   dt <- .guess_deltat(x$time)
-  attr(x, "dt") <- dt
+  #todo: is this really needed? should be identical to median(diff(x$time))
+  #attr(x, "dt") <- dt
+
 
   total <- nrow(x)
   .msg_ratio(sum(duplicated(x$time)), total, text = "duplicated indices")
+
   .msg_ratio(.missing_indices(x$time), total,
              text = "missing indices, it is not regular")
+
+  x <- .make_ts_regular(x, interval = dt)
+  total <- nrow(x)
+  x$value <- .fill_na(x$value, max.len = approx.missing)
 
   # todo: allow a certain fraction of  missing observations eg na.ratio = 0.2
   .msg_ratio(sum(is.na(x$value)), total, text = "missing observations")
@@ -69,6 +113,8 @@ check_ts <- function(x, accuracy = 0)
 
   txt <- paste0("observations below the measurement accuracy of '", accuracy, "'")
   .msg_ratio(sum(x$value < accuracy, na.rm = TRUE), total, txt)
+
+  # todo: requirements regarding length of record?
 
   return(x)
 }

@@ -31,7 +31,6 @@ A few checks are performed prior to the computation of indices.
 
 * time indices are unique
 * time series is regular (daily, weekly or monthly)
-* the time step is stored as an attribute of the object
 * proportion of missing values
 * proportion of values below or equal the measurement accurancy
 

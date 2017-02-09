@@ -104,6 +104,7 @@ dry_events <- function(x, na, threshold = 0.1)
 
 .event <- function(x, new.group.na = TRUE, as.factor = TRUE)
 {
+  # copied from lfstat group()
   # operates just on the grouping variable
   if(!new.group.na) {
     s <- seq_along(x)
