@@ -2,11 +2,17 @@ duration <- function(x)
 {
   if(x[1, "period"] != "whole ts") .warn_multiperiod(x)
 
-  x %>%
-    group_by(event, period, state) %>%
-    summarize(start = head(time, 1), end = tail(time, 1),
-              duration = end - start + 1)
+  # mutate() drops attributes...
+  threshold <- attr(x, "threshold")
 
+  res <- x %>%
+    group_by(event, period, state) %>%
+    summarize(start = head(time, 1), end = tail(time, 1)) %>%
+    mutate(duration = end - start + 1)
+
+  attr(res, "threshold") <- threshold
+
+  return(res)
 }
 
 find_events <- function(x, threshold = 0.001, na.rm = TRUE, period = NULL)

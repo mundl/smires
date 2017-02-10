@@ -1,6 +1,31 @@
+.split_multiyear <- function(x)
+{
+  if(nrow(x) > 1) stop("should just hvae one row... :-(")
+
+  start <- x$start[1]
+  end <- x$end[1]
+
+  if(year(start) == year(end)) return(x)
+
+  ep <- rev(seq(floor_date(end, unit = "year"), start, by = "-1 year") - 1)
+  ep <- c(ep, end)
+
+  start <- c(start, head(ep, -1)+ 1)
+  end <- ep
+  dur <- ep - start + 1
+
+  merge(select(x, -start, -end, -duration),
+        tibble(start = start, end = end, duration = dur))
+}
+
 plot_events <- function(x, size = 5)
 {
   require(ggplot2)
+
+  if(x[1, "period"] == "whole ts") {
+    x <- x %>% group_by(event) %>% do(.split_multiyear(.))
+  }
+
   .day <- function(x) as.numeric(format(x, "%j"))
 
   # we need the complete sequence of years as factor levels
