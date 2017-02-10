@@ -6,8 +6,8 @@ plot_events <- function(x, size = 5)
   # we need the complete sequence of years as factor levels
   # otherwise this years would be omitted in the plot
   year <- format(x$start, "%Y")
-  rng <- range(as.numeric(year))
-  x$year <- factor(year, levels = as.character(seq(rng[1], rng[2])))
+  yseq <- seq(min(as.numeric(year)), max(as.numeric(year)))
+  x$year <- factor(year, levels = as.character(yseq))
 
   # recode stard and end as day of the year (julian day)
   # slightly incorrect for leap years...
@@ -19,9 +19,10 @@ plot_events <- function(x, size = 5)
   at <- (head(breaks, -1) + tail(breaks, -1) - 2) / 2
 
   ggplot(x, aes(col = state)) +
-    geom_vline(xintercept = breaks, col = "white") +
     geom_segment(aes(x = start, xend = end + 1, y = year, yend = year),
                  size = size) +
+    geom_vline(xintercept = breaks, col = "white", alpha = 0.5) +
+    geom_hline(yintercept = seq(1, length(yseq), by = 2), col = "white", alpha = 0.2) +
     labs(title = paste0("Stream-Flow Permanence (threshold = ",
                         attr(x, "threshold") ,")")) +
     scale_x_continuous(breaks = at, labels = month.abb, expand = c(0, 0)) +
