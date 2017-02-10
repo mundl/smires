@@ -1,24 +1,29 @@
 # Grouping per period (year, month, season) ----
 per <- function(x, period, na.rm = TRUE)
 {
-  time <- x$time
-  f <- c("week" = "%V", "month" = "%m", "year" = "%Y")
-
-  if (is.character(period))
+  if(is.null(period))
   {
-    period <- match.arg(arg = period, choices = names(f), several.ok = FALSE)
-    x$period <- as.numeric(format(time, format = f[period]))
-  } else if (is.numeric(period)) {
-    # seasonal
-    start <- sort(period)
-    int <- findInterval(as.numeric(format(time, "%j")), start)
-    int[int == 0] <- length(start)
-
-    x$period <- names(start)[int]
-
+    x$period <- "whole ts"
   } else {
-    stop("Argument 'period' must be eihter numeric or one of: ",
-         paste(sQuote(names(f)), collapse = ", "))
+    time <- x$time
+    f <- c("week" = "%V", "month" = "%m", "year" = "%Y")
+
+    if (is.character(period))
+    {
+      period <- match.arg(arg = period, choices = names(f), several.ok = FALSE)
+      x$period <- as.numeric(format(time, format = f[period]))
+    } else if (is.numeric(period)) {
+      # seasonal
+      start <- sort(period)
+      int <- findInterval(as.numeric(format(time, "%j")), start)
+      int[int == 0] <- length(start)
+
+      x$period <- names(start)[int]
+
+    } else {
+      stop("Argument 'period' must be eihter numeric or one of: ",
+           paste(sQuote(names(f)), collapse = ", "))
+    }
   }
 
   # todo: find meaningful ids for periods: eg 2011-05, 2012-w45, 1985-s1
@@ -117,7 +122,15 @@ dry_events <- function(x, threshold = 0.1)
 
 remove_na_periods <- function(x, col = "value")
 {
-  miss <- unique(filter(x, is.na(state)) %>% .[["pid"]])
+  if(x[1, "period"] == "whole ts" && any(is.na(x$value)))
+  {
+    message("Can't calculate events for the whole time series because ",
+            "discharges contain missing values. Try to group per 'year' or ",
+            "'month'. E.g.: `period = 'month'`")
+    return(x[, ])
+  }
+
+  miss <- unique(x$pid[is.na(x[, col])])
   n <- length(miss)
 
   y <- filter(x, !pid %in% miss)
