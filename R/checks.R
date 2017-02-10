@@ -73,8 +73,8 @@
   if(value) {
     perc <- round(value / total, 3) * 100
     perc <- if(perc < 0.01) "< 0.01" else perc
-    warning("The time series contains ", value, " ", text, " (", perc, " %).",
-            sep = "", call. = FALSE)
+    message("The time series contains ", value, " ", text, " (", perc, " %).",
+            sep = "")
   }
 }
 

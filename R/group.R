@@ -1,25 +1,31 @@
 # Grouping per period (year, month, season) ----
-per_period <- function(x, per)
+per <- function(x, period, na.rm = TRUE)
 {
   time <- x$time
   f <- c("week" = "%V", "month" = "%m", "year" = "%Y")
 
-  if (is.character(per))
+  if (is.character(period))
   {
-    per <- match.arg(arg = per, choices = names(f), several.ok = FALSE)
-    x$period <- as.numeric(format(time, format = f[per]))
-  } else if (is.numeric(per)) {
+    period <- match.arg(arg = period, choices = names(f), several.ok = FALSE)
+    x$period <- as.numeric(format(time, format = f[period]))
+  } else if (is.numeric(period)) {
     # seasonal
-    start <- sort(per)
+    start <- sort(period)
     int <- findInterval(as.numeric(format(time, "%j")), start)
     int[int == 0] <- length(start)
 
     x$period <- names(start)[int]
 
   } else {
-    stop("Argument 'per' must be eihter numeric or one of: ",
+    stop("Argument 'period' must be eihter numeric or one of: ",
          paste(sQuote(names(f)), collapse = ", "))
   }
+
+  # todo: find meaningful ids for periods: eg 2011-05, 2012-w45, 1985-s1
+  # or calculate period id (pid) in remove_na_periods()
+  x$pid <- .event(x$period, as.factor = FALSE)
+
+  if(na.rm) x <- remove_na_periods(x)
 
   return(x)
 }
@@ -67,38 +73,65 @@ print.multiperiod <- function(x, ...)
 
 .warn_multiperiod <- function(x)
 {
-  n <- length(unlist(multiperiod(x)))
-  warning("There are ", n, " events spanning multiple periods.",
-          call. = FALSE)
+  events <- unlist(multiperiod(x))
+  n <- length(events)
+  message("The following ", .nplural(n, "event"), ngettext(n, " is", " are"),
+          " spanning multiple periods: ", .nmax(events))
 }
 
 # Detect events ----
-dry_events <- function(x, na, threshold = 0.1)
+dry_events <- function(x, threshold = 0.1)
 {
-  if(any(is.na(x$value))) {
-    x <- .replace_na(x = x, na = na)
-  }
-
   x$state <- ifelse(x$value <= threshold, "dry", "wet")
-
-  return(.find_events(x))
-}
-
-.replace_na <- function(x, na = c("wet", "dry"))
-{
-  na <- match.arg(na)
-
-  # when calculating durations, NAs can be assumed to be
-  # no flow periods or flow periods
-  x$value[is.na(x$value)] <- if(na == "flow") Inf else 0
+  x <- .find_events(x)
+  attr(x, "threshold") <- threshold
 
   return(x)
+}
+
+# .replace_na <- function(x, na = c("wet", "dry"))
+# {
+#   na <- match.arg(na)
+#
+#   # when calculating durations, NAs can be assumed to be
+#   # no flow periods or flow periods
+#   x$value[is.na(x$value)] <- if(na == "flow") Inf else 0
+#
+#   return(x)
+# }
+
+.nplural <- function(n, msg, suffix = "s") {
+  msg <- paste(n, msg)
+  ngettext(n, msg, paste0(msg, suffix))
+}
+
+
+.nmax <- function(x, nmax = 6, suffix = ", ...", collapse = ", ")
+{
+  txt <- paste(head(x, nmax), collapse = collapse)
+  if(length(x) > nmax) txt <- paste0(txt, suffix)
+
+  return(txt)
+}
+
+
+remove_na_periods <- function(x, col = "value")
+{
+  miss <- unique(filter(x, is.na(state)) %>% .[["pid"]])
+  n <- length(miss)
+
+  y <- filter(x, !pid %in% miss)
+
+  message("Removing the following ", .nplural(n, "period"),
+          " because they contain missing data: ", .nmax(miss))
+
+  return(y)
 }
 
 .find_events <- function(x)
 {
   # operates on the data.frame
-  stopifnot(all(x$state %in% c("wet", "dry")))
+  stopifnot(all(x$state %in% c("wet", "dry", NA)))
   data.frame(x, event = .event(x$state))
 }
 
@@ -106,15 +139,22 @@ dry_events <- function(x, na, threshold = 0.1)
 {
   # copied from lfstat group()
   # operates just on the grouping variable
+
+  x <- as.numeric(as.factor(x))
+
   if(!new.group.na) {
     s <- seq_along(x)
     finite <- !is.na(x)
     x <- approx(s[finite], x[finite], xout = s, f = 0,
                 method = "constant", rule = c(1, 2))$y
+  } else {
+    # treat NAs as a group of its own
+    # there isn't yet a level zero, therefore NAs can become zeros
+    x[is.na(x)] <- 0
   }
 
-  inc <- diff(as.numeric(as.factor(x)))
-  if (new.group.na) inc[is.na(inc)] <-  Inf
+  inc <- diff(x)
+  if (new.group.na) inc[is.na(inc)] <- Inf
 
   grp <- c(0, cumsum(inc != 0))
 
