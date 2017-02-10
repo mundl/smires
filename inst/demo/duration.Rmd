@@ -1,5 +1,7 @@
 ---
-title: "IRES Duration"
+title: "IRES Metrics: Duration"
+author: "Tobias Gauster, Cath Sefton"
+date: "February 10, 2017"
 output: html_document
 ---
 
@@ -8,82 +10,66 @@ knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
 ```
 
-This document was created with package version ``r packageVersion("smires")``.  Currently the following datasets are already included in the package:
-```{r initialisation}
+This document was created with package version ``r packageVersion("smires")``. Currently the following datasets are already included in the package:
+```{r initialisation, warning=FALSE, message=FALSE}
 library(smires)
 data(package = "smires")$results[, "Item"]
 ```
 
-Let's print the first observations of the river Balder at station Balderhead Reservoir:
-```{r}
-head(balder)
-```
 
-For the time being, each time series of discharges is a `data.frame` with the first column being the time index (of class `Date`) and the second column being the discharge. In this particular dataset the unit of discharge is m³/s.
-```{r}
-library(ggplot2)
-ggplot(balder, aes(time, value)) + geom_line() +
-  labs(x = "", y = "discharge in m³/s")
-
-```
-
-A few checks are performed prior to the computation of indices. 
-
-* time indices are unique
-* time series is regular (daily, weekly or monthly)
-* proportion of missing values
-* proportion of values below or equal the measurement accurancy
+When calculating metrics regarding the duration of intermittency, a ternary time series (dry, wet, `NA`) can be derived.  The binary series is added as a column named `state`. 
 
 ```{r}
-balder <- check_ts(balder, accuracy = 0.005)
-```
-
-
-
-When calculating metrics regarding the duration of intermittency, a binary time series can be derived. As there are `NA` values in the time series, the user has to chose whether `NA` values should be regarded as no flow or flow conditions. The binary series is added as column named `state`. 
-
-```{r}
-b <- dry_events(balder, na = "wet")
+b <- dry_events(balder)
 head(b)
-```
-
-
-# Metrics for the whole time series (no grouping)
-```{r}
-b <- balder %>% 
-  dry_events(na = "wet") %>% 
-  duration()
-
-b
-```
-
-```{r}
-ggplot(b, aes(duration)) + geom_histogram(bins = 10) + 
-  facet_wrap(~state) + 
-  labs(x = "Duration of the state in days")
-ggplot(b, aes(duration, col = state)) + stat_ecdf() + 
-  labs(x = "Duration of the state in days", y = "Probability of non-Exceedance", 
-       title = "Empirical Cumulative Distribution Function (ECDF)")
 ```
 
 
 # Metrics for grouped time series
 ```{r}
-b <- balder %>% 
-  dry_events(na = "wet") %>% 
-  per_period("year") %>% 
+events <- balder %>% 
+  dry_events() %>% 
+  per(period = "year") %>% 
   duration()
-b
- 
-bb <- b %>% group_by(period, state) %>% 
+
+print(events)
+```
+
+
+```{r, eval=FALSE}
+events <- duration(per(dry_events(balder), period = "year"))
+```
+
+
+```{r}
+plot_events(events)
+```
+
+
+```{r}
+ggplot(events, aes(duration)) + geom_histogram(bins = 10) + 
+  facet_wrap(~state) + 
+  labs(x = "Duration of the state in days")
+
+ggplot(events, aes(duration, col = state)) + stat_ecdf() + 
+  labs(x = "Duration of the state in days", y = "Probability of non-Exceedance", 
+       title = "Empirical Cumulative Distribution Function (ECDF)")
+```
+
+
+```{r}
+bb <- events %>% group_by(period, state) %>% 
   summarise(duration = max(duration)) %>% 
   group_by(state) %>% summarise(mDur = mean(duration))
 
 bb
 ```
 
+
+
 ```{r}
-ggplot(b, aes(duration)) + geom_histogram() + 
+ggplot(events, aes(duration)) + geom_histogram(binwidth = 10) + 
+  scale_x_continuous(limits = c(0, NA)) + 
   facet_grid(period~state) + 
   labs(x = "Duration of the state in days")
 ```

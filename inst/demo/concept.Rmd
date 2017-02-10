@@ -1,0 +1,41 @@
+---
+title: "Concept of the package"
+author: "Tobias Gauster, Cath Sefton"
+date: "February 10, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+```
+
+This document was created with package version ``r packageVersion("smires")``.  Currently the following datasets are already included in the package:
+```{r initialisation, warning=FALSE, message=FALSE}
+library(smires)
+data(package = "smires")$results[, "Item"]
+```
+
+Let's print the first observations of the river Balder at station Balderhead Reservoir:
+```{r}
+head(balder)
+```
+
+For the time being, each time series of discharges is a `data.frame` with the first column being the time index (of class `Date`) and the second column being the discharge. In this particular dataset the unit of discharge is m³/s.
+```{r}
+library(ggplot2)
+ggplot(balder, aes(time, value)) + geom_line() +
+  labs(x = "", y = "discharge in m³/s")
+
+```
+
+A few checks are performed prior to the computation of indices. 
+
+* time indices are unique
+* time series is regular (daily, weekly or monthly)
+* proportion of missing values
+* proportion of values below or equal the measurement accurancy
+
+```{r}
+balder <- check_ts(balder, accuracy = 0.005)
+```
