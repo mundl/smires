@@ -80,8 +80,11 @@ print.multiperiod <- function(x, ...)
 {
   events <- unlist(multiperiod(x))
   n <- length(events)
-  message("The following ", .nplural(n, "event"), ngettext(n, " is", " are"),
-          " spanning multiple periods: ", .nmax(events))
+  if(n)
+  {
+    message("The following ", .nplural(n, "event"), ngettext(n, " is", " are"),
+            " spanning multiple periods: ", .nmax(events))
+  }
 }
 
 # Detect events ----
@@ -133,12 +136,15 @@ remove_na_periods <- function(x, col = "value")
   miss <- unique(x$pid[is.na(x[, col])])
   n <- length(miss)
 
-  y <- filter(x, !pid %in% miss)
+  if(n)
+  {
+    x <- filter(x, !pid %in% miss)
 
-  message("Removing the following ", .nplural(n, "period"),
-          " because they contain missing data: ", .nmax(miss))
+    message("Removing the following ", .nplural(n, "period"),
+            " because they contain missing data: ", .nmax(miss))
+  }
 
-  return(y)
+  return(x)
 }
 
 .find_events <- function(x)
