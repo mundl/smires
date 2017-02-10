@@ -18,13 +18,20 @@
         tibble(start = start, end = end, duration = dur))
 }
 
-plot_events <- function(x, size = 5)
+.label_dry_events <- function(x)
+{
+  x <- filter(x, state == "dry" & duration >= 7)
+  x <- summarize(x, x = (start + end)/2, y = year, label = event)
+
+  return(x)
+}
+
+plot_events <- function(x, size = 5, label = FALSE)
 {
   require(ggplot2)
+  threshold <- attr(events, "threshold")
 
-  if(x[1, "period"] == "whole ts") {
-    x <- x %>% group_by(event) %>% do(.split_multiyear(.))
-  }
+  x <- x %>% group_by(event, period) %>% do(.split_multiyear(.))
 
   .day <- function(x) as.numeric(format(x, "%j"))
 
@@ -43,20 +50,27 @@ plot_events <- function(x, size = 5)
   breaks <- c(1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 367)
   at <- (head(breaks, -1) + tail(breaks, -1) - 2) / 2
 
-  ggplot(x, aes(col = state)) +
-    geom_segment(aes(x = start, xend = end + 1, y = year, yend = year),
-                 size = size) +
+  p <- ggplot(x) +
+    geom_segment(aes(x = start, xend = end + 1, y = year, yend = year,
+                     col = state), size = size) +
     geom_vline(xintercept = breaks, col = "white", alpha = 0.5) +
     geom_hline(yintercept = seq(1, length(yseq), by = 2), col = "white", alpha = 0.2) +
     labs(title = paste0("Stream-Flow Permanence (threshold = ",
-                        attr(x, "threshold") ,")")) +
+                        threshold, ")")) +
     scale_x_continuous(breaks = at, labels = month.abb, expand = c(0, 0)) +
     scale_y_discrete(expand = c(0, 0.5), drop = F) +
     theme(panel.grid = element_blank(),
           axis.ticks = element_blank(),
           axis.title = element_blank())
+
+  if(label)
+  {
+    labels <- .label_dry_events(x)
+
+    p <- p + geom_text(data = labels,
+                       mapping = aes(x = x, y = y, label = label),
+                       size = 2.5)
+  }
+
+  return(p)
 }
-
-
-
-
