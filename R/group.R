@@ -72,6 +72,11 @@ multiperiod <- function(x, verbose = FALSE)
 
 print.multiperiod <- function(x, ...)
 {
+  if(length(x) == 0)
+  {
+    cat("There are no multiperiod events.")
+    return(invisible())
+  }
   events <- sapply(x, paste, collapse = ", ")
   cat("Events spanning", names(events), "periods:", events)
 }

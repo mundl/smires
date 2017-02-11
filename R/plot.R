@@ -2,17 +2,18 @@
 {
   if(nrow(x) > 1) stop("should just have one row... :-(")
 
+  # end -1 because events could and exactly on Jan 1st
   start <- x$start[1]
-  end <- x$end[1]
+  end <- x$end[1] - 1
 
   if(year(start) == year(end)) return(x)
 
   ep <- rev(seq(floor_date(end, unit = "year"), start, by = "-1 year") - 1)
-  ep <- c(ep, end)
+  ep <- c(ep, end) + 1
 
-  start <- c(start, head(ep, -1)+ 1)
+  start <- c(start, head(ep, -1))
   end <- ep
-  dur <- ep - start + 1
+  dur <- end - start
 
   merge(select(x, -start, -end, -duration),
         tibble(start = start, end = end, duration = dur))
@@ -45,6 +46,7 @@ plot_events <- function(x, size = 5, label = FALSE)
   # slightly incorrect for leap years...
   x$start <- .day(x$start)
   x$end <- .day(x$end)
+  x$end[x$end == 1] <- 366
 
   # position labels months
   breaks <- c(1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 367)
@@ -52,7 +54,7 @@ plot_events <- function(x, size = 5, label = FALSE)
 
   p <- ggplot(x) +
     # todo: use geom_rect
-    geom_segment(aes(x = start, xend = end + 1, y = year, yend = year,
+    geom_segment(aes(x = start, xend = end, y = year, yend = year,
                      col = state), size = size) +
     geom_vline(xintercept = breaks, col = "white", alpha = 0.5) +
     geom_hline(yintercept = seq(1, length(yseq), by = 2), col = "white", alpha = 0.2) +

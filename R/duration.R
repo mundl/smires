@@ -8,8 +8,8 @@ duration <- function(x)
   # todo: include events of length  0
   res <- x %>%
     group_by(event, period, pid, state) %>%
-    summarize(start = head(time, 1), end = tail(time, 1)) %>%
-    mutate(duration = end - start + 1)
+    summarize(start = head(time, 1), end = tail(time, 1) + 1) %>%
+    mutate(duration = end - start)
 
   attr(res, "threshold") <- threshold
   return(res)
