@@ -1,6 +1,6 @@
 .split_multiyear <- function(x)
 {
-  if(nrow(x) > 1) stop("should just hvae one row... :-(")
+  if(nrow(x) > 1) stop("should just have one row... :-(")
 
   start <- x$start[1]
   end <- x$end[1]
@@ -31,7 +31,7 @@ plot_events <- function(x, size = 5, label = FALSE)
   require(ggplot2)
   threshold <- attr(events, "threshold")
 
-  x <- x %>% group_by(event, period) %>% do(.split_multiyear(.))
+  x <- x %>% group_by(event, period, pid) %>% do(.split_multiyear(.))
 
   .day <- function(x) as.numeric(format(x, "%j"))
 
@@ -51,6 +51,7 @@ plot_events <- function(x, size = 5, label = FALSE)
   at <- (head(breaks, -1) + tail(breaks, -1) - 2) / 2
 
   p <- ggplot(x) +
+    # todo: use geom_rect
     geom_segment(aes(x = start, xend = end + 1, y = year, yend = year,
                      col = state), size = size) +
     geom_vline(xintercept = breaks, col = "white", alpha = 0.5) +
