@@ -1,3 +1,5 @@
 exportPattern("^[[:alpha:]]+")
 
- S3method(print, multiperiod)
+importFrom(tidyr, full_seq, complete)
+
+S3method(print, multiperiod)

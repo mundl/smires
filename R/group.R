@@ -12,13 +12,19 @@ per <- function(x, period, na.rm = TRUE)
     {
       period <- match.arg(arg = period, choices = names(f), several.ok = FALSE)
       x$period <- as.numeric(format(time, format = f[period]))
+
+      x$period <- switch(period,
+             week = factor(x$period, levels = 1:53),
+             month = factor(x$period, levels = 1:12),
+             year = factor(x$period, levels = full_seq(as.numeric(x$period), 1)))
+
     } else if (is.numeric(period)) {
       # seasonal
       start <- sort(period)
       int <- findInterval(as.numeric(format(time, "%j")), start)
       int[int == 0] <- length(start)
 
-      x$period <- names(start)[int]
+      x$period <- factor(names(start)[int], levels = names(start))
 
     } else {
       stop("Argument 'period' must be eihter numeric or one of: ",
@@ -96,6 +102,7 @@ print.multiperiod <- function(x, ...)
 dry_events <- function(x, threshold = 0.1)
 {
   x$state <- ifelse(x$value <= threshold, "dry", "wet")
+  x$state <- factor(x$state, levels = c("dry", "wet"))
   x <- .find_events(x)
   attr(x, "threshold") <- threshold
 

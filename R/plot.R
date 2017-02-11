@@ -1,6 +1,9 @@
 .split_multiyear <- function(x)
 {
-  if(nrow(x) > 1) stop("should just have one row... :-(")
+  if(nrow(x) > 1) {
+    cat("should just have one row... :-(")
+    browser()
+  }
 
   # end -1 because events could and exactly on Jan 1st
   start <- x$start[1]
@@ -32,6 +35,8 @@ plot_events <- function(x, size = 5, label = FALSE)
   require(ggplot2)
   threshold <- attr(events, "threshold")
 
+  # nothing to plot for 0day events
+  x <- filter(x, duration > 0)
   x <- x %>% group_by(event, period, pid) %>% do(.split_multiyear(.))
 
   .day <- function(x) as.numeric(format(x, "%j"))
@@ -39,8 +44,7 @@ plot_events <- function(x, size = 5, label = FALSE)
   # we need the complete sequence of years as factor levels
   # otherwise this years would be omitted in the plot
   year <- format(x$start, "%Y")
-  yseq <- seq(min(as.numeric(year)), max(as.numeric(year)))
-  x$year <- factor(year, levels = as.character(yseq))
+  x$year <- factor(year, levels = full_seq(as.numeric(year), 1))
 
   # recode stard and end as day of the year (julian day)
   # slightly incorrect for leap years...
@@ -57,7 +61,7 @@ plot_events <- function(x, size = 5, label = FALSE)
     geom_segment(aes(x = start, xend = end, y = year, yend = year,
                      col = state), size = size) +
     geom_vline(xintercept = breaks, col = "white", alpha = 0.5) +
-    geom_hline(yintercept = seq(1, length(yseq), by = 2), col = "white", alpha = 0.2) +
+    geom_hline(yintercept = seq(1, nlevels(x$year), by = 2), col = "white", alpha = 0.2) +
     labs(title = paste0("Stream-Flow Permanence (threshold = ",
                         threshold, ")")) +
     scale_x_continuous(breaks = at, labels = month.abb, expand = c(0, 0)) +
