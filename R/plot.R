@@ -81,3 +81,28 @@ plot_events <- function(x, size = 5, label = FALSE)
 
   return(p)
 }
+
+
+
+plot_period <- function(x, type = c("ts", "distribution"))
+{
+  type <- match.arg(type)
+
+  if(type == "distribution")
+  {
+    ggplot(x, aes(mean)) + geom_density(trim = TRUE) + facet_wrap(~ state) +
+      scale_x_continuous() + geom_rug() +
+      labs(x = "Mean Duration per Period", title = "Distribution of Events")
+  }
+
+  if(type == "ts")
+  {
+    x <-  ungroup(x) %>%
+      complete(period, state)
+
+    ggplot(x, aes(period, mean, col = state, group = state)) +
+      geom_point() + geom_line() +
+      scale_y_continuous() +
+      labs(y = "Mean Duration")
+  }
+}

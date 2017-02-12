@@ -12,7 +12,7 @@ duration <- function(x)
     summarize(start = head(time, 1), end = tail(time, 1) + 1) %>%
     mutate(duration = end - start) %>%
     ungroup() %>%
-    complete(period, state, fill = list(duration = 0))
+    complete(nesting(period), state, fill = list(duration = 0))
 
   attr(res, "threshold") <- threshold
   return(res)
