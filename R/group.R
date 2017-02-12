@@ -101,9 +101,14 @@ print.multiperiod <- function(x, ...)
 # Detect events ----
 dry_events <- function(x, threshold = 0.1)
 {
-  x$state <- ifelse(x$discharge <= threshold, "dry", "wet")
-  x$state <- factor(x$state, levels = c("dry", "wet"))
-  x <- .find_events(x)
+  if(is.null(threshold))
+  {
+    x$event <- seq_len(nrow(x))
+  } else {
+    x$state <- ifelse(x$discharge <= threshold, "dry", "wet")
+    x$state <- factor(x$state, levels = c("dry", "wet"))
+    x <- .find_events(x)
+  }
   attr(x, "threshold") <- threshold
 
   return(x)
@@ -141,7 +146,7 @@ remove_na_periods <- function(x, col = "discharge")
   {
     message("Can't calculate events for the whole time series because ",
             "discharges contain missing values. Try to group per 'year' or ",
-            "'month'. E.g.: `period = 'month'`")
+            "'month'. E.g. `period = 'month'`")
     return(x[, ])
   }
 
