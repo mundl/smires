@@ -90,9 +90,9 @@ plot_period <- function(x, type = c("ts", "distribution"))
 
   if(type == "distribution")
   {
-    ggplot(x, aes(mean)) + geom_density(trim = TRUE) + facet_wrap(~ state) +
+   p <- ggplot(x, aes(max)) + geom_density(trim = TRUE) + facet_wrap(~ state) +
       scale_x_continuous() + geom_rug() +
-      labs(x = "Mean Duration per Period", title = "Distribution of Events")
+      labs(x = "Maximum Duration per Period", title = "Distribution of Events")
   }
 
   if(type == "ts")
@@ -100,9 +100,11 @@ plot_period <- function(x, type = c("ts", "distribution"))
     x <-  ungroup(x) %>%
       complete(period, state)
 
-    ggplot(x, aes(period, mean, col = state, group = state)) +
+    p <- ggplot(x, aes(period, max, col = state, group = state)) +
       geom_point() + geom_line() +
       scale_y_continuous() +
-      labs(y = "Mean Duration")
+      labs(y = "Maximum Duration")
   }
+
+  return(p)
 }

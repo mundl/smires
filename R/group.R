@@ -152,8 +152,8 @@ remove_na_periods <- function(x, col = "discharge")
   {
     x <- filter(x, !pid %in% miss)
 
-    message("Removing the following ", .nplural(n, "period"),
-            " because they contain missing data: ", .nmax(miss))
+    message("Removing ", .nplural(n, "period"),
+            " containing missing data. pid: ", .nmax(miss))
   }
 
   return(x)
