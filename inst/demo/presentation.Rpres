@@ -1,0 +1,214 @@
+Calculating Flow and Intermittency Metrics based on streamflow data
+========================================================
+author: An attempt to generalise the calculation of flow and drought statistics using R.
+date:
+font-family: 'Helvetica'
+width: 1600
+height: 1000
+
+
+
+CEH Wallingford, 2017-02-13
+
+
+Objective
+========================================================
+Every
+
+- IRES metrics are a subset of flow and drought metrics (threshold = "no flow", no volumes)
+- a consistent framework for low flow and drought statistics
+
+
+Workflow
+========================================================
+<!--  Hypothesis: Almost every flow and drought statistic can be calculated in 4 steps.
+Starting with streamflow discharge, new variables can be derived in step 2 and 3. -->
+
+
+1. **preproces** time series of discharge (moving average, interpolate `NA`s, ...)
+
+2. **identify** independent **events**
+  - detect events based on a threshold flow (any value in `[0, Inf]`)
+  - derive new variables for each event (eg. duration, volume, start)
+
+3. calculate **metrics** for arbitrary **periods** (e.g.  months, seasons, years or whole ts)
+  - aggregate variables (e.g. discharge, duration, ...) per period using aggregation functions (max, min, median, ...)
+
+4. calculate **final metric**
+ - aggregate all periods to a single value (quantile, median, ...)
+ - or show its distribution
+
+
+1. The package smires
+========================================================
+
+Install the current development version (``r packageVersion("smires")``) of smires from [github](https://github.com/mundl/smires).
+
+```{r, eval=FALSE, include=TRUE}
+library(devtools)
+install_github("mundl/smires")
+```
+
+Load the package, which already has two UK data sets included: Balder at [Balderhead Reservoir](http://nrfa.ceh.ac.uk/data/station/info/25022) and Ampney Brook at [Ampney St Peter](http://nrfa.ceh.ac.uk/data/station/info/39099).
+
+```{r}
+library(smires)
+```
+
+The time series are objects of class `tibble` which are similar to `data.frames`. The first column is the index of the time series, it is named `time` and is of class `Date`. The second column names `discharge` contains the observed streamflow discharges. Throughout the analysis, further variables (columns) can be appended.
+
+****
+
+```{r}
+balder
+```
+
+1. Preprocessing
+========================================================
+
+We are quite strict about missing streamflow observations (`NA`s). When calculating a metric, periods containig `NA` values are dropped and a warning is risen. Short gaps (of length `approx.missing`) can be interpolated.
+
+To check if there are unplausibly low observations (negative discharges, values below accuracy) the user can supply an optional argument `accuracy`.
+
+```{r, include=FALSE}
+balder$discharge[c(1, 100:102, 200)] <- NA
+```
+
+
+```{r, message=TRUE}
+discharge <- check_ts(balder, accuracy = 0.05, )
+```
+
+
+2. Identifying events
+========================================================
+
+```{r, message=TRUE}
+events <- find_events(discharge, period = "year", threshold = 0.05)
+events
+```
+
+2. Identifying events
+========================================================
+
+Each period (in our example: years) can contain zero or more events. There can be periods with zero duration, e.g. if a year is wet 365 days, the dry period has a duration of zero days.
+
+```{r,  fig.height = 3, fig.width = 10, out.width="1960px", out.height="490px", dpi=300}
+plot_events(events, label = TRUE)
+```
+
+
+
+3. Aggregating per period
+========================================================
+
+Each variable (e.g. duration, volume, onset) calculated before has a distribution, there can be more than one event per period.
+```{r, fig.height = 3, fig.width = 10, out.width="1960px", out.height="490px", dpi=300,, echo=FALSE}
+ggplot(events, aes(duration)) + geom_density(trim = TRUE) +
+  facet_wrap(~ state) +
+  scale_x_continuous() + geom_rug(aes(col = period)) +
+  labs(x = "Duration of an event (days)",
+       title = "How are durations distributed, regardless of the period?")
+```
+
+3. Aggregating per period
+========================================================
+
+We can choose:
+ - which variables `vars()` to aggregate and
+ - which aggregation functions `funs()` to use.
+
+
+```{r}
+metricP <- events %>%
+  summarise_at(vars(duration), funs(min, median, mean, max, sum))
+
+metricP
+```
+
+
+3. Aggregating per period
+========================================================
+
+```{r, fig.height = 3, fig.width = 5, out.width="980px", out.height="490px", dpi=300}
+plot_period(metricP, type = "ts")
+```
+
+By aggregating (taking the maximum) all values of a single period we obtain one value per period, the maximum duration of an event per period.
+
+***
+
+```{r, fig.height = 3, fig.width = 5, out.width="980px", out.height="490px", dpi=300}
+plot_period(metricP, type = "dist")
+```
+
+
+
+4. Calculate the final metric
+========================================================
+Same proceedure as before, choose:
+ - which variables `vars()` to aggregate and
+ - which aggregation functions `funs()` to use.
+
+
+```{r}
+metric <- metricP %>% group_by(state) %>%
+  summarise_at(vars(-period, -state), funs(mean))
+metric
+```
+
+E.g. the mean maximum yearly duration of dry states at Balderhead Reservoir is ``r round(filter(metric, state == "dry")$mean, 1)`` days. But we only condidered 4.3 years of records...
+
+Workflow
+========================================================
+
+| Step                   | what varies  |  example   |
+|:------------------------------|:----------|:----------|
+| 1. preprocessing   | functions   | `check_ts(balder, approx.missing = 3)`
+| 2. event detection   | threshold, functions (defining new variables)   | `find_events(discharge, period = "year", threshold = 0.05)` |
+| 3. metrics per periods | periods, variables, aggregation functions (new vars)   | `events %>% summarise_at(vars(duration), funs(max))` |
+| 4. metric per station  | vars, aggregation functions   | ` metricP %>% group_by(state) %>%   summarise_at(vars(max), funs(mean))` |
+
+
+
+
+Example: Verifying MAM7 against lfstat
+========================================================
+```{r, include=FALSE}
+library(lfstat)
+mam7 <- function(x)
+{
+  apply.seasonal(x, varying = "yearly", aggregate = mean)
+}
+
+rm(ampneyBrook)
+discharge <- ampneyBrook
+```
+
+
+
+## lfstat
+```{r}
+x <- with(ampneyBrook, xts(ma(discharge, n = 7, sides = 1), order.by = time))
+(lfstat <- mam7(x["1984::"]))
+```
+
+
+## smires
+```{r, message = TRUE}
+discharge$discharge <- ma(discharge$discharge, n = 7, sides = 1)
+e <- find_events(discharge, period = "year", threshold = NULL, fun = identity)
+metricP <- e %>% summarise_at(vars(discharge), funs(min))
+smires <- metricP %>% summarise_at(vars(discharge), funs(mean))
+```
+
+## comparison
+```{r, message = TRUE}
+identical(lfstat, smires$discharge[1])
+```
+
+
+
+4. Outlook
+========================================================
+ - define requirements for every metric: length of record, max number of missing values
