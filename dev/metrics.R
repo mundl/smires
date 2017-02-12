@@ -1,6 +1,7 @@
 library(smires)
 
 
+
 find_events(balder, period = "year", threshold = 0.05) %>%
   summarise_at(vars(duration), funs(max)) %>%
   group_by(state) %>%

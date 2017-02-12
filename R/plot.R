@@ -30,7 +30,7 @@
   return(x)
 }
 
-plot_events <- function(x, size = 5, label = FALSE)
+plot_events <- function(x, size = 5, label = TRUE)
 {
   require(ggplot2)
   threshold <- attr(x, "threshold")
