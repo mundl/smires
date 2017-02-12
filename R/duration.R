@@ -12,18 +12,30 @@ duration <- function(x)
     summarize(start = head(time, 1), end = tail(time, 1) + 1) %>%
     mutate(duration = end - start) %>%
     ungroup() %>%
-    complete(nesting(period), state, fill = list(duration = 0))
+    complete(nesting(period), state, fill = list(duration = 0)) %>%
+    group_by(period, state)
 
   attr(res, "threshold") <- threshold
   return(res)
 }
 
-find_events <- function(x, threshold = 0.001, na.rm = TRUE, period = NULL)
+identity <- function(x)
+{
+  if(x[1, "period"] != "whole ts") .warn_multiperiod(x)
+
+  #just perform grouping
+  res <- x %>%
+    group_by(period)
+
+  return(res)
+}
+
+
+find_events <- function(x, threshold = 0.001, na.rm = TRUE, period = NULL, fun = duration)
 {
   x %>%
     dry_events(threshold = threshold) %>%
     per(period = period, na.rm = na.rm) %>%
-    duration() %>%
-    group_by(period, state) %>%
-    arrange(event)
+    fun() %>%
+    arrange(event) # sort by event
 }

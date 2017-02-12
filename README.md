@@ -25,7 +25,7 @@ install_github("mundl/smires")
 library(smires)
 ```
 
-The current version is `0.1.0`. To load this package in an R session, `library(smires)` has to be called.
+The current version is `0.3.0`. To load this package in an R session, `library(smires)` has to be called.
 
 ``` r
 library(smires)
