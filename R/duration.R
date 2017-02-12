@@ -24,5 +24,6 @@ find_events <- function(x, threshold = 0.001, na.rm = TRUE, period = NULL)
     dry_events(threshold = threshold) %>%
     per(period = period, na.rm = na.rm) %>%
     duration() %>%
-    group_by(period, state)
+    group_by(period, state) %>%
+    arrange(event)
 }
