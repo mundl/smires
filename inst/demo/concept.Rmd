@@ -24,7 +24,7 @@ head(balder)
 For the time being, each time series of discharges is a `data.frame` with the first column being the time index (of class `Date`) and the second column being the discharge. In this particular dataset the unit of discharge is m³/s.
 ```{r}
 library(ggplot2)
-ggplot(balder, aes(time, value)) + geom_line() +
+ggplot(balder, aes(time, discharge)) + geom_line() +
   labs(x = "", y = "discharge in m³/s")
 
 ```

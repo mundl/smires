@@ -101,7 +101,7 @@ print.multiperiod <- function(x, ...)
 # Detect events ----
 dry_events <- function(x, threshold = 0.1)
 {
-  x$state <- ifelse(x$value <= threshold, "dry", "wet")
+  x$state <- ifelse(x$discharge <= threshold, "dry", "wet")
   x$state <- factor(x$state, levels = c("dry", "wet"))
   x <- .find_events(x)
   attr(x, "threshold") <- threshold
@@ -115,7 +115,7 @@ dry_events <- function(x, threshold = 0.1)
 #
 #   # when calculating durations, NAs can be assumed to be
 #   # no flow periods or flow periods
-#   x$value[is.na(x$value)] <- if(na == "flow") Inf else 0
+#   x$discharge[is.na(x$discharge)] <- if(na == "flow") Inf else 0
 #
 #   return(x)
 # }
@@ -135,9 +135,9 @@ dry_events <- function(x, threshold = 0.1)
 }
 
 
-remove_na_periods <- function(x, col = "value")
+remove_na_periods <- function(x, col = "discharge")
 {
-  if(x[1, "period"] == "whole ts" && any(is.na(x$value)))
+  if(x[1, "period"] == "whole ts" && any(is.na(x$discharge)))
   {
     message("Can't calculate events for the whole time series because ",
             "discharges contain missing values. Try to group per 'year' or ",

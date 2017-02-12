@@ -82,7 +82,7 @@ check_ts <- function(x, accuracy = 0, approx.missing = 5)
 {
   # make sure, columns are of correct class
   x$time <- as.Date(x$time)
-  x$value <- as.numeric(x$value)
+  x$discharge <- as.numeric(x$discharge)
 
   # remove complete duplicates and order time series
   x <- unique(x)
@@ -101,18 +101,18 @@ check_ts <- function(x, accuracy = 0, approx.missing = 5)
 
   x <- .make_ts_regular(x, interval = dt)
   total <- nrow(x)
-  x$value <- .fill_na(x$value, max.len = approx.missing)
+  x$discharge <- .fill_na(x$discharge, max.len = approx.missing)
 
   # todo: allow a certain fraction of  missing observations eg na.ratio = 0.2
-  .msg_ratio(sum(is.na(x$value)), total, text = "missing observations")
+  .msg_ratio(sum(is.na(x$discharge)), total, text = "missing observations")
 
-  nthres <- sum(abs(x$value - accuracy) < sqrt(.Machine$double.eps),
+  nthres <- sum(abs(x$discharge - accuracy) < sqrt(.Machine$double.eps),
                 na.rm = TRUE)
   txt <- paste0("observations equal to the measurement accuracy of '", accuracy, "'")
   .msg_ratio(nthres, total, txt)
 
   txt <- paste0("observations below the measurement accuracy of '", accuracy, "'")
-  .msg_ratio(sum(x$value < accuracy, na.rm = TRUE), total, txt)
+  .msg_ratio(sum(x$discharge < accuracy, na.rm = TRUE), total, txt)
 
   # todo: requirements regarding length of record?
 

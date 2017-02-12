@@ -3,4 +3,6 @@ exportPattern("^[[:alpha:]]+")
 importFrom(tidyr, full_seq, complete, nesting)
 importFrom(tibble, as_tibble)
 
+export(as_tibble)
+
 S3method(print, multiperiod)
