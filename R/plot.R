@@ -33,7 +33,7 @@
 plot_events <- function(x, size = 5, label = FALSE)
 {
   require(ggplot2)
-  threshold <- attr(events, "threshold")
+  threshold <- attr(x, "threshold")
 
   # nothing to plot for 0day events
   x <- filter(x, duration > 0)
@@ -85,6 +85,7 @@ plot_events <- function(x, size = 5, label = FALSE)
 
 
 plot_period <- function(x, type = c("ts", "distribution"))
+  # maximum is hardcoded
 {
   type <- match.arg(type)
 
@@ -92,7 +93,7 @@ plot_period <- function(x, type = c("ts", "distribution"))
   {
    p <- ggplot(x, aes(max)) + geom_density(trim = TRUE) + facet_wrap(~ state) +
       scale_x_continuous() + geom_rug() +
-      labs(x = "Maximum Duration per Period", title = "Distribution of Events")
+      labs(x = "Maximum Duration per Period (days)", title = "Distribution of Events")
   }
 
   if(type == "ts")
@@ -102,8 +103,9 @@ plot_period <- function(x, type = c("ts", "distribution"))
 
     p <- ggplot(x, aes(period, max, col = state, group = state)) +
       geom_point() + geom_line() +
+      expand_limits(y = 0) +
       scale_y_continuous() +
-      labs(y = "Maximum Duration")
+      labs(y = "Maximum Duration (days)")
   }
 
   return(p)
