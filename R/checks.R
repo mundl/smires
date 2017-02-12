@@ -40,7 +40,7 @@
 
   # indices, for which interpolation is required
   idx <- seq_along(x)[is.na(x) & len <= max.len]
-  x[idx] <- approx(seq_along(x), x, xout = idx, ...)$y
+  x[idx] <- approx(seq_along(x), x, xout = idx, rule = 2, ...)$y
 
   if(length(idx))
     message(sum(diff(idx) > 1) + 1, " gaps (", length(idx),
