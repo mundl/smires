@@ -24,6 +24,6 @@ fr <- lapply(files, .read_txt_france)
 
 # United Kingdom ----
 require(readhyd)
-ampneyBrook <- read.nrfa(file = "../ts/uk//nrfa_public_39099_gdf.csv")
-balder <- read.nrfa(file = "../ts/uk//nrfa_public_25022_gdf.csv")
-use_data(balder, ampneyBrook)
+ampneyBrook <- as_tibble(read.nrfa(file = "../ts/uk//nrfa_public_39099_gdf.csv"))
+balder <- as_tibble(read.nrfa(file = "../ts/uk//nrfa_public_25022_gdf.csv"))
+use_data(balder, ampneyBrook, overwrite = TRUE)

@@ -10,5 +10,5 @@ License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
 Depends: dplyr, lubridate
-Imports: tidyr
+Imports: tidyr, tibble
 Suggests: testthat, ggplot2
