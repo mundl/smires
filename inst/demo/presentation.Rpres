@@ -1,42 +1,26 @@
 Calculating Flow and Intermittency Metrics based on streamflow data
 ========================================================
-author: An attempt to generalise the calculation of flow and drought statistics using R.
+author:
 date:
 font-family: 'Helvetica'
 width: 1600
 height: 1000
 
-
+An attempt to generalize the calculation of flow and drought statistics using R.
 
 CEH Wallingford, 2017-02-13
 
+<br><br><br><br>
 
-Objective
-========================================================
-Every
-
-- IRES metrics are a subset of flow and drought metrics (threshold = "no flow", no volumes)
-- a consistent framework for low flow and drought statistics
-
-
-Workflow
-========================================================
-<!--  Hypothesis: Almost every flow and drought statistic can be calculated in 4 steps.
-Starting with streamflow discharge, new variables can be derived in step 2 and 3. -->
+ - Introducing the package `smires`
+ - Determining intermittency
+ - From discharge time series to flow metrics (workflow & example)
+ - Verifying MAM7 against lfstat
+ - Outlook
 
 
-1. **preproces** time series of discharge (moving average, interpolate `NA`s, ...)
 
-2. **identify** independent **events**
-  - detect events based on a threshold flow (any value in `[0, Inf]`)
-  - derive new variables for each event (eg. duration, volume, start)
 
-3. calculate **metrics** for arbitrary **periods** (e.g.  months, seasons, years or whole ts)
-  - aggregate variables (e.g. discharge, duration, ...) per period using aggregation functions (max, min, median, ...)
-
-4. calculate **final metric**
- - aggregate all periods to a single value (quantile, median, ...)
- - or show its distribution
 
 
 The package smires
@@ -65,38 +49,60 @@ balder
 
 
 
-Determing Intermittency
+Determining Intermittency
 ========================================================
 left: 55%
 
 ```{r, echo=FALSE}
 x <- ampneyBrook
+is.im <- is.intermittent
 ```
 
 
-Default: 1 l/s, 5 days, 1 year (not necessarily consecutive)
+1 l/s, 5 days, 1 year (not necessarily consecutive)
 ```{r, message=TRUE}
-is.intermittent(x, threshold = 0.001)
-is.intermittent(x, nyear = 6)
-is.intermittent(x, nyear = 7)
-is.intermittent(x, ny = 2, cons = "year")
-is.intermittent(x, ny = 3, cons = "year")
+is.im(x, threshold = 0.001)
+is.im(x, nyear = 6)
+is.im(x, nyear = 7)
+is.im(x, nyear = 2, cons = "year")
+is.im(x, nyear = 3, cons = "year")
 ```
 
 ***
 
-```{r, echo=FALSE, fig.height = 5, fig.width = 5, out.width="980px", out.height="815px", dpi=300}
+```{r, echo=FALSE, fig.height = 6, fig.width = 5, out.width="980px", out.height="978px", dpi=300}
 plot_events(find_events(ampneyBrook, period = "year", threshold = 0.001),
             label = FALSE) +
   theme(legend.position = "none")
 ```
 
+
+Calculating Flow Metrics: the general Approach
+========================================================
+<!--  Hypothesis: Almost every flow and drought statistic can be calculated in 4 steps.
+Starting with streamflow discharge, new variables can be derived in step 2 and 3. -->
+<br><br>
+
+1. **preproces** time series of discharge (moving average, interpolate `NA`s, ...)
+
+2. **identify** independent **events**
+  - detect events based on a threshold flow (any value in `[0, Inf]`)
+  - derive new variables for each event (e.g. duration, volume, start)
+
+3. calculate **summary statistics** for arbitrary **periods** (e.g.  months, seasons, years or whole ts)
+  - aggregate variables (e.g. discharge, duration, ...) per period using aggregation functions (max, min, median, ...)
+
+4. calculate **final metric**
+ - aggregate all periods to a single value (quantile, median, ...)
+ - or show its distribution
+
+
 1. Preprocessing
 ========================================================
 
-We are quite strict about missing streamflow observations (`NA`s). When calculating a metric, periods containig `NA` values are dropped and a warning is risen. Short gaps (of length `approx.missing`) can be interpolated.
+We are quite strict about missing streamflow observations (`NA`s). When calculating a metric, periods containing `NA` values are dropped and a warning is risen. Short gaps (of length `approx.missing`) can be interpolated.
 
-To check if there are unplausibly low observations (negative discharges, values below accuracy) the user can supply an optional argument `accuracy`.
+To check if there are implausibly low observations (negative discharges, values below accuracy) the user can supply an optional argument `accuracy`.
 
 ```{r, include=FALSE}
 balder$discharge[c(1, 100:102, 200)] <- NA
@@ -104,7 +110,7 @@ balder$discharge[c(1, 100:102, 200)] <- NA
 
 
 ```{r, message=TRUE}
-discharge <- check_ts(balder, accuracy = 0.05)
+discharge <- check_ts(balder, accuracy = 0.005)
 ```
 
 
@@ -112,7 +118,7 @@ discharge <- check_ts(balder, accuracy = 0.05)
 ========================================================
 
 ```{r, message=TRUE}
-events <- find_events(discharge, period = "year", threshold = 0.05)
+events <- find_events(discharge, period = "year", threshold = 0.001)
 events
 ```
 
@@ -174,7 +180,7 @@ plot_period(metricP, type = "dist")
 
 4. Calculate the final metric
 ========================================================
-Same proceedure as before, choose:
+Same procedure as before, choose:
  - which variables `vars()` to aggregate and
  - which aggregation functions `funs()` to use.
 
@@ -185,12 +191,13 @@ metric <- metricP %>% group_by(state) %>%
 metric
 ```
 
-E.g. the mean annual maximum duration (correct?) of dry states at Balderhead Reservoir is ``r round(filter(metric, state == "dry")$mean, 1)`` days. But we only condidered 4.3 years of records...
+E.g. the mean annual maximum duration (correct?) of dry states at Balderhead Reservoir is ``r round(filter(metric, state == "dry")$mean, 1)`` days. But we only considered 4.3 years of records...
 
-Workflow
+Dimensions
 ========================================================
+Thinking about the dimensions revealed, that I designed the `find_event()` function poorly. Assigning the periods should happen before step 3.
 
-|    | Operation                   | What Varies  | Dimension |  after Operation  | Pseudocode   |
+|    | Operation                   | What Varies  | Dimension |  after Operation  | Pseudo-code   |
 |:---|:--|:---|:--|:----|:--|
 | 1. | preprocessing   | functions   | 2 | time, discharge   | ` x <- check_ts(...)` |
 | 2. | assign periods   | period   | 3 | time, period, discharge | `xx <- per(e, period)` |
@@ -204,9 +211,7 @@ In steps 4 and 5 basically the same operation is carried out to reduce a dimensi
 
 Step 3 is optional (*n* = 1), e.g. for low flow statistics like *MAM7* no events are required.
 
-Thinking about the dimensions revealed, that I designed the `find_event()` function poorly. Assigning the periods should happen before step 3.
-
-Most of the time *n*, *m* and *o* = 1 resulting in a single final metric.
+Most of the time *n*, *m* and *o* = 1 resulting in a **single final metric**.
 
 
 
@@ -226,14 +231,14 @@ discharge <- ampneyBrook
 
 
 
-## lfstat
+### lfstat
 ```{r}
 x <- with(ampneyBrook, xts(ma(discharge, n = 7, sides = 1), order.by = time))
 (lfstat <- mam7(x["1984::"]))
 ```
 
 
-## smires
+### smires
 ```{r, message = TRUE}
 discharge$discharge <- ma(discharge$discharge, n = 7, sides = 1)
 e <- find_events(discharge, period = "year", threshold = NULL, fun = identity)
@@ -241,7 +246,7 @@ metricP <- e %>% summarise_at(vars(discharge), funs(min))
 smires <- metricP %>% summarise_at(vars(discharge), funs(mean))
 ```
 
-## comparison
+### comparison
 ```{r, message = TRUE}
 identical(lfstat, smires$discharge[1])
 ```
@@ -250,6 +255,7 @@ identical(lfstat, smires$discharge[1])
 
 4. Outlook
 ========================================================
+<br><br>
  1.  **Define requirements** for every metric: length of record, max number of missing values
  2. Start **implementing all suggested metrics**.
  3. Include **data submitted** by countries. Can we include it in the package? If not, distribute as rda-object which can easily be loaded.
