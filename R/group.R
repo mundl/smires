@@ -14,9 +14,9 @@ per <- function(x, period, na.rm = TRUE)
       x$period <- as.numeric(format(time, format = f[period]))
 
       x$period <- switch(period,
-             week = factor(x$period, levels = 1:53),
-             month = factor(x$period, levels = 1:12),
-             year = factor(x$period, levels = full_seq(as.numeric(x$period), 1)))
+                         week = factor(x$period, levels = 1:53),
+                         month = factor(x$period, levels = 1:12),
+                         year = factor(x$period, levels = full_seq(as.numeric(x$period), 1)))
 
     } else if (is.numeric(period)) {
       # seasonal
@@ -144,9 +144,9 @@ remove_na_periods <- function(x, col = "discharge")
 {
   if(x[1, "period"] == "whole ts" && any(is.na(x$discharge)))
   {
-    message("Can't calculate events for the whole time series because ",
-            "discharges contain missing values. Try to group per 'year' or ",
-            "'month'. E.g. `period = 'month'`")
+    stop("Can't calculate events for the whole time series because ",
+         "discharges contain missing values. Try to group per 'year' or ",
+         "'month'. E.g. `period = 'month'`")
     return(x[, ])
   }
 
@@ -168,7 +168,7 @@ remove_na_periods <- function(x, col = "discharge")
 {
   # operates on the data.frame
   stopifnot(all(x$state %in% c("wet", "dry", NA)))
-  data.frame(x, event = .event(x$state))
+  mutate(x, event = .event(x$state))
 }
 
 .event <- function(x, new.group.na = TRUE, as.factor = TRUE)
