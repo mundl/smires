@@ -39,3 +39,17 @@ A few checks are performed prior to the computation of indices.
 ```{r}
 balder <- check_ts(balder, accuracy = 0.005)
 ```
+
+
+# Units
+For the time being only daily time series are supported. The default value of the threshold flow (0.001 m³/s) is only appropriate if your discharges are also in m³/s. If not, do not forget to choose a meaningful threshold. 
+
+# Threshold 
+A day is considered **dry** if the observed discharge is **smaller or equal** to the threshold discharge. Given a threshold of 0 m³/s and an observed discharge of 0 m³/s, this day is classified as dry. 
+
+# Time intervals
+```{r, message=FALSE, echo=FALSE}
+head(find_events(balder, period = "year"), 2)
+```
+
+A time interval like in the example above is contructed in a way that $duration = end - start$  implying that the end date is **not** part of the interval, it is a right opened interval: $[start,\ end)$. 
