@@ -1,6 +1,6 @@
-duration <- function(x)
+duration <- function(x, warn = TRUE)
 {
-  if(x[1, "period"] != "whole ts") .warn_multiperiod(x)
+  if(x[1, "period"] != "whole ts" & warn) .warn_multiperiod(x)
 
   # mutate() drops attributes...
   threshold <- attr(x, "threshold")
@@ -19,7 +19,7 @@ duration <- function(x)
   return(res)
 }
 
-identity <- function(x)
+identity <- function(x, ...)
 {
   if(x[1, "period"] != "whole ts") .warn_multiperiod(x)
 
@@ -31,11 +31,12 @@ identity <- function(x)
 }
 
 
-find_events <- function(x, threshold = 0.001, na.rm = TRUE, period = NULL, fun = duration)
+find_events <- function(x, threshold = 0.001, na.rm = TRUE, period = NULL,
+                        fun = duration, warn = TRUE)
 {
   x %>%
     dry_events(threshold = threshold) %>%
     per(period = period, na.rm = na.rm) %>%
-    fun() %>%
+    fun(warn = warn) %>%
     arrange(event) # sort by event
 }
