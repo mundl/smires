@@ -50,7 +50,7 @@
 }
 
 .make_ts_regular <- function(x, interval = .guess_deltat(balder$time))
-  {
+{
   # modified from drought2015
   x <- x[!is.na(x$time), ]
 
@@ -78,8 +78,11 @@
   }
 }
 
-check_ts <- function(x, accuracy = 0, approx.missing = 5)
+check_ts <- function(x, minyear = 10, approx.missing = 5, accuracy = 0)
 {
+  # we agreed on keeping the accuracy argument but
+  # checking for negative values explicitly
+
   # make sure, columns are of correct class
   x$time <- as.Date(x$time)
   x$discharge <- as.numeric(x$discharge)
@@ -103,18 +106,38 @@ check_ts <- function(x, accuracy = 0, approx.missing = 5)
   total <- nrow(x)
   x$discharge <- .fill_na(x$discharge, max.len = approx.missing)
 
+  if (accuracy > 0)
+  {
+    nthres <- sum(abs(x$discharge - accuracy) < sqrt(.Machine$double.eps),
+                  na.rm = TRUE)
+    txt <- paste0("observations equal to the measurement accuracy of '",
+                  accuracy, "'")
+    .msg_ratio(nthres, total, txt)
+
+    txt <- paste0("observations below the measurement accuracy of '",
+                  accuracy, "'")
+    .msg_ratio(sum(x$discharge < accuracy, na.rm = TRUE), total, txt)
+  }
+
+  nzero <- sum(abs(x$discharge) < sqrt(.Machine$double.eps), na.rm = TRUE)
+  txt <- paste0("observations numerically equal to zero")
+  .msg_ratio(nzero, total, txt)
+
+  txt <- paste0("observations with a negative discharge. Setting them to NA.")
+  negative <- which(x$discharge < 0)
+  .msg_ratio(length(negative), total, txt)
+  x$discharge[negative] <- NA
+
   # todo: allow a certain fraction of  missing observations eg na.ratio = 0.2
   .msg_ratio(sum(is.na(x$discharge)), total, text = "missing observations")
 
-  nthres <- sum(abs(x$discharge - accuracy) < sqrt(.Machine$double.eps),
-                na.rm = TRUE)
-  txt <- paste0("observations equal to the measurement accuracy of '", accuracy, "'")
-  .msg_ratio(nthres, total, txt)
-
-  txt <- paste0("observations below the measurement accuracy of '", accuracy, "'")
-  .msg_ratio(sum(x$discharge < accuracy, na.rm = TRUE), total, txt)
-
   # todo: requirements regarding length of record?
+  len <- round(as.numeric(diff(range(x$time)), unit = "days") / 365, 1)
+  if(len < minyear)
+  {
+    message("Time series covers only ", len, " years. A minimum length of ",
+            minyear, " years is advised.")
+  }
 
   return(x)
 }
