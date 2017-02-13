@@ -11,10 +11,10 @@ is.intermittent <- function(x, ndays = 5, nyears = 1,
 
   intermittent <-  if (any(consecutive == "none"))
     {
-    sum(e$duration[e$state == "dry"], na.rm = TRUE) > ndays
+    sum(e$duration, na.rm = TRUE) > ndays & length(unique(spell$period)) >= nyears
   } else if(all(consecutive == "days"))
   {
-    nrow(spell) >= 1
+    length(unique(spell$period)) >= nyears
   } else if(all(consecutive == "years"))
   {
     rl <- rle(diff(as.numeric(as.character(unique(e$period)))))

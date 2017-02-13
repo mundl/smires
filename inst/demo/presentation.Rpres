@@ -39,7 +39,7 @@ Starting with streamflow discharge, new variables can be derived in step 2 and 3
  - or show its distribution
 
 
-1. The package smires
+The package smires
 ========================================================
 
 Install the current development version (``r packageVersion("smires")``) of smires from [github](https://github.com/mundl/smires).
@@ -63,6 +63,34 @@ The time series are objects of class `tibble` which are similar to `data.frames`
 balder
 ```
 
+
+
+Determing Intermittency
+========================================================
+left: 55%
+
+```{r, echo=FALSE}
+x <- ampneyBrook
+```
+
+
+Default: 1 l/s, 5 days, 1 year (not necessarily consecutive)
+```{r, message=TRUE}
+is.intermittent(x, threshold = 0.001)
+is.intermittent(x, nyear = 6)
+is.intermittent(x, nyear = 7)
+is.intermittent(x, ny = 2, cons = "year")
+is.intermittent(x, ny = 3, cons = "year")
+```
+
+***
+
+```{r, echo=FALSE, fig.height = 5, fig.width = 5, out.width="980px", out.height="815px", dpi=300}
+plot_events(find_events(ampneyBrook, period = "year", threshold = 0.001),
+            label = FALSE) +
+  theme(legend.position = "none")
+```
+
 1. Preprocessing
 ========================================================
 
@@ -76,7 +104,7 @@ balder$discharge[c(1, 100:102, 200)] <- NA
 
 
 ```{r, message=TRUE}
-discharge <- check_ts(balder, accuracy = 0.05, )
+discharge <- check_ts(balder, accuracy = 0.05)
 ```
 
 
@@ -94,7 +122,7 @@ events
 Each period (in our example: years) can contain zero or more events. There can be periods with zero duration, e.g. if a year is wet 365 days, the dry period has a duration of zero days.
 
 ```{r,  fig.height = 3, fig.width = 10, out.width="1960px", out.height="490px", dpi=300}
-plot_events(events, label = TRUE)
+plot_events(events)
 ```
 
 
@@ -157,17 +185,28 @@ metric <- metricP %>% group_by(state) %>%
 metric
 ```
 
-E.g. the mean maximum yearly duration of dry states at Balderhead Reservoir is ``r round(filter(metric, state == "dry")$mean, 1)`` days. But we only condidered 4.3 years of records...
+E.g. the mean annual maximum duration (correct?) of dry states at Balderhead Reservoir is ``r round(filter(metric, state == "dry")$mean, 1)`` days. But we only condidered 4.3 years of records...
 
 Workflow
 ========================================================
 
-| Step                   | what varies  |  example   |
-|:------------------------------|:----------|:----------|
-| 1. preprocessing   | functions   | `check_ts(balder, approx.missing = 3)`
-| 2. event detection   | threshold, functions (defining new variables)   | `find_events(discharge, period = "year", threshold = 0.05)` |
-| 3. metrics per periods | periods, variables, aggregation functions (new vars)   | `events %>% summarise_at(vars(duration), funs(max))` |
-| 4. metric per station  | vars, aggregation functions   | ` metricP %>% group_by(state) %>%   summarise_at(vars(max), funs(mean))` |
+|    | Operation                   | What Varies  | Dimension |  after Operation  | Pseudocode   |
+|:---|:--|:---|:--|:----|:--|
+| 1. | preprocessing   | functions   | 2 | time, discharge   | ` x <- check_ts(...)` |
+| 2. | assign periods   | period   | 3 | time, period, discharge | `xx <- per(e, period)` |
+| 3. | event detection   | threshold, *n* functions (defining *n* new vars)   | *n* + 2 | event, period,  *n* vars   | `e <- find_events(xx, threshold)` |
+| 4. | metrics per periods | *m* aggregation functions  | *n* * *m* + 1 | period, *n* * *m* vars  | `p <- summarise(e, period, funs)` |
+| 5. | metric per station  | *o* aggregation functions   |*n* * *m* * *o* | *n* * *m* * *o* vars | `summarise(p, funs)` |
+
+
+
+In steps 4 and 5 basically the same operation is carried out to reduce a dimension: the same function can be used.
+
+Step 3 is optional (*n* = 1), e.g. for low flow statistics like *MAM7* no events are required.
+
+Thinking about the dimensions revealed, that I designed the `find_event()` function poorly. Assigning the periods should happen before step 3.
+
+Most of the time *n*, *m* and *o* = 1 resulting in a single final metric.
 
 
 
@@ -211,4 +250,11 @@ identical(lfstat, smires$discharge[1])
 
 4. Outlook
 ========================================================
- - define requirements for every metric: length of record, max number of missing values
+ 1.  **Define requirements** for every metric: length of record, max number of missing values
+ 2. Start **implementing all suggested metrics**.
+ 3. Include **data submitted** by countries. Can we include it in the package? If not, distribute as rda-object which can easily be loaded.
+ 4. **Report** every suggested metric for every submitted time series.
+ 5. Wrapping the whole workflow into a single **wrapper function**. Difficult because current code heavily depends on non-standard evaluation.
+ 6. Work on **naming** and wording (dry/wet?). Help! : )
+ 7. **Unit tests**: test functions against trusted results. Can we outsource this task?
+ 8. As soon as the implementation is almost complete, induce **object orientation** and export methods. Also start working on the documentation.
