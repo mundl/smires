@@ -5,7 +5,7 @@ is.intermittent <- function(x, ndays = 5, consecutive = TRUE, threshold = 0.001,
 
   e <- find_events(x, threshold = threshold, na.rm = FALSE, period = period,
                    warn = FALSE)
-  e <- e[e$state == "dry" & !is.na(e$event), ]
+  e <- e[e$state == "no-flow" & !is.na(e$event), ]
 
   days <- if(consecutive)
   {

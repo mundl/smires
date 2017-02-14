@@ -22,9 +22,9 @@
         tibble(start = start, end = end, duration = dur))
 }
 
-.label_dry_events <- function(x)
+.label_noflow_events <- function(x)
 {
-  x <- filter(x, state == "dry" & duration >= 7)
+  x <- filter(x, state == "no-flow" & duration >= 7)
   x <- summarize(x, x = (start + end)/2, y = year, label = event)
 
   return(x)
@@ -72,7 +72,7 @@ plot_events <- function(x, size = 5, label = TRUE)
 
   if(label)
   {
-    labels <- .label_dry_events(x)
+    labels <- .label_noflow_events(x)
 
     p <- p + geom_text(data = labels,
                        mapping = aes(x = x, y = y, label = label),

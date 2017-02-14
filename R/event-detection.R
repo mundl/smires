@@ -1,19 +1,19 @@
 find_events <- function(x, threshold = 0.001, na.rm = TRUE, warn = TRUE)
 {
   x %>%
-    detect_dry_events(threshold = threshold) %>%
+    detect_noflow_events(threshold = threshold) %>%
     add_eventvars(warn = warn) %>%
     arrange(event) # sort by event
 }
 
-detect_dry_events <- function(x, threshold = 0.1)
+detect_noflow_events <- function(x, threshold = 0.1)
 {
   if(is.null(threshold))
   {
     x$event <- seq_len(nrow(x))
   } else {
-    x$state <- ifelse(x$discharge <= threshold, "dry", "wet")
-    x$state <- factor(x$state, levels = c("dry", "wet"))
+    x$state <- ifelse(x$discharge <= threshold, "no-flow", "flow")
+    x$state <- factor(x$state, levels = c("no-flow", "flow"))
     x <- mutate(x, event = .event(x$state))
   }
   attr(x, "threshold") <- threshold

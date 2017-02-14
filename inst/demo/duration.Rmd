@@ -17,10 +17,10 @@ data(package = "smires")$results[, "Item"]
 ```
 
 
-When calculating metrics regarding the duration of intermittency, a ternary time series (dry, wet, `NA`) can be derived.  The binary series is added as a column named `state`. 
+When calculating metrics regarding the duration of intermittency, a ternary time series (`no-flow`, `flow`, `NA`) can be derived.  The binary series is added as a column named `state`. 
 
 ```{r}
-b <- detect_dry_events(balder)
+b <- detect_noflow_events(balder)
 head(b)
 ```
 
@@ -28,7 +28,7 @@ head(b)
 # Metrics for grouped time series
 ```{r}
 events <- balder %>% 
-  detect_dry_events() %>% 
+  detect_noflow_events() %>% 
   per(period = "year") %>% 
   duration()
 
@@ -37,7 +37,7 @@ print(events)
 
 
 ```{r, eval=FALSE}
-events <- duration(per(dry_events(balder), period = "year"))
+events <- duration(per(detect_noflow_events(balder), period = "year"))
 ```
 
 
