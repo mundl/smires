@@ -14,3 +14,10 @@
   return(txt)
 }
 
+.factor_fullseq <- function(x, prefix = "", ordered = TRUE)
+{
+  fseq <- full_seq(x, 1)
+
+  factor(x, levels = fseq, labels = paste0(prefix, fseq), ordered = ordered)
+}
+

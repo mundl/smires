@@ -1,3 +1,82 @@
+assign_period <- function(x, interval = NULL, include.year = TRUE, start = 1,
+                          span = FALSE)
+{
+  if(include.year){
+    int <- .year_interval(x$time, start = start)
+    if(span) x$year.span <- int
+    y <- year(int_start(int))
+    x$year <-factor(y, levels = full_seq(y, 1), ordered = TRUE)
+  }
+
+  if(!is.null(interval)){
+    int <- .subyearly_interval(x$time, interval = interval)
+    if(span) x$interval.span <- int$interval
+    x$interval <- int$label
+    x$chunk <- as.numeric(as.factor(int$interval))
+  }
+
+  return(x)
+}
+
+.subyearly_interval <- function(x, interval, as.interval = TRUE, prefix = TRUE)
+{
+  choices = c("weeks", "months", "quarters")
+  if(is.character(interval)) {
+    interval <- match.arg(interval, choices = choices)
+
+    label <- switch(interval,
+           weeks = .factor_fullseq(as.numeric(format(x, "%U")),
+                                   prefix = if(prefix) "w" else ""),
+           months = month(x, label = prefix),
+           quarters = .factor_fullseq(quarter(x),
+                                      prefix = if(prefix) "q" else ""))
+
+    start <- floor_date(x, unit = interval)
+    if(as.interval) start <- as.interval(period(1, units = interval), start)
+  } else if(is.numeric(interval) || is.instant(interval)) {
+
+    # todo: numeric or date -> season
+
+    warning("Seasons are not yet supported. ")
+    return()
+  } else {
+    stop("Argument `interval` must be either a date, an integer inside [1, 365]",
+         " or one in: ", collapse(sQuote(choices), ", "))
+  }
+
+  return(list(interval = start, label = label))
+}
+
+
+.year_interval <- function(x, start = 1, as.interval = TRUE)
+{
+  if (is.instant(start)) {
+    start <- as.numeric(format(as.Date(start), "%Y"))
+  }
+
+  if(!is.numeric(start) || start < 1 || start > 365) {
+    stop("Argument `start` must be either date or an integer inside [1, 365]. ")
+  }
+
+  # make sure the sequence of year cover whole time series even when start > 1
+  rangeY <- rangeTs <- range(x)
+  yday(rangeY) <- start
+  idx <- rangeTs < rangeY
+  rangeY[idx] <- rangeY[idx] - years(1)
+
+  # bresks to cut.POSIX() must also include the enpoint of last interval
+  startY <- seq(rangeY[1], rangeY[2] + years(), "years")
+  year <- cut(x, startY, include.lowest = T, right = F, ordered_result = T)
+
+  if(as.interval) {
+    lvls <- as.interval(years(), as.Date(levels(year)))
+    year <- lvls[as.numeric(year)]
+  }
+
+  return(year)
+}
+
+
 per <- function(x, period, na.rm = TRUE)
 {
   # manually add events of length  0
