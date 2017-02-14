@@ -1,6 +1,9 @@
-# Grouping per period (year, month, season) ----
 per <- function(x, period, na.rm = TRUE)
 {
+  # manually add events of length  0
+  # complete also completes grouping variables, regroup
+
+
   if(is.null(period))
   {
     x$period <- "whole ts"
@@ -98,48 +101,6 @@ print.multiperiod <- function(x, ...)
   }
 }
 
-# Detect events ----
-dry_events <- function(x, threshold = 0.1)
-{
-  if(is.null(threshold))
-  {
-    x$event <- seq_len(nrow(x))
-  } else {
-    x$state <- ifelse(x$discharge <= threshold, "dry", "wet")
-    x$state <- factor(x$state, levels = c("dry", "wet"))
-    x <- .find_events(x)
-  }
-  attr(x, "threshold") <- threshold
-
-  return(x)
-}
-
-# .replace_na <- function(x, na = c("wet", "dry"))
-# {
-#   na <- match.arg(na)
-#
-#   # when calculating durations, NAs can be assumed to be
-#   # no flow periods or flow periods
-#   x$discharge[is.na(x$discharge)] <- if(na == "flow") Inf else 0
-#
-#   return(x)
-# }
-
-.nplural <- function(n, msg, suffix = "s") {
-  msg <- paste(n, msg)
-  ngettext(n, msg, paste0(msg, suffix))
-}
-
-
-.nmax <- function(x, nmax = 6, suffix = ", ...", collapse = ", ")
-{
-  txt <- paste(head(x, nmax), collapse = collapse)
-  if(length(x) > nmax) txt <- paste0(txt, suffix)
-
-  return(txt)
-}
-
-
 remove_na_periods <- function(x, col = "discharge")
 {
   if(x[1, "period"] == "whole ts" && any(is.na(x$discharge)))
@@ -162,43 +123,4 @@ remove_na_periods <- function(x, col = "discharge")
   }
 
   return(x)
-}
-
-.find_events <- function(x)
-{
-  # operates on the data.frame
-  stopifnot(all(x$state %in% c("wet", "dry", NA)))
-  mutate(x, event = .event(x$state))
-}
-
-.event <- function(x, new.group.na = TRUE, as.factor = TRUE)
-{
-  # copied from lfstat group()
-  # operates just on the grouping variable
-
-  x <- as.numeric(as.factor(x))
-
-  if(!new.group.na) {
-    s <- seq_along(x)
-    finite <- !is.na(x)
-    x <- approx(s[finite], x[finite], xout = s, f = 0,
-                method = "constant", rule = c(1, 2))$y
-  } else {
-    # treat NAs as a group of its own
-    # there isn't yet a level zero, therefore NAs can become zeros
-    x[is.na(x)] <- 0
-  }
-
-  inc <- diff(x)
-  if (new.group.na) inc[is.na(inc)] <- Inf
-
-  grp <- c(0, cumsum(inc != 0))
-
-  if(grp[1] == 0) grp <- grp + 1
-
-  if(as.factor) {
-    return(factor(grp))
-  } else {
-    return(grp)
-  }
 }
