@@ -1,15 +1,17 @@
 assign_period <- function(x, interval = NULL, include.year = TRUE, start = 1,
                           span = FALSE)
 {
+  time <- if("event" %in% colnames(x)) x$start else x$time
+
   if(include.year){
-    int <- .year_interval(x$time, start = start)
+    int <- .year_interval(time, start = start)
     if(span) x$year.span <- int
     y <- year(int_start(int))
-    x$year <-factor(y, levels = full_seq(y, 1), ordered = TRUE)
+    x$year <- factor(y, levels = full_seq(y, 1), ordered = TRUE)
   }
 
   if(!is.null(interval)){
-    int <- .subyearly_interval(x$time, interval = interval)
+    int <- .subyearly_interval(time, interval = interval)
     if(span) x$interval.span <- int$interval
     x$interval <- int$label
     x$chunk <- as.numeric(as.factor(int$interval))
@@ -51,7 +53,7 @@ assign_period <- function(x, interval = NULL, include.year = TRUE, start = 1,
 .year_interval <- function(x, start = 1, as.interval = TRUE)
 {
   if (is.instant(start)) {
-    start <- as.numeric(format(as.Date(start), "%Y"))
+    start <- as.numeric(format(as.Date(start), "%j"))
   }
 
   if(!is.numeric(start) || start < 1 || start > 365) {
@@ -61,12 +63,19 @@ assign_period <- function(x, interval = NULL, include.year = TRUE, start = 1,
   # make sure the sequence of year cover whole time series even when start > 1
   rangeY <- rangeTs <- range(x)
   yday(rangeY) <- start
-  idx <- rangeTs < rangeY
-  rangeY[idx] <- rangeY[idx] - years(1)
 
-  # bresks to cut.POSIX() must also include the enpoint of last interval
-  startY <- seq(rangeY[1], rangeY[2] + years(), "years")
+  # if 'start' (start of hyd year) > start of ts, we also need the previous year
+  if(rangeTs[1] < rangeY[1]) rangeY[1] <- rangeY[1] - years(1)
+
+  # if 'start' (start of hyd year) > start of ts, we also need the previous year
+  if(rangeY[2] > rangeTs[2]) rangeY[2] <- rangeY[2] - years(1)
+
+  # breaks to cut.POSIX() must also include the enpoint of last interval
+  # adding 2 years, this is a bad hack... ;)
+  startY <- seq(rangeY[1], rangeY[2] + years(2), "years")
   year <- cut(x, startY, include.lowest = T, right = F, ordered_result = T)
+
+  if(any(is.na(year))) stop("Introduced NAs when attributing year.")
 
   if(as.interval) {
     lvls <- as.interval(years(), as.Date(levels(year)))

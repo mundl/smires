@@ -25,7 +25,8 @@
 .label_noflow_events <- function(x)
 {
   x <- filter(x, state == "no-flow" & duration >= 7)
-  x <- summarize(x, x = (start + end)/2, y = year, label = event)
+  x <- summarize(group_by(x, start),
+                 x = (start + end)/2, y = year, label = event)
 
   return(x)
 }
@@ -37,7 +38,7 @@ plot_events <- function(x, size = 5, label = TRUE)
 
   # nothing to plot for 0day events
   x <- filter(x, duration > 0)
-  x <- x %>% group_by(event, period, pid) %>% do(.split_multiyear(.))
+  x <- x %>% group_by(event) %>% do(.split_multiyear(.))
 
   .day <- function(x) as.numeric(format(x, "%j"))
 

@@ -1,8 +1,18 @@
 library(smires)
 
+e <- find_events(balder, threshold = 0.05)
+plot_events(e)
+
+p <- assign_period(e)
+p <- assign_period(e, interval = "month")
+p <- assign_period(e, interval = "month", start = 100)
+p <- assign_period(e, interval = "month", start = as.Date("2015-04-28"))
+p <- assign_period(e, interval = "month", include.year = FALSE)
+p <- assign_period(e, interval = "month", span = T)
 
 
-find_events(balder, threshold = 0.05) %>%
+
+
   summarise_at(vars(duration), funs(max)) %>%
   group_by(state) %>%
   summarise_at(vars(-period, -state), funs(mean))
