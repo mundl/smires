@@ -1,5 +1,13 @@
 # repeatedly oberserving a low value?
 
+# extract dt
+.dt <- function(x) {
+  dt <- attr(x, "dt")
+  if(is.null(dt)) dt <- median(diff(x$time))
+
+  return(as.period(dt))
+}
+
 .guess_deltat <- function(x)
 {
   dt <- diff(x)
@@ -92,9 +100,6 @@ check_ts <- function(x, minyear = 10, approx.missing = 5, accuracy = 0)
   x <- x[order(x$time), ]
 
   dt <- .guess_deltat(x$time)
-  #todo: is this really needed? should be identical to median(diff(x$time))
-  #attr(x, "dt") <- dt
-
 
   total <- nrow(x)
   .msg_ratio(sum(duplicated(x$time)), total, text = "duplicated indices")
@@ -102,6 +107,7 @@ check_ts <- function(x, minyear = 10, approx.missing = 5, accuracy = 0)
   .msg_ratio(.missing_indices(x$time), total,
              text = "missing indices, it is not regular")
 
+  # todo: dt should be of class 'duration'
   x <- .make_ts_regular(x, interval = dt)
   total <- nrow(x)
   x$discharge <- .fill_na(x$discharge, max.len = approx.missing)
@@ -139,5 +145,6 @@ check_ts <- function(x, minyear = 10, approx.missing = 5, accuracy = 0)
             minyear, " years is advised.")
   }
 
+  attr(x, "dt") <- as.period(1, dt)
   return(x)
 }

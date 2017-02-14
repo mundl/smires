@@ -12,11 +12,16 @@ detect_noflow_events <- function(x, threshold = 0.1)
   {
     x$event <- seq_len(nrow(x))
   } else {
+    dt <- attr(x, "dt")
+
     x$state <- ifelse(x$discharge <= threshold, "no-flow", "flow")
     x$state <- factor(x$state, levels = c("no-flow", "flow"))
     x <- mutate(x, event = .event(x$state))
+
+    attr(x, "threshold") <- threshold
+    attr(x, "dt") <- dt
   }
-  attr(x, "threshold") <- threshold
+
 
   return(x)
 }
@@ -25,14 +30,16 @@ add_eventvars <- function(x, warn = TRUE)
 {
   # mutate() drops attributes...
   threshold <- attr(x, "threshold")
+  dt <- attr(x, "dt")
 
   # use mutate to keep class difftime
   res <- x %>%
     group_by(event, state) %>%
-    do(summarize(., start = min(time), end = max(time))) %>%
+    do(summarize(., start = min(time), end = max(time) + dt)) %>%
     mutate(duration = end - start)
 
   attr(res, "threshold") <- threshold
+  attr(res, "dt") <- dt
   return(res)
 }
 
