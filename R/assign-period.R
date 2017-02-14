@@ -8,6 +8,8 @@ assign_period <- function(x, interval = NULL, include.year = TRUE, start = 1,
     if(span) x$year.span <- int
     y <- year(int_start(int))
     x$year <- factor(y, levels = full_seq(y, 1), ordered = TRUE)
+
+    attr(x, "interval")$year <- unique(int)
   }
 
   if(!is.null(interval)){
@@ -15,7 +17,12 @@ assign_period <- function(x, interval = NULL, include.year = TRUE, start = 1,
     if(span) x$interval.span <- int$interval
     x$interval <- int$label
     x$chunk <- as.numeric(as.factor(int$interval))
+
+
+    attr(x, "interval")$chunk <- unique(int$interval)
   }
+
+  # todo: check if intervals and years align
 
   return(x)
 }
@@ -152,6 +159,7 @@ start_season <- function(x)
   return(day)
 }
 
+# todo: multiperiod stuff doesn't work anymore
 multiperiod <- function(x, verbose = FALSE)
 {
   span <- tapply(x$period, x$event, function(x) length(unique(x)))

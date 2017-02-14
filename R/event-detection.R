@@ -44,12 +44,45 @@ add_eventvars <- function(x, warn = TRUE)
 }
 
 
-split_event <- function(x, rule = c("duplicate", "start", "end", "majority"))
+split_events <- function(x, at = c("year", "chunk"),
+                         rule = c("cut", "duplicate", "start", "end", "majority"))
 {
+  at <- match.arg(at)
   rule <- match.arg(rule)
-  warning("Splitting events is currently not supported.")
+  if(rule != "cut") warning("When splitting events, currently only method = 'cut' is supported.")
+
+  int <- attr(x, "interval")[[at]]
+
+  # actually, no grouping would be necessary...
+  x <- group_by(x, event) %>% do(.split_event(., int = int))
 
   return(x)
+}
+
+.split_event <- function(x, int)
+{
+  if(!is.interval(int))
+    stop("Argument 'interval' must be of class interval.")
+
+  if(nrow(x) > 1) {
+    cat("should just have one row... :-(")
+    browser()
+  }
+
+  event <- interval(x$start, x$end)
+  int <- int[int_overlaps(int, event)]
+
+  if(length(int) == 1) return(x)
+
+  int_start(int[1]) <- x$start
+  int_end(int[length(int)]) <- x$end
+
+  dur <- as.numeric(int, unit = "days")
+
+  merge(select(x, -start, -end, -duration),
+        tibble(start = as.Date(int_start(int)),
+               end = as.Date(int_end(int)),
+               duration = as.difftime(dur, units = "days")))
 }
 
 

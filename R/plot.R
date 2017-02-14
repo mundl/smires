@@ -1,27 +1,3 @@
-.split_multiyear <- function(x)
-{
-  if(nrow(x) > 1) {
-    cat("should just have one row... :-(")
-    browser()
-  }
-
-  # end -1 because events could and exactly on Jan 1st
-  start <- x$start[1]
-  end <- x$end[1] - 1
-
-  if(year(start) == year(end)) return(x)
-
-  ep <- rev(seq(floor_date(end, unit = "year"), start, by = "-1 year") - 1)
-  ep <- c(ep, end) + 1
-
-  start <- c(start, head(ep, -1))
-  end <- ep
-  dur <- end - start
-
-  merge(select(x, -start, -end, -duration),
-        tibble(start = start, end = end, duration = dur))
-}
-
 .label_noflow_events <- function(x)
 {
   x <- filter(x, state == "no-flow" & duration >= 7)
@@ -37,8 +13,9 @@ plot_events <- function(x, size = 5, label = TRUE)
   threshold <- attr(x, "threshold")
 
   # nothing to plot for 0day events
-  x <- filter(x, duration > 0)
-  x <- x %>% group_by(event) %>% do(.split_multiyear(.))
+  #
+  x <- filter(x, duration > 0) %>%
+    split_events(at = "year", rule = "cut")
 
   .day <- function(x) as.numeric(format(x, "%j"))
 
