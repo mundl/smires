@@ -1,9 +1,11 @@
 assign_period <- function(x, interval = NULL, include.year = TRUE, start = 1,
                           span = FALSE)
 {
+  start <- .date2julian(start)
+
   if("event" %in% colnames(x)) {
     time <-   x$start
-    last <- x$end[nrow(x)]
+    last <- x$end[nrow(x)] - 1
   } else
   {
     time <- x$time
@@ -22,21 +24,27 @@ assign_period <- function(x, interval = NULL, include.year = TRUE, start = 1,
   }
 
   if(!is.null(interval)){
-    int <- .subyearly_interval(time, interval = interval)
+    if(any(mday(int_start(allyears)) != 1))
+      stop("When using subyearly intervals, all years have to start on the",
+           "first day of a month.")
+
+    int <- .subyearly_interval(time, interval = interval, last = last)
+    allchunks <- attr(int, "levels")
     if(span) x$interval.span <- int$interval
     x$interval <- int$label
-    x$chunk <- as.numeric(as.factor(int$interval))
 
-    # todo: do not use unique() carry on from attributes
-    attr(x, "interval")$chunk <- unique(int$interval)
+    # match doesn't work on intervals
+    x$chunk <- match(int_start(int$interval), int_start(allchunks))
+
+    attr(x, "interval")$chunk <- allchunks
   }
 
-  # todo: check if intervals and years align
+  # todo: reorder factor when start != 1
 
   return(x)
 }
 
-.subyearly_interval <- function(x, interval, as.interval = TRUE, prefix = TRUE)
+.subyearly_interval <- function(x, interval, last = max(x), as.interval = TRUE, prefix = TRUE)
 {
   choices = c("weeks", "months", "quarters")
   if(is.character(interval)) {
@@ -50,6 +58,7 @@ assign_period <- function(x, interval = NULL, include.year = TRUE, start = 1,
                                                prefix = if(prefix) "q" else ""))
 
     start <- floor_date(x, unit = interval)
+    # todo period(units = "quarters") doesnt work
     if(as.interval) start <- as.interval(period(1, units = interval), start)
   } else if(is.numeric(interval) || is.instant(interval)) {
 
@@ -62,19 +71,17 @@ assign_period <- function(x, interval = NULL, include.year = TRUE, start = 1,
          " or one in: ", paste(sQuote(choices), collapse = ", "))
   }
 
-  return(list(interval = start, label = label))
+  y <- list(interval = start, label = label)
+  lvls <- seq(from = x[1], to = last, by = interval)
+  attr(y, "levels") <- as.interval(period(1, units = interval), lvls)
+
+  return(y)
 }
 
 
 .year_interval <- function(x, start = 1, last = max(x))
 {
-  if (is.instant(start)) {
-    start <- as.numeric(format(as.Date(start), "%j"))
-  }
-
-  if(!is.numeric(start) || start < 1 || start > 365) {
-    stop("Argument `start` must be either date or an integer inside [1, 365]. ")
-  }
+  start <- .date2julian(start)
 
   # make sure the sequence of year cover whole time series even when start > 1
   rangeY <- rangeTs <- c(min(x), last)
@@ -98,7 +105,6 @@ assign_period <- function(x, interval = NULL, include.year = TRUE, start = 1,
 
   if(any(is.na(year))) stop("Introduced NAs when attributing year.")
 
-  # todo: one year to much...
   lvls <- as.interval(years(), as.Date(levels(year)))
   year <- lvls[as.numeric(year)]
   attr(year, "levels") <- lvls
@@ -151,9 +157,6 @@ assign_period <- function(x, interval = NULL, include.year = TRUE, start = 1,
 #   if(na.rm) x <- remove_na_periods(x)
 #
 #   return(x)
-# }
-
-# todo: possible duplicated functionality in .year_interval()
 start_season <- function(x)
 {
   n <- names(x)
@@ -168,7 +171,7 @@ start_season <- function(x)
     warning("Seasons should have meaningful, unambiguous names.")
   }
 
-  day <- as.numeric(format(as.Date(x), "%j"))
+  day <- .date2julian(x)
   names(day) <- n
 
   return(day)
@@ -212,33 +215,20 @@ print.multiperiod <- function(x, ...)
   }
 }
 
-# todo: duplicated
-# remove_na_periods <- function(x, col = "discharge")
-# {
-#   if(x[1, "period"] == "whole ts" && any(is.na(x$discharge)))
-#   {
-#     stop("Can't calculate events for the whole time series because ",
-#          "discharges contain missing values. Try to group per 'year' or ",
-#          "'month'. E.g. `period = 'month'`")
-#     return(x[, ])
-#   }
-#
-#   miss <- unique(x$pid[is.na(x[, col])])
-#   n <- length(miss)
-#
-#   if(n)
-#   {
-#     x <- filter(x, !pid %in% miss)
-#
-#     message("Removing ", .nplural(n, "period"),
-#             " containing missing data. pid: ", .nmax(miss))
-#   }
-#
-#   return(x)
-# }
-
 drop_na_periods <- function(x, ..., col = "state") {
-  group_by(x, ...) %>% do(.drop_na_period(., col = col))
+  e <- sort(unique(x$event))
+  x <- group_by(x, ...) %>% do(.drop_na_period(., col = col))
+  rm <- setdiff(e, sort(unique(x$event)))
+
+  if(length(rm))
+    message("Removing ", .nplural(length(rm), "event"),
+            " containing missing data. Event: ", .nmax(rm))
+
+  if(nrow(x) == 0)
+    warning("No records remaining after removing chunks with ",
+            "missing values in the specified columns. ",
+            "Try using a shorter periods, e.g. 'months'.")
+  return(x)
 }
 
 .drop_na_period <- function(x, col = "state") {

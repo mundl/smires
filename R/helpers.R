@@ -21,3 +21,16 @@
   factor(x, levels = fseq, labels = paste0(prefix, fseq), ordered = ordered)
 }
 
+
+.date2julian <- function(x)
+{
+  if (is.instant(x)) {
+    x <- as.numeric(format(as.Date(x), "%j"))
+  }
+
+  if(!is.numeric(x) || x < 1 || x > 365) {
+    stop("Argument `x` must be either date or an integer inside [1, 365]. ")
+  }
+
+  return(x)
+}

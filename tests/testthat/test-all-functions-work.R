@@ -6,11 +6,16 @@ test_that("quick & dirty check if functions run", {
   expect_silent(e <- find_events(balder))
 
   expect_silent(p <- assign_period(e))
+  expect_silent(p <- assign_period(e, interval = "month"))
+  expect_silent(p <- assign_period(e, interval = "week"))
+  #expect_silent(p <- assign_period(e, interval = "quarter"))
+  expect_silent(p <- assign_period(e))
   expect_silent(s <- split_events(p))
-  expect_silent(s <- drop_na_periods(s, year))
+  expect_silent(suppressMessages(s <- drop_na_periods(s, year)))
 
-  season <- c("summer" = as.Date("2015-03-01"), "winter" =  as.Date("2015-09-01"))
+  season <- c("summer" = as.Date("2015-03-01"), "winter" = as.Date("2015-09-01"))
   expect_silent(start_season(x = season))
+  expect_silent(start_season(x = c("summer" = 60, "winter" = 244)))
 
   expect_silent(plot_events(e))
 

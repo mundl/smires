@@ -1,7 +1,7 @@
 context("Internal Presentation CEH")
 
 test_that("Mean annual maximum Duration for Balder", {
-  meanMaxDur <- balder %>% find_events( threshold = 0.001) %>%
+  meanMaxDur <- balder %>% find_events(threshold = 0.001) %>%
     assign_period() %>%
     split_events(at = "year") %>%
     drop_na_periods(year) %>%

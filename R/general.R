@@ -1,5 +1,4 @@
 is.intermittent <- function(x, ndays = 5, consecutive = TRUE, threshold = 0.001)
-  # todo: find_event() must support water year.
 {
 
   e <- find_events(x, threshold = threshold, na.rm = FALSE, warn = FALSE)

@@ -1,9 +1,9 @@
 library(smires)
 
-e <- find_events(balder, threshold = 0.001)
+e <- find_events(ampneyBrook, threshold = 0.001)
 plot_events(e)
 
-#p <- assign_period(e, interval = "month")
+p <- assign_period(e, interval = "month")
 
 plot_events(p)
 
