@@ -9,11 +9,14 @@
 
 plot_events <- function(x, size = 5, label = TRUE)
 {
-  require(ggplot2)
+  requireNamespace("ggplot2")
   threshold <- attr(x, "threshold")
 
   # nothing to plot for 0day events
   #
+  # make sure events are split by year
+  if(is.null(attr(x, "intervall"))) x <- assign_period(x)
+
   x <- filter(x, duration > 0) %>%
     split_events(at = "year", rule = "cut")
 
@@ -63,13 +66,14 @@ plot_events <- function(x, size = 5, label = TRUE)
 
 
 plot_period <- function(x, type = c("ts", "distribution"))
-  # maximum is hardcoded
+  # todo: duration is hardcoded
 {
   type <- match.arg(type)
 
+  if(!"duration" %in% colnames(x)) stop("There is no column called 'duration'. Hardcoded... :(")
   if(type == "distribution")
   {
-   p <- ggplot(x, aes(max)) + geom_density(trim = TRUE) + facet_wrap(~ state) +
+   p <- ggplot(x, aes(duration)) + geom_density(trim = TRUE) + facet_wrap(~ state) +
       scale_x_continuous() + geom_rug() +
       labs(x = "Maximum Duration per Period (days)", title = "Distribution of Events")
   }
@@ -77,9 +81,9 @@ plot_period <- function(x, type = c("ts", "distribution"))
   if(type == "ts")
   {
     x <-  ungroup(x) %>%
-      complete(period, state)
+      complete(year, state)
 
-    p <- ggplot(x, aes(period, max, col = state, group = state)) +
+    p <- ggplot(x, aes(year, duration, col = state, group = state)) +
       geom_point() + geom_line() +
       expand_limits(y = 0) +
       scale_y_continuous() +

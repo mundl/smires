@@ -1,22 +1,23 @@
 library(smires)
 
-e <- find_events(balder, threshold = 0.05)
+e <- find_events(balder, threshold = 0.001)
 plot_events(e)
 
-p <- assign_period(e)
-p <- assign_period(e, interval = "month")
+#p <- assign_period(e, interval = "month")
 
 plot_events(p)
 
-p <- assign_period(e, interval = "month", start = 100)
-p <- assign_period(e, interval = "month", start = as.Date("2015-04-28"))
-p <- assign_period(e, interval = "month", include.year = FALSE)
-p <- assign_period(e, interval = "month", span = T)
+# p <- assign_period(e, interval = "month", start = 100)
+# p <- assign_period(e, interval = "month", start = as.Date("2015-04-28"))
+# p <- assign_period(e, interval = "month", include.year = FALSE)
+# p <- assign_period(e, interval = "month", span = T)
 
-s <- split_events(p, at = "chunk")
+s <- split_events(assign_period(e), at = "year")
 
-s %>% group_by(year, state) %>%
-  summarise_at(vars(duration), funs(max)) %>%
+p <- s %>% drop_na_periods(year) %>% group_by(year, state) %>%
+  summarise_at(vars(duration), funs(max))
+
+p %>%
   group_by(state) %>%
   summarise_at(vars(duration), funs(mean))
 

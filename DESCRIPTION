@@ -1,14 +1,14 @@
 Package: smires
 Type: Package
 Title: Science and Management of Intermittent Rivers and Ephemeral Streams
-Version: 0.3.0
+Version: 0.4.0
 Author: Tobias Gauster 
 Maintainer: Tobias Gauster <t.gauster@boku.ac.at>
 BugReports: https://github.com/mundl/smires/issues
-Description: Science and Management of Intermittent Rivers and Ephemeral Streams
+Description: SMIRES is a COST Action addressing the Science and Management of Intermittent Rivers & Ephemeral Streams. SMIRES brings together more than 200 hydrologists, biogeochemists, ecologists, modellers, environmental economists, social researchers and stakeholders from 31 different countries to develop a research network for synthesising the fragmented, recent knowledge on IRES, improving our understanding of IRES and translating this into a science-based, sustainable management of river networks.
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
-Depends: dplyr, lubridate
-Imports: tidyr, tibble
-Suggests: testthat, ggplot2
+Depends:  R (>= 2.10), dplyr
+Imports: tidyr, tibble, ggplot2, lubridate
+Suggests: testthat

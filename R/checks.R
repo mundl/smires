@@ -57,7 +57,7 @@
   return(x)
 }
 
-.make_ts_regular <- function(x, interval = .guess_deltat(balder$time))
+.make_ts_regular <- function(x, interval = .guess_deltat(x$time))
 {
   # modified from drought2015
   x <- x[!is.na(x$time), ]

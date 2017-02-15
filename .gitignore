@@ -2,4 +2,6 @@
 .Rhistory
 .RData
 .Ruserdata
-inst/demo/*.html
+inst/demos/*.html
+inst/demos/*-figure
+inst/demos/*.md

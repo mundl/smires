@@ -1,10 +1,8 @@
-is.intermittent <- function(x, ndays = 5, consecutive = TRUE, threshold = 0.001,
-                            period = "year")
+is.intermittent <- function(x, ndays = 5, consecutive = TRUE, threshold = 0.001)
   # todo: find_event() must support water year.
 {
 
-  e <- find_events(x, threshold = threshold, na.rm = FALSE, period = period,
-                   warn = FALSE)
+  e <- find_events(x, threshold = threshold, na.rm = FALSE, warn = FALSE)
   e <- e[e$state == "no-flow" & !is.na(e$event), ]
 
   days <- if(consecutive)

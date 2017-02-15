@@ -54,6 +54,7 @@ Determining Intermittency
 left: 55%
 
 ```{r, echo=FALSE}
+library(ggplot2)
 x <- ampneyBrook
 is.im <- is.intermittent
 ```
@@ -62,17 +63,17 @@ is.im <- is.intermittent
 1 l/s, 5 days, 1 year (not necessarily consecutive)
 ```{r, message=TRUE}
 is.im(x, threshold = 0.001)
-is.im(x, nyear = 6)
-is.im(x, nyear = 7)
-is.im(x, nyear = 2, cons = "year")
-is.im(x, nyear = 3, cons = "year")
+is.im(x, ndays = 386, con = F)
+is.im(x, ndays = 387, con = F)
+
+is.im(x, ndays = 144, con = T)
+is.im(x, ndays = 143, con = T)
 ```
 
 ***
 
 ```{r, echo=FALSE, fig.height = 6, fig.width = 5, out.width="980px", out.height="978px", dpi=300}
-plot_events(find_events(ampneyBrook, period = "year", threshold = 0.001),
-            label = FALSE) +
+plot_events(find_events(ampneyBrook, threshold = 0.001), label = FALSE) +
   theme(legend.position = "none")
 ```
 
@@ -118,7 +119,7 @@ discharge <- check_ts(balder, accuracy = 0.005)
 ========================================================
 
 ```{r, message=TRUE}
-events <- find_events(discharge, period = "year", threshold = 0.001)
+events <- find_events(discharge, threshold = 0.001)
 events
 ```
 
@@ -138,9 +139,10 @@ plot_events(events)
 
 Each variable (e.g. duration, volume, onset) calculated before has a distribution, there can be more than one event per period.
 ```{r, fig.height = 3, fig.width = 10, out.width="1960px", out.height="490px", dpi=300,, echo=FALSE}
-ggplot(events, aes(duration)) + geom_density(trim = TRUE) +
+ggplot(filter(split_events(assign_period(events)), !is.na(state)), aes(duration)) +
+  geom_density(trim = TRUE) +
   facet_wrap(~ state) +
-  scale_x_continuous() + geom_rug(aes(col = period)) +
+  scale_x_continuous() + geom_rug(aes(col = year)) +
   labs(x = "Duration of an event (days)",
        title = "How are durations distributed, regardless of the period?")
 ```
@@ -154,7 +156,9 @@ We can choose:
 
 
 ```{r}
-metricP <- events %>%
+metricP <- events %>% assign_period() %>%
+  split_events() %>%
+  drop_na_periods(year) %>%  group_by(year, state) %>%
   summarise_at(vars(duration), funs(min, median, mean, max, sum))
 
 metricP
@@ -187,11 +191,11 @@ Same procedure as before, choose:
 
 ```{r}
 metric <- metricP %>% group_by(state) %>%
-  summarise_at(vars(-period, -state), funs(mean))
+  summarise_at(vars(-year, -state), funs(mean))
 metric
 ```
 
-E.g. the mean annual maximum duration (correct?) of dry states at Balderhead Reservoir is ``r round(filter(metric, state == "dry")$mean, 1)`` days. But we only considered 4.3 years of records...
+E.g. the mean annual maximum duration (correct?) of dry states at Balderhead Reservoir is ``r round(filter(metric, state == "no-flow")$max, 1)`` days. But we only considered 4.3 years of records...
 
 Dimensions
 ========================================================

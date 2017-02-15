@@ -1,12 +1,12 @@
 find_events <- function(x, threshold = 0.001, na.rm = TRUE, warn = TRUE)
 {
   x %>%
-    detect_noflow_events(threshold = threshold) %>%
-    add_eventvars(warn = warn) %>%
+    .detect_noflow_events(threshold = threshold) %>%
+    .add_eventvars(warn = warn) %>%
     arrange(event) # sort by event
 }
 
-detect_noflow_events <- function(x, threshold = 0.1)
+.detect_noflow_events <- function(x, threshold = 0.1)
 {
   if(is.null(threshold))
   {
@@ -26,7 +26,7 @@ detect_noflow_events <- function(x, threshold = 0.1)
   return(x)
 }
 
-add_eventvars <- function(x, warn = TRUE)
+.add_eventvars <- function(x, warn = TRUE)
 {
   # mutate() drops attributes...
   threshold <- attr(x, "threshold")
@@ -61,6 +61,9 @@ split_events <- function(x, at = c("year", "chunk"),
 
 .split_event <- function(x, int)
 {
+  if(!"year" %in% colnames(x))
+    stop("Splitting events before grouping doesn't make sense.")
+
   if(!is.interval(int))
     stop("Argument 'interval' must be of class interval.")
 
@@ -79,10 +82,15 @@ split_events <- function(x, at = c("year", "chunk"),
 
   dur <- as.numeric(int, unit = "days")
 
-  merge(select(x, -start, -end, -duration),
-        tibble(start = as.Date(int_start(int)),
-               end = as.Date(int_end(int)),
-               duration = as.difftime(dur, units = "days")))
+  newdata <- tibble(event = x$event[1],
+                    start = as.Date(int_start(int)),
+                    end = as.Date(int_end(int)),
+                    duration = as.difftime(dur, units = "days"),
+                    year = factor(format(int_start(int), "%Y"),
+                                  levels = levels(x$year), ordered = TRUE))
+
+  select(x, -start, -end, -duration, -year) %>%
+    right_join(newdata, by = "event")
 }
 
 
