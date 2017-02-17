@@ -25,7 +25,7 @@ install_github("mundl/smires")
 library(smires)
 ```
 
-The current version is `0.3.0`. To load this package in an R session, `library(smires)` has to be called.
+The current version is `0.4.0`. To load this package in an R session, `library(smires)` has to be called.
 
 ``` r
 library(smires)
@@ -128,6 +128,13 @@ Each participating country was asked to suggest metrics and to submit a few time
 <td align="left">NA</td>
 </tr>
 <tr class="odd">
+<td align="left">pt</td>
+<td align="left"><a href="mailto:helena.alves@apambiente.pt">helena.alves@apambiente.pt</a></td>
+<td align="left">Sado</td>
+<td align="left">FALSE</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
 <td align="left">uk</td>
 <td align="left"><a href="mailto:catsef@ceh.ac.uk">catsef@ceh.ac.uk</a></td>
 <td align="left">Balder at <a href="http://nrfa.ceh.ac.uk/data/station/info/25022">Balderhead Reservoir</a>, Ampney Brook at <a href="http://nrfa.ceh.ac.uk/data/station/info/39099">Ampney St Peter</a></td>
@@ -137,13 +144,7 @@ Each participating country was asked to suggest metrics and to submit a few time
 </tbody>
 </table>
 
-### Metrics
-
-| metric                        | type      | description                                                                                   | Δt    | comment | at  | ch  | gb  | es  |
-|:------------------------------|:----------|:----------------------------------------------------------------------------------------------|:------|:--------|:----|:----|:----|:----|
-| Number of days with zero flow | duration  | Total number of days with zero flow                                                           | daily | NA      | ✔   | ✔   | ✔   |     |
-| Recession constant            | magnitude | Recession constant during the period with the lowest flow or slope of the flow duration curve | daily | NA      |     | ✔   |     | ✔   |
-
+<!--### Metrics -->
 Getting in Contact
 ==================
 

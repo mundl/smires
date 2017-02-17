@@ -93,7 +93,11 @@ series <- list(
   
   contrib_ts(country = "pt", 
              contact = "teresal@ipcb.pt",
-             ts = "Coruche, Monforte, Pavia, Moinho"),
+             ts = "Coruche, Monforte, Pavia, Moinho"),  
+  
+  contrib_ts(country = "pt", 
+             contact = "helena.alves@apambiente.pt",
+             ts = "Sado"),
 
   contrib_ts(country = "gr", 
              contact = "rania.tzoraki@aegean.gr",
@@ -108,7 +112,7 @@ options(knitr.kable.NA = '')
 knitr::kable(series, caption = "Participants", format = "markdown")
 ```
 
-### Metrics
+<!--### Metrics -->
 
 
 ```{r results = 'asis', echo = FALSE} 
@@ -146,8 +150,9 @@ metrics <- data.frame(metrics, cm)
 metrics <- metrics[order(metrics$type), ]
 row.names(metrics) <- NULL
 
-knitr::kable(metrics, caption = "Participants")
+#knitr::kable(metrics, caption = "Participants")
 ```
+
 
 
 

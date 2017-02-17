@@ -62,6 +62,7 @@ assign_period <- function(x, interval = NULL, include.year = TRUE, start = 1,
     if(as.interval) start <- as.interval(period(1, units = interval), start)
   } else if(is.numeric(interval) || is.instant(interval)) {
 
+    start <- .date2julian(interval)
     # todo: numeric or date -> season
 
     warning("Seasons are not yet supported. ")
