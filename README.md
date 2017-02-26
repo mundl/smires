@@ -135,6 +135,13 @@ Each participating country was asked to suggest metrics and to submit a few time
 <td align="left">NA</td>
 </tr>
 <tr class="even">
+<td align="left">sk</td>
+<td align="left"><a href="mailto:kohnova@stuba.sk">kohnova@stuba.sk</a></td>
+<td align="left">Čierna voda, Bodva, Chlmec</td>
+<td align="left">FALSE</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
 <td align="left">uk</td>
 <td align="left"><a href="mailto:catsef@ceh.ac.uk">catsef@ceh.ac.uk</a></td>
 <td align="left">Balder at <a href="http://nrfa.ceh.ac.uk/data/station/info/25022">Balderhead Reservoir</a>, Ampney Brook at <a href="http://nrfa.ceh.ac.uk/data/station/info/39099">Ampney St Peter</a></td>

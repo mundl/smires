@@ -159,7 +159,7 @@ We can choose:
 metricP <- events %>% assign_period() %>%
   split_events() %>%
   drop_na_periods(year) %>%  group_by(year, state) %>%
-  summarise_at(vars(duration), funs(min, median, mean, max, sum))
+  summarise_at(vars(duration), funs(max))
 
 metricP
 ```
@@ -195,7 +195,7 @@ metric <- metricP %>% group_by(state) %>%
 metric
 ```
 
-E.g. the mean annual maximum duration (correct?) of dry states at Balderhead Reservoir is ``r round(filter(metric, state == "no-flow")$max, 1)`` days. But we only considered 4.3 years of records...
+E.g. the mean annual maximum duration (correct?) of dry states at Balderhead Reservoir is ``r round(filter(metric, state == "no-flow")$duration, 1)`` days. But we only considered 4.3 years of records...
 
 Dimensions
 ========================================================
@@ -243,15 +243,15 @@ x <- with(ampneyBrook, xts(ma(discharge, n = 7, sides = 1), order.by = time))
 
 
 ### smires
-```{r, message = TRUE}
+```{r, message = TRUE, eval=FALSE}
 discharge$discharge <- ma(discharge$discharge, n = 7, sides = 1)
-e <- find_events(discharge, period = "year", threshold = NULL, fun = identity)
-metricP <- e %>% summarise_at(vars(discharge), funs(min))
+p <- assign_period(discharge) %>% drop_na_periods(year)
+metricP <- p %>% summarise_at(vars(discharge), funs(min))
 smires <- metricP %>% summarise_at(vars(discharge), funs(mean))
 ```
 
 ### comparison
-```{r, message = TRUE}
+```{r, message = TRUE, eval = FALSE}
 identical(lfstat, smires$discharge[1])
 ```
 

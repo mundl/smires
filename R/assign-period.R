@@ -217,6 +217,7 @@ print.multiperiod <- function(x, ...)
 }
 
 drop_na_periods <- function(x, ..., col = "state") {
+  # todo: has to work without events
   e <- sort(unique(x$event))
   x <- group_by(x, ...) %>% do(.drop_na_period(., col = col))
   rm <- setdiff(e, sort(unique(x$event)))
