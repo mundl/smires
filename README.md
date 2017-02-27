@@ -17,7 +17,7 @@ In order to use the development version of the package `smires` you will need to
 install.packages("devtools")
 ```
 
-It provides the convenient commant `install_github()` which installs the most recent version of a package hosted on github. To do so, simply execute the following three lines:
+It provides the convenient command `install_github()` which installs the most recent version of a package hosted on github. To do so, simply execute the following three lines:
 
 ``` r
 library(devtools)
@@ -35,7 +35,7 @@ packageVersion("smires")
 Examples
 ========
 
-Each participating country was asked to suggest metrics and to submit a few time series with intermittent streamflow. As we plan to integrate the provided time series in the R package, we need permission of the copyright holder to make the data availabe. The column **include** of the following table indicates if the data can be published.
+Each participating country was asked to suggest metrics and to submit a few time series with intermittent streamflow. As we plan to integrate the provided time series in the R package, we need permission of the copyright holder to make the data available. The column **include** of the following table indicates if the data can be published.
 
 ### Time Series
 
