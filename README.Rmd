@@ -105,7 +105,11 @@ series <- list(
 
   contrib_ts(country = "sk", 
              contact = "kohnova@stuba.sk",
-             ts = "Čierna voda, Bodva, Chlmec"))
+             ts = "Čierna voda, Bodva, Chlmec"),
+
+  contrib_ts(country = "cy", 
+             contact = "gdorflinger@wdd.moa.gov.cy",
+             ts = "Peristerona, Pouzis, Liopetri"))
 
 series <- do.call(rbind, series)
 series <- series[order(series$country), ]
