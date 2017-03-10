@@ -72,7 +72,8 @@ series <- list(
   contrib_ts(country = "pl",
              contact = "kazimierz_banasik@sggw.pl",
              ts = "Plachty Stare",
-             comment = "uses hydrological year, starting with November"),  
+             comment = "uses hydrological year, starting with November", 
+             publish = TRUE),  
   
   contrib_ts(country = "pl",
              contact = "rmrutkow@cyf-kr.edu.pl",
@@ -89,7 +90,8 @@ series <- list(
   
   contrib_ts(country = "it", 
              contact = "annamaria.degirolamo@ba.irsa.cnr.it",
-             ts = "Celone, Salsola"),
+             ts = "Celone, Salsola", 
+             publish = TRUE),
   
   contrib_ts(country = "pt", 
              contact = "teresal@ipcb.pt",

@@ -103,7 +103,7 @@ Each participating country was asked to suggest metrics and to submit a few time
 <td align="left">it</td>
 <td align="left"><a href="mailto:annamaria.degirolamo@ba.irsa.cnr.it">annamaria.degirolamo@ba.irsa.cnr.it</a></td>
 <td align="left">Celone, Salsola</td>
-<td align="left">FALSE</td>
+<td align="left">TRUE</td>
 <td align="left">NA</td>
 </tr>
 <tr class="even">
@@ -117,7 +117,7 @@ Each participating country was asked to suggest metrics and to submit a few time
 <td align="left">pl</td>
 <td align="left"><a href="mailto:kazimierz_banasik@sggw.pl">kazimierz_banasik@sggw.pl</a></td>
 <td align="left">Plachty Stare</td>
-<td align="left">FALSE</td>
+<td align="left">TRUE</td>
 <td align="left">uses hydrological year, starting with November</td>
 </tr>
 <tr class="even">
