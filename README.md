@@ -59,105 +59,119 @@ Each participating country was asked to suggest metrics and to submit a few time
 <tbody>
 <tr class="odd">
 <td align="left">ch</td>
-<td align="left"><a href="mailto:ilja.vanmeerveld@geo.uzh.ch">ilja.vanmeerveld@geo.uzh.ch</a></td>
+<td align="left"><a href="mailto:ilja.vanmeervel*@geo.uzh.ch">ilja.vanmeervel*@geo.uzh.ch</a></td>
 <td align="left">Altlandenberg</td>
 <td align="left">FALSE</td>
 <td align="left">NA</td>
 </tr>
 <tr class="even">
 <td align="left">cy</td>
-<td align="left"><a href="mailto:gdorflinger@wdd.moa.gov.cy">gdorflinger@wdd.moa.gov.cy</a></td>
+<td align="left"><a href="mailto:gdorflinge*@wdd.moa.gov.cy">gdorflinge*@wdd.moa.gov.cy</a></td>
 <td align="left">Peristerona, Pouzis, Liopetri</td>
-<td align="left">FALSE</td>
+<td align="left">TRUE</td>
 <td align="left">NA</td>
 </tr>
 <tr class="odd">
 <td align="left">es</td>
-<td align="left"><a href="mailto:francesc.gallart@idaea.csic.es">francesc.gallart@idaea.csic.es</a></td>
+<td align="left"><a href="mailto:luis.medier*@upm.es">luis.medier*@upm.es</a></td>
+<td align="left">8060, 9052</td>
+<td align="left">TRUE</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">es</td>
+<td align="left"><a href="mailto:francesc.gallar*@idaea.csic.es">francesc.gallar*@idaea.csic.es</a></td>
 <td align="left">Riu Manol</td>
 <td align="left">FALSE</td>
 <td align="left">NA</td>
 </tr>
+<tr class="odd">
+<td align="left">fr</td>
+<td align="left"><a href="mailto:ytrambla*@gmail.com">ytrambla*@gmail.com</a></td>
+<td align="left">37 stations</td>
+<td align="left">TRUE</td>
+<td align="left">NA</td>
+</tr>
 <tr class="even">
 <td align="left">fr</td>
-<td align="left"><a href="mailto:eric.sauquet@irstea.fr">eric.sauquet@irstea.fr</a></td>
+<td align="left"><a href="mailto:eric.sauque*@irstea.fr">eric.sauque*@irstea.fr</a></td>
 <td align="left">H1333010, H1503910, H1513210, H1603010, H1713010, H1932020</td>
 <td align="left">FALSE</td>
 <td align="left">NA</td>
 </tr>
 <tr class="odd">
 <td align="left">gr</td>
-<td align="left"><a href="mailto:rania.tzoraki@aegean.gr">rania.tzoraki@aegean.gr</a></td>
+<td align="left"><a href="mailto:rania.tzorak*@aegean.gr">rania.tzorak*@aegean.gr</a></td>
 <td align="left">Vrontamas</td>
 <td align="left">FALSE</td>
 <td align="left">NA</td>
 </tr>
 <tr class="even">
 <td align="left">it</td>
-<td align="left"><a href="mailto:giuseppe.verdiani@adb.puglia.it">giuseppe.verdiani@adb.puglia.it</a></td>
+<td align="left"><a href="mailto:giuseppe.verdian*@adb.puglia.it">giuseppe.verdian*@adb.puglia.it</a></td>
 <td align="left">Carapelle Torrent</td>
 <td align="left">TRUE</td>
 <td align="left">Region Puglia</td>
 </tr>
 <tr class="odd">
 <td align="left">it</td>
-<td align="left"><a href="mailto:annamaria.degirolamo@ba.irsa.cnr.it">annamaria.degirolamo@ba.irsa.cnr.it</a></td>
+<td align="left"><a href="mailto:annamaria.degirolam*@ba.irsa.cnr.it">annamaria.degirolam*@ba.irsa.cnr.it</a></td>
 <td align="left">Celone, Salsola</td>
 <td align="left">TRUE</td>
 <td align="left">NA</td>
 </tr>
 <tr class="even">
 <td align="left">lt</td>
-<td align="left"><a href="mailto:hydro@mail.lei.lt">hydro@mail.lei.lt</a></td>
+<td align="left"><a href="mailto:hydr*@mail.lei.lt">hydr*@mail.lei.lt</a></td>
 <td align="left">NA</td>
 <td align="left">NA</td>
 <td align="left">NA</td>
 </tr>
 <tr class="odd">
 <td align="left">pl</td>
-<td align="left"><a href="mailto:kazimierz_banasik@sggw.pl">kazimierz_banasik@sggw.pl</a></td>
+<td align="left"><a href="mailto:kazimierz_banasi*@sggw.pl">kazimierz_banasi*@sggw.pl</a></td>
 <td align="left">Plachty Stare</td>
 <td align="left">TRUE</td>
 <td align="left">uses hydrological year, starting with November</td>
 </tr>
 <tr class="even">
 <td align="left">pl</td>
-<td align="left"><a href="mailto:rmrutkow@cyf-kr.edu.pl">rmrutkow@cyf-kr.edu.pl</a></td>
+<td align="left"><a href="mailto:rmrutko*@cyf-kr.edu.pl">rmrutko*@cyf-kr.edu.pl</a></td>
 <td align="left">Goryczkowa</td>
 <td align="left">TRUE</td>
 <td align="left">only 3 years of observation</td>
 </tr>
 <tr class="odd">
 <td align="left">pt</td>
-<td align="left"><a href="mailto:teresal@ipcb.pt">teresal@ipcb.pt</a></td>
+<td align="left"><a href="mailto:teresa*@ipcb.pt">teresa*@ipcb.pt</a></td>
 <td align="left">Coruche, Monforte, Pavia, Moinho</td>
 <td align="left">FALSE</td>
 <td align="left">NA</td>
 </tr>
 <tr class="even">
 <td align="left">pt</td>
-<td align="left"><a href="mailto:helena.alves@apambiente.pt">helena.alves@apambiente.pt</a></td>
+<td align="left"><a href="mailto:helena.alve*@apambiente.pt">helena.alve*@apambiente.pt</a></td>
 <td align="left">Sado</td>
 <td align="left">TRUE</td>
 <td align="left">NA</td>
 </tr>
 <tr class="odd">
 <td align="left">si</td>
-<td align="left"><a href="mailto:simon.rusjan@fgg.uni-lj.si">simon.rusjan@fgg.uni-lj.si</a></td>
+<td align="left"><a href="mailto:simon.rusja*@fgg.uni-lj.si">simon.rusja*@fgg.uni-lj.si</a></td>
 <td align="left">11 stations</td>
 <td align="left">FALSE</td>
 <td align="left">NA</td>
 </tr>
 <tr class="even">
 <td align="left">sk</td>
-<td align="left"><a href="mailto:kohnova@stuba.sk">kohnova@stuba.sk</a></td>
+<td align="left"><a href="mailto:kohnov*@stuba.sk">kohnov*@stuba.sk</a></td>
 <td align="left">Čierna voda, Bodva, Chlmec</td>
 <td align="left">FALSE</td>
 <td align="left">NA</td>
 </tr>
 <tr class="odd">
 <td align="left">uk</td>
-<td align="left"><a href="mailto:catsef@ceh.ac.uk">catsef@ceh.ac.uk</a></td>
+<td align="left"><a href="mailto:catse*@ceh.ac.uk">catse*@ceh.ac.uk</a></td>
 <td align="left">Balder at <a href="http://nrfa.ceh.ac.uk/data/station/info/25022">Balderhead Reservoir</a>, Ampney Brook at <a href="http://nrfa.ceh.ac.uk/data/station/info/39099">Ampney St Peter</a></td>
 <td align="left">TRUE</td>
 <td align="left">Balder: human influence, Ampney Brook: chalk stream that dries naturally</td>
