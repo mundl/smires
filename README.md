@@ -96,7 +96,7 @@ Each participating country was asked to suggest metrics and to submit a few time
 <td align="left">it</td>
 <td align="left"><a href="mailto:giuseppe.verdiani@adb.puglia.it">giuseppe.verdiani@adb.puglia.it</a></td>
 <td align="left">Carapelle Torrent</td>
-<td align="left">FALSE</td>
+<td align="left">TRUE</td>
 <td align="left">Region Puglia</td>
 </tr>
 <tr class="odd">
@@ -124,7 +124,7 @@ Each participating country was asked to suggest metrics and to submit a few time
 <td align="left">pl</td>
 <td align="left"><a href="mailto:rmrutkow@cyf-kr.edu.pl">rmrutkow@cyf-kr.edu.pl</a></td>
 <td align="left">Goryczkowa</td>
-<td align="left">FALSE</td>
+<td align="left">TRUE</td>
 <td align="left">only 3 years of observation</td>
 </tr>
 <tr class="odd">
@@ -138,17 +138,24 @@ Each participating country was asked to suggest metrics and to submit a few time
 <td align="left">pt</td>
 <td align="left"><a href="mailto:helena.alves@apambiente.pt">helena.alves@apambiente.pt</a></td>
 <td align="left">Sado</td>
-<td align="left">FALSE</td>
+<td align="left">TRUE</td>
 <td align="left">NA</td>
 </tr>
 <tr class="odd">
+<td align="left">si</td>
+<td align="left"><a href="mailto:simon.rusjan@fgg.uni-lj.si">simon.rusjan@fgg.uni-lj.si</a></td>
+<td align="left">11 stations</td>
+<td align="left">FALSE</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
 <td align="left">sk</td>
 <td align="left"><a href="mailto:kohnova@stuba.sk">kohnova@stuba.sk</a></td>
 <td align="left">Čierna voda, Bodva, Chlmec</td>
 <td align="left">FALSE</td>
 <td align="left">NA</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">uk</td>
 <td align="left"><a href="mailto:catsef@ceh.ac.uk">catsef@ceh.ac.uk</a></td>
 <td align="left">Balder at <a href="http://nrfa.ceh.ac.uk/data/station/info/25022">Balderhead Reservoir</a>, Ampney Brook at <a href="http://nrfa.ceh.ac.uk/data/station/info/39099">Ampney St Peter</a></td>

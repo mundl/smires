@@ -42,7 +42,7 @@ Each participating country was asked to suggest metrics and to submit a few time
 
 ```{r results = 'asis', echo = FALSE} 
 
-contrib_ts <- function(country, contact, ts = NA, publish = FALSE, comment = NA)
+contrib_ts <- function(country, contact, ts = NA, publish = FALSE, comment = NA, meta = FALSE)
 {
   data.frame("country" = country, "contact" = contact, "time series" = ts,
              "include" = if(is.na(ts)) NA else publish,
@@ -55,13 +55,18 @@ series <- list(
              contact = "ilja.vanmeerveld@geo.uzh.ch",
              ts = "Altlandenberg"),
   
+   contrib_ts(country = "si",
+             contact = "simon.rusjan@fgg.uni-lj.si",
+             ts = "11 stations"),
+  
   contrib_ts(country = "lt",
              contact = "hydro@mail.lei.lt"),
   
   contrib_ts(country = "it",
              contact = "giuseppe.verdiani@adb.puglia.it",
              ts = "Carapelle Torrent",
-             comment = "Region Puglia"),
+             comment = "Region Puglia",
+             publish = TRUE),
   
   contrib_ts(country = "uk",
              contact = "catsef@ceh.ac.uk",
@@ -78,7 +83,8 @@ series <- list(
   contrib_ts(country = "pl",
              contact = "rmrutkow@cyf-kr.edu.pl",
              ts = "Goryczkowa",
-             comment = "only 3 years of observation"),
+             comment = "only 3 years of observation",
+             publish = TRUE),
   
   contrib_ts(country = "fr", 
              contact = "eric.sauquet@irstea.fr",
@@ -91,7 +97,8 @@ series <- list(
   contrib_ts(country = "it", 
              contact = "annamaria.degirolamo@ba.irsa.cnr.it",
              ts = "Celone, Salsola", 
-             publish = TRUE),
+             publish = TRUE,
+             meta = TRUE),
   
   contrib_ts(country = "pt", 
              contact = "teresal@ipcb.pt",
@@ -99,7 +106,9 @@ series <- list(
   
   contrib_ts(country = "pt", 
              contact = "helena.alves@apambiente.pt",
-             ts = "Sado"),
+             ts = "Sado",
+             publish = TRUE, 
+             meta = TRUE),
 
   contrib_ts(country = "gr", 
              contact = "rania.tzoraki@aegean.gr",
