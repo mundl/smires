@@ -1,6 +1,7 @@
 ---
 title: "smires"
 output: github_document
+
 ---
 
 SMIRES is a COST Action addressing the Science and Management of Intermittent Rivers & Ephemeral Streams. SMIRES brings together more than 200 hydrologists, biogeochemists, ecologists, modellers, environmental economists, social researchers and stakeholders from 31 different countries to develop a research network for synthesising the fragmented, recent knowledge on IRES, improving our understanding of IRES and translating this into a science-based, sustainable management of river networks. More information about SMIRES can be found at <http://www.smires.eu/>. 
@@ -87,8 +88,18 @@ series <- list(
              publish = TRUE),
   
   contrib_ts(country = "fr", 
+             contact = "ytramblay@gmail.com",
+             ts = "37 stations",
+             publish = TRUE),  
+  
+  contrib_ts(country = "fr", 
              contact = "eric.sauquet@irstea.fr",
              ts = "H1333010, H1503910, H1513210, H1603010, H1713010, H1932020"),
+
+  contrib_ts(country = "es", 
+             contact = "luis.mediero@upm.es",
+             ts = "8060, 9052",
+             publish = TRUE),
   
   contrib_ts(country = "es", 
              contact = "francesc.gallart@idaea.csic.es",
@@ -120,10 +131,12 @@ series <- list(
 
   contrib_ts(country = "cy", 
              contact = "gdorflinger@wdd.moa.gov.cy",
-             ts = "Peristerona, Pouzis, Liopetri"))
+             ts = "Peristerona, Pouzis, Liopetri",
+             publish = TRUE))
 
 series <- do.call(rbind, series)
 series <- series[order(series$country), ]
+series$contact <- sub(".@", "*@", series$contact)
 row.names(series) <- NULL
 
 
