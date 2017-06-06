@@ -39,6 +39,10 @@ Each participating country was asked to suggest metrics and to submit a few time
 
 ### Time Series
 
+Currently `12` countries have submitted time series of which `9` countries agreed on indluding the data into the R-package.
+
+![](README_files/figure-markdown_github/unnamed-chunk-2-1.png)
+
 <table>
 <colgroup>
 <col width="3%" />
@@ -58,10 +62,10 @@ Each participating country was asked to suggest metrics and to submit a few time
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">ch</td>
-<td align="left"><a href="mailto:ilja.vanmeervel*@geo.uzh.ch">ilja.vanmeervel*@geo.uzh.ch</a></td>
-<td align="left">Altlandenberg</td>
-<td align="left">FALSE</td>
+<td align="left">at</td>
+<td align="left"><a href="mailto:t.gauste*@boku.ac.at">t.gauste*@boku.ac.at</a></td>
+<td align="left">...</td>
+<td align="left">TRUE</td>
 <td align="left">NA</td>
 </tr>
 <tr class="even">
@@ -79,31 +83,17 @@ Each participating country was asked to suggest metrics and to submit a few time
 <td align="left">NA</td>
 </tr>
 <tr class="even">
-<td align="left">es</td>
-<td align="left"><a href="mailto:francesc.gallar*@idaea.csic.es">francesc.gallar*@idaea.csic.es</a></td>
-<td align="left">Riu Manol</td>
-<td align="left">FALSE</td>
-<td align="left">NA</td>
-</tr>
-<tr class="odd">
 <td align="left">fr</td>
 <td align="left"><a href="mailto:ytrambla*@gmail.com">ytrambla*@gmail.com</a></td>
 <td align="left">37 stations</td>
 <td align="left">TRUE</td>
 <td align="left">NA</td>
 </tr>
-<tr class="even">
-<td align="left">fr</td>
-<td align="left"><a href="mailto:eric.sauque*@irstea.fr">eric.sauque*@irstea.fr</a></td>
-<td align="left">H1333010, H1503910, H1513210, H1603010, H1713010, H1932020</td>
-<td align="left">FALSE</td>
-<td align="left">NA</td>
-</tr>
 <tr class="odd">
 <td align="left">gr</td>
 <td align="left"><a href="mailto:rania.tzorak*@aegean.gr">rania.tzorak*@aegean.gr</a></td>
 <td align="left">Vrontamas</td>
-<td align="left">FALSE</td>
+<td align="left">TRUE</td>
 <td align="left">NA</td>
 </tr>
 <tr class="even">
@@ -121,32 +111,18 @@ Each participating country was asked to suggest metrics and to submit a few time
 <td align="left">NA</td>
 </tr>
 <tr class="even">
-<td align="left">lt</td>
-<td align="left"><a href="mailto:hydr*@mail.lei.lt">hydr*@mail.lei.lt</a></td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="odd">
 <td align="left">pl</td>
 <td align="left"><a href="mailto:kazimierz_banasi*@sggw.pl">kazimierz_banasi*@sggw.pl</a></td>
 <td align="left">Plachty Stare</td>
 <td align="left">TRUE</td>
 <td align="left">uses hydrological year, starting with November</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">pl</td>
 <td align="left"><a href="mailto:rmrutko*@cyf-kr.edu.pl">rmrutko*@cyf-kr.edu.pl</a></td>
 <td align="left">Goryczkowa</td>
 <td align="left">TRUE</td>
 <td align="left">only 3 years of observation</td>
-</tr>
-<tr class="odd">
-<td align="left">pt</td>
-<td align="left"><a href="mailto:teresa*@ipcb.pt">teresa*@ipcb.pt</a></td>
-<td align="left">Coruche, Monforte, Pavia, Moinho</td>
-<td align="left">FALSE</td>
-<td align="left">NA</td>
 </tr>
 <tr class="even">
 <td align="left">pt</td>
@@ -156,25 +132,60 @@ Each participating country was asked to suggest metrics and to submit a few time
 <td align="left">NA</td>
 </tr>
 <tr class="odd">
+<td align="left">uk</td>
+<td align="left"><a href="mailto:catse*@ceh.ac.uk">catse*@ceh.ac.uk</a></td>
+<td align="left">Balder at <a href="http://nrfa.ceh.ac.uk/data/station/info/25022">Balderhead Reservoir</a>, Ampney Brook at <a href="http://nrfa.ceh.ac.uk/data/station/info/39099">Ampney St Peter</a></td>
+<td align="left">TRUE</td>
+<td align="left">Balder: human influence, Ampney Brook: chalk stream that dries naturally</td>
+</tr>
+<tr class="even">
+<td align="left">ch</td>
+<td align="left"><a href="mailto:ilja.vanmeervel*@geo.uzh.ch">ilja.vanmeervel*@geo.uzh.ch</a></td>
+<td align="left">Altlandenberg</td>
+<td align="left">FALSE</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">es</td>
+<td align="left"><a href="mailto:francesc.gallar*@idaea.csic.es">francesc.gallar*@idaea.csic.es</a></td>
+<td align="left">Riu Manol</td>
+<td align="left">FALSE</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">fr</td>
+<td align="left"><a href="mailto:eric.sauque*@irstea.fr">eric.sauque*@irstea.fr</a></td>
+<td align="left">H1333010, H1503910, H1513210, H1603010, H1713010, H1932020</td>
+<td align="left">FALSE</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">pt</td>
+<td align="left"><a href="mailto:teresa*@ipcb.pt">teresa*@ipcb.pt</a></td>
+<td align="left">Coruche, Monforte, Pavia, Moinho</td>
+<td align="left">FALSE</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
 <td align="left">si</td>
 <td align="left"><a href="mailto:simon.rusja*@fgg.uni-lj.si">simon.rusja*@fgg.uni-lj.si</a></td>
 <td align="left">11 stations</td>
 <td align="left">FALSE</td>
 <td align="left">NA</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">sk</td>
 <td align="left"><a href="mailto:kohnov*@stuba.sk">kohnov*@stuba.sk</a></td>
 <td align="left">Čierna voda, Bodva, Chlmec</td>
 <td align="left">FALSE</td>
 <td align="left">NA</td>
 </tr>
-<tr class="odd">
-<td align="left">uk</td>
-<td align="left"><a href="mailto:catse*@ceh.ac.uk">catse*@ceh.ac.uk</a></td>
-<td align="left">Balder at <a href="http://nrfa.ceh.ac.uk/data/station/info/25022">Balderhead Reservoir</a>, Ampney Brook at <a href="http://nrfa.ceh.ac.uk/data/station/info/39099">Ampney St Peter</a></td>
-<td align="left">TRUE</td>
-<td align="left">Balder: human influence, Ampney Brook: chalk stream that dries naturally</td>
+<tr class="even">
+<td align="left">lt</td>
+<td align="left"><a href="mailto:hydr*@mail.lei.lt">hydr*@mail.lei.lt</a></td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
 </tr>
 </tbody>
 </table>
