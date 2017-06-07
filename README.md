@@ -41,7 +41,7 @@ Each participating country was asked to suggest metrics and to submit a few time
 
 Currently `12` countries have submitted time series of which `9` countries agreed on indluding the data into the R-package.
 
-![](README_files/figure-markdown_github/unnamed-chunk-2-1.png)
+![](README_files/figure-markdown_github/coverage-1.png)
 
 <table>
 <colgroup>

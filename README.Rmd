@@ -150,7 +150,7 @@ dat <- subset(series, !is.na(series$`time series`), select = c("country", "inclu
 
 Currently ``r length(unique(dat$country))`` countries have submitted time series of which  ``r length(unique(dat$country[dat$include]))`` countries agreed on indluding the data into the R-package.
 
-```{r, echo = FALSE}
+```{r, coverage, echo = FALSE}
 poly <- readRDS(file = "dev/coastlines.rds")
 levels(poly$country)[levels(poly$country) == "gb"] <- "uk"
 
