@@ -6,3 +6,11 @@ inst/demos/*.html
 inst/demos/*-figure
 inst/demos/*.md
 ts/
+*.aux
+*.log
+*.nav
+*.out
+*.snm
+*synctex.gz
+*.toc
+*.vrb

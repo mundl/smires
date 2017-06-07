@@ -12,6 +12,11 @@ assign_period <- function(x, interval = NULL, include.year = TRUE, start = 1,
     last <- tail(time, 1)
   }
 
+  if(pmatch(interval, table = "years", nomatch = F)){
+    interval <- NULL
+    include.year <- TRUE
+  }
+
   if(include.year){
     int <- .year_interval(time, start = start, last = last)
     allyears <- attr(int, "levels")
@@ -22,6 +27,7 @@ assign_period <- function(x, interval = NULL, include.year = TRUE, start = 1,
 
     attr(x, "interval")$year <- allyears
   }
+
 
   if(!is.null(interval)){
     if(any(mday(int_start(allyears)) != 1))
@@ -223,6 +229,7 @@ drop_na_periods <- function(x, ..., col = "state") {
   rm <- setdiff(e, sort(unique(x$event)))
 
   if(length(rm))
+    # todo: improve message. We do not remove events, but whole periods containing events.
     message("Removing ", .nplural(length(rm), "event"),
             " containing missing data. Event: ", .nmax(rm))
 

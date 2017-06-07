@@ -15,7 +15,7 @@ plot_events <- function(x, size = 5, label = TRUE)
   # nothing to plot for 0day events
   #
   # make sure events are split by year
-  if(is.null(attr(x, "intervall"))) x <- assign_period(x)
+  if(is.null(attr(x, "intervall"))) x <- assign_period(x, interval = "year")
 
   x <- filter(x, duration > 0) %>%
     split_events(at = "year", rule = "cut")
