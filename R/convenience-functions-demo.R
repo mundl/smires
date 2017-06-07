@@ -11,7 +11,7 @@ metric <- function(x, fun, period = "year", agg1, agg2) {
     split_events() %>%
     drop_na_periods(year) %>%  group_by(year, state) %>%
     summarise_at(vars(duration), funs_(agg1))  %>% group_by(state) %>%
-    summarise_at(vars(-year, -state), funs_(agg2))
+    summarise_at(vars(-year), funs_(agg2))
 }
 
 mean_annual_max_duration_dry <- function(x)
