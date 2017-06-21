@@ -28,18 +28,11 @@ find_events <- function(x, threshold = 0.001, na.rm = TRUE, warn = TRUE)
 
 .add_eventvars <- function(x, warn = TRUE)
 {
-  # mutate() drops attributes...
-  threshold <- attr(x, "threshold")
-  dt <- attr(x, "dt")
-
-  # use mutate to keep class difftime
   res <- x %>%
     group_by(event, state) %>%
-    do(summarize(., start = min(time), end = max(time) + dt)) %>%
-    mutate(duration = end - start)
+    summarize(start = min(time), end = max(time) + dt,
+                 duration = end - start)
 
-  attr(res, "threshold") <- threshold
-  attr(res, "dt") <- dt
   return(res)
 }
 
