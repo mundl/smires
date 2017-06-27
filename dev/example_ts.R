@@ -1,6 +1,6 @@
 # France -----
 
-files <- list.files("../ts/fr/SMIRES/France/", full.names = T)
+files <- list.files("ts/fr/SMIRES/France/", full.names = T)
 
 .read_txt_france <- function(file, parse.header = FALSE,
                              fileEncoding = "ISO8859-14",
@@ -24,10 +24,10 @@ fr <- lapply(files, .read_txt_france)
 
 # United Kingdom ----
 require(readhyd)
-ampneyBrook <- read.nrfa(file = "../ts/uk//nrfa_public_39099_gdf.csv") %>%
+ampneyBrook <- read.nrfa(file = "ts/uk//nrfa_public_39099_gdf.csv") %>%
   as_tibble() %>% rename(discharge = value) %>% check_ts()
 
-balder <- read.nrfa(file = "../ts/uk//nrfa_public_25022_gdf.csv") %>%
+balder <- read.nrfa(file = "ts/uk//nrfa_public_25022_gdf.csv") %>%
   as_tibble() %>% rename(discharge = value) %>% check_ts()
 
 use_data(balder, ampneyBrook, overwrite = TRUE)

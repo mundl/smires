@@ -1,7 +1,8 @@
 context("All exported functions run without an error")
+require(bindrcpp)
 
 test_that("quick & dirty check if functions run", {
-  expect_silent(is.intermittent(balder))
+  expect_silent(null <- is.intermittent(balder))
   expect_silent(suppressMessages(check_ts(balder)))
   expect_silent(e <- find_events(balder))
 
@@ -13,8 +14,7 @@ test_that("quick & dirty check if functions run", {
   expect_silent(s <- split_events(p))
   expect_silent(suppressMessages(s <- drop_na_periods(s, year)))
 
-  season <- c("summer" = as.Date("2015-03-01"), "winter" = as.Date("2015-09-01"))
-  expect_silent(start_season(x = season))
+  expect_silent(start_season(x = twoSeasons))
   expect_silent(start_season(x = c("summer" = 60, "winter" = 244)))
 
   expect_silent(plot_events(e))

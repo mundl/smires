@@ -2,7 +2,7 @@
 
 # extract dt
 .dt <- function(x) {
-  dt <- attr(x, "dt")
+  dt <- get_attr_smires(x, "dt")
   if(is.null(dt)) dt <- median(diff(x$time))
 
   return(as.period(dt))
@@ -35,8 +35,15 @@
 # just checking the index, ignoring discharges which are NA
 .missing_indices <- function(x)
 {
-  d <- diff(x)
-  sum(d < median(d))
+  d <- as.numeric(diff(x), unit = "days")
+  if(median(d) > 7) {
+    # quick check if length of month is plausible
+    # todo: correctly determine number of months between two dates
+    # https://stackoverflow.com/questions/1995933/number-of-months-between-two-dates/1996404
+    sum(!d %in% 28:31)
+  } else {
+    sum(d < median(d))
+  }
 }
 
 .fill_na <- function(x, max.len = Inf, warn = TRUE, ...)
@@ -145,6 +152,6 @@ check_ts <- function(x, minyear = 10, approx.missing = 5, accuracy = 0)
             minyear, " years is advised.")
   }
 
-  attr(x, "dt") <- as.period(1, dt)
+  x <- set_attr_smires(x, key = "dt", value = as.period(1, dt))
   return(x)
 }

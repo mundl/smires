@@ -8,7 +8,7 @@ test_that("Mean annual maximum Duration for Balder", {
     group_by(year, state) %>% summarise_at(vars(duration), funs(max)) %>%
     group_by(state) %>% summarise_at(vars(duration), funs(mean))
 
-  current <- meanMaxDur$duration[meanMaxDur$state == "no-flow"]
+  current <- as.numeric(meanMaxDur$duration[meanMaxDur$state == "no-flow"])
   expected <- 38.6
 
   expect_equal(current, expected)
