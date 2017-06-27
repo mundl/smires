@@ -1,0 +1,100 @@
+% !TeX program = xelatex
+%%% !BIB program = biber
+% !TeX spellcheck = de_at
+
+\documentclass[xetex, german]{beamer}
+
+
+\newcommand{\fullwidthgraphic}[2] {
+	{
+		\usebackgroundtemplate{\includegraphics[width=\paperwidth,height=\paperheight,keepaspectratio]{#1}}
+		\begin{frame}
+		\end{frame}
+	}
+}
+
+\AtBeginDocument{
+	\sisetup{
+		math-micro=\text{µ},
+		text-micro=µ, 
+		group-minimum-digits=3,
+		output-decimal-marker={,},
+		per-mode = symbol}
+}
+
+\setlength{\parskip}{\medskipamount} 
+
+\usepackage{graphicx}
+\usepackage{fontspec}
+\usepackage{siunitx}
+\usepackage{booktabs}
+\setmainfont{Open Sans}
+
+\usepackage{polyglossia}
+
+\usetheme{Copenhagen}
+    \usecolortheme{seahorse}
+    \setbeamertemplate{navigation symbols}{\usebeamerfont{footline}\insertframenumber / \inserttotalframenumber}
+    \setbeamertemplate{footline}{}
+
+\usepackage{url}
+\usepackage{amsmath}
+
+
+\title{smires -- Calculating Hydrological Metrics for Univariate Time Series}
+
+\author{Tobias Gauster}
+
+\institute
+{
+    Institute of Applied Statistics and Computing\\
+    BOKU, Vienna 
+}
+
+\date{R Meetup, Juni 2016}
+
+
+\begin{document}
+
+    
+\begin{frame}
+\titlepage
+\end{frame}
+ 
+\begin{frame}{Motivation}
+  \begin{itemize}
+      \item SMIRES: Science and Management of Intermittent Rivers and Ephemeral Streams (\url{ http://www.smires.eu/})
+      \item Ist eine EU-COST Action zur Erforschung von Ökosystemen intermittierender Fließgewässer.
+      \item Arbeitsgruppe 1 (\textit{Prevalence, distribution and trends of IRES}) soll hydrologische Grundlagen liefern.   
+  \end{itemize}
+\end{frame}
+ 
+\begin{frame}{Das R Paket \texttt{smires}}{\url{https://github.com/mundl/smires}}
+\begin{itemize}
+    \item Beinhaltet von jedem Partnerland einen Beispieldatensatz von intermittierenden Flüssen. 
+    \item Stellt die gängigen Funktionen zur Berechnung von Niederwasserkenngrößen bereit.
+\end{itemize}
+
+\vfill
+
+\textbf{Idee}: Anstatt unzählige (ähnliche) Metriken zu implementieren, Bereitstellung eines Frameworks.
+
+\vfill
+\end{frame}
+
+\begin{frame}{Anforderungen}
+\begin{itemize}
+    \item Richtet sich an R-Anfänger und Fortgeschrittene. 
+    \item Einfache Bedienbarkeit
+    \item Flexibilität
+    \item So wenig Anforderungen wie möglich an die Eingangsdaten (\texttt{NA}, $\Delta t$, ...).
+\end{itemize}
+
+\textbf{Idee}: Anstatt unzählige (ähnliche) Metriken zu implementieren, Bereitstellung eines Frameworks.
+\end{frame}
+
+\begin{frame}{Demo}
+\end{frame}
+
+
+\end{document}
