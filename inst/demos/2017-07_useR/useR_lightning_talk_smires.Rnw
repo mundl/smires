@@ -1,0 +1,255 @@
+% !TeX program = xelatex
+%%% !BIB program = biber
+% !TeX spellcheck = en_gb
+
+\documentclass[xetex, german]{beamer}
+
+\AtBeginDocument{
+	\sisetup{
+		math-micro=\text{µ},
+		text-micro=µ,
+		group-minimum-digits=3,
+		output-decimal-marker={,},
+		per-mode = symbol}
+}
+
+\setlength{\parskip}{\medskipamount}
+
+\usepackage{graphicx}
+\usepackage{fontspec}
+\usepackage{siunitx}
+\usepackage{booktabs}
+\setmainfont{Open Sans}
+
+\usepackage{polyglossia}
+
+\usetheme{Copenhagen}
+    \usecolortheme{seahorse}
+    \setbeamertemplate{navigation symbols}{\usebeamerfont{footline}\insertframenumber / \inserttotalframenumber}
+    \setbeamertemplate{footline}{}
+
+\usepackage{url}
+\usepackage{amsmath}
+
+
+\title{smires -- Calculating Hydrological Metrics for Univariate Time Series}
+
+\author{Tobias Gauster, Gregor Laaha}
+
+\institute
+{
+    Institute of Applied Statistics and Computing\\
+    BOKU, Vienna\\[1em]
+    \includegraphics[width = 0.075\textwidth]{../../logo/logo-boku}
+}
+
+\date{\includegraphics[width = 0.4\textwidth]{../../logo/logo-useR.jpg}}
+
+
+\usepackage{Sweave}
+\begin{document}
+\SweaveOpts{concordance=TRUE,prefix.string=fig/fig}
+
+
+\begin{frame}
+\titlepage
+
+
+\end{frame}
+
+\begin{frame}{Motivation\hspace{8.6cm} \includegraphics[width=5mm]{fig/monkeys.pdf}}
+
+
+		\hspace{35pt}\textit{Happy families are all alike; ...}\\
+		\hspace*{2.5cm}\textsf{ -- Leo Tolstoi, Anna Karenina}\\[4ex]
+
+
+
+		\hspace{35pt}\textit{Hydrological/ecological metrics are all alike. }
+
+	\vfill
+
+	\includegraphics[width = 0.6\textwidth]{../../logo/logo-smires}
+
+
+
+ 	Working Group 1: \textit{Prevalence, distribution and trends of IRES}
+ \end{frame}
+
+\begin{frame}{The R package \texttt{smires}}
+\begin{itemize}
+    \item Provides a framework for computing hydro-/ecological metrics.
+    \item Contains sample datasets of every participating European country.\\[12pt]
+
+    \item Is aimed at unexperienced useRs.
+    \item Has only a few requirements on input data.
+    \item Can work with binary data (flow, no-flow).
+\end{itemize}
+\vfill
+\url{https://github.com/mundl/smires}
+\end{frame}
+
+\begin{frame}[fragile]{Functions}
+	Preprocessing\\[6pt]
+	\begin{tabular}{@{}ll}
+		\verb|is.intermittent()| & checks for intermittency\\
+		\verb|validate()| & validates input time series
+	\end{tabular}
+
+	\vfill
+	Computing Metrics\\[6pt]
+	\begin{tabular}{@{}ll}
+		\verb|metric()| & continuous time series \\
+		\verb|smires()| & binary time series, e.g. for intermittent rivers
+	\end{tabular}
+
+	\vfill
+	Low level functions\\[6pt]
+	\begin{tabular}{@{}ll}
+	\verb|group_by_interval()| & assigns indices and groups \\
+	\verb|find_events()| & derives a binary time series
+	\end{tabular}
+\end{frame}
+
+
+\begin{frame}[fragile]{Metrics for continuous time series}{E.g. mean annual maximum discharge}
+
+<<setup, echo = F>>=
+library(smires)
+@
+
+<<mamax, fig=TRUE, include=FALSE, width=6.375005, height=2.812502>>=
+metric(balder,
+       fun_major = max, fun_total = mean,
+       plot = T, drop = T, outvar = "mean.annual.max")
+@
+
+\vfill
+\includegraphics[width=\textwidth]{fig/fig-mamax.pdf}
+\end{frame}
+
+\begin{frame}[fragile]{Metrics for continuous time series}{E.g. mean annual maximum discharge, hydrological year starting in September}
+
+<<mamax-sept, fig=TRUE, include=FALSE, width=6.375005, height=2.812502>>=
+metric(balder, major = 244,
+       fun_major = max, fun_total = mean,
+       plot = T, drop = T, outvar = "mean.annual.max")
+@
+
+\vfill
+\includegraphics[width=\textwidth]{fig/fig-mamax-sept.pdf}
+\end{frame}
+
+
+\begin{frame}[fragile]{Metrics for continuous time series}{E.g. maximum annual discharge, hydrological year starting in September}
+
+<<ma-discharge>>=
+metric(balder, major = 244, fun_major = max)
+@
+
+\end{frame}
+
+\begin{frame}[fragile]{Metrics for binary time series}{Threshold is 1 l/s}
+<<echo=FALSE>>=
+# silently deleting a few years to shorten output
+library(lubridate)
+balder <- check_ts(balder[year(balder$time) < 1979, ])
+@
+
+	\footnotesize
+<<binary, fig=TRUE, include=FALSE, width=7.437506, height=2.343752>>=
+smires(balder, plot = T) %>% head(3)
+@
+
+	\vfill
+	\includegraphics[width=1.1\textwidth]{fig/fig-binary.pdf}
+\end{frame}
+
+\begin{frame}[fragile]{Metrics for binary time series}{Threshold is 20 l/s}
+  \footnotesize
+<<binary-20, fig=TRUE, include=FALSE, width=7.437506, height=2.343752>>=
+smires(balder, threshold = 0.2, plot = T) %>% head(3)
+@
+
+
+	\vfill
+	\includegraphics[width=1.1\textwidth]{fig/fig-binary-20.pdf}
+\end{frame}
+
+
+\begin{frame}[fragile]{Metrics for binary time series}{Mean annual maximum duration of events}
+
+<<>>=
+rm(balder)
+@
+
+	\begin{minipage}[t]{0.5\textwidth}
+		\footnotesize
+<<>>=
+smires(balder,
+       fun_major = max,
+       drop_na = "major")
+@
+  \end{minipage}%
+	\begin{minipage}[t]{0.5\textwidth}
+		\footnotesize
+<<>>=
+smires(balder,
+       fun_major = max,
+       fun_total = mean,
+       drop_na = "major")
+@
+\vfill~
+\end{minipage}
+\end{frame}
+
+\begin{frame}[fragile]{Metrics for binary time series}{Low level functions}
+
+\footnotesize
+
+<<>>=
+# Appending the group and interval indices
+grouped <- group_by_interval(balder)
+head(grouped, 3)
+@
+
+<<>>=
+# Detecting events
+find_events(grouped, rule = "start") %>% head(3)
+@
+
+\end{frame}
+
+\begin{frame}[fragile]{Varying the minor interval: Seasonal analysis}
+
+<<>>=
+seasons <- c(spring = 60, summer = 152,
+             autumn = 244, winter = 335)
+@
+
+<<>>=
+smires(balder, minor = seasons, fun_minor = max)
+@
+\end{frame}
+
+\begin{frame}[fragile]{Summary}
+	\begin{itemize}
+		\item The package \textbf{smires} provides a framework to compute metrics of univariate time series.\\[6pt]
+		\item Either continuous or binary time series. \\[6pt]
+		\item Free choice of the aggregation period (calendar years, hydrological years, months, seasons, \ldots).\\[6pt]
+		\item Free choice of the aggregation function.\\[6pt]
+		\item github:  \url{https://github.com/mundl/smires}
+	\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Acknowledgements}
+	This research is based upon work from COST Action CA15113 (SMIRES, Science and Management of Intermittent Rivers and Ephemeral Streams, www.smires.eu), supported by COST (European Cooperation in Science and Technology)
+	\vfill
+	\includegraphics[width=0.6\textwidth]{../../logo/logo-smires}
+	\vfill
+	\includegraphics[width=0.6\textwidth]{../../logo/logo-cost}
+\end{frame}
+
+
+\end{document}
