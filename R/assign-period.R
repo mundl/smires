@@ -267,6 +267,7 @@ drop_na_periods <- function(x, period = group_vars(x))
   var <- intersect(colnames(x), c("state", "discharge"))
   nas <- x[is.na(x[, var]), period]
 
+  # todo: anti_joins reverses row order...
   y <- suppressMessages(anti_join(x, nas))
 
   return(y)

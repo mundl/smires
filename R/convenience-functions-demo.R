@@ -19,14 +19,16 @@ smires <- function(x, major = min(minor), minor = intervals$month, drop_na = "gr
 
   events <- x %>%
     group_by_interval(major_interval = major, minor_interval = minor) %>%
-    find_events(rule = rule, threshold = threshold)
+    find_events(rule = rule, threshold = threshold) %>%
+    arrange(group)
 
   events[, "var"] <- events[, invar]
 
   if(plot) print(plot_groups(events))
 
   y <- events %>%
-    drop_na_periods(period = drop_na)
+    drop_na_periods(period = drop_na) %>%
+    arrange(group)
 
   if(is.function(fun_group)) {
     y <- y %>% group_by(group, minor, major, state) %>%
@@ -53,7 +55,8 @@ smires <- function(x, major = min(minor), minor = intervals$month, drop_na = "gr
 
   y <- y %>%
     rename(!!outvar := var) %>%
-    filter(state %in% !!state)
+    filter(state %in% !!state) %>%
+    ungroup()
 
   if(drop & nrow(y) == 1) y <- unlist(y[, outvar])
 
@@ -107,7 +110,8 @@ metric <- function(x, major = min(minor), minor = intervals$month,
   }
 
   y <- y %>%
-    rename(!!outvar := var)
+    rename(!!outvar := var)%>%
+    ungroup()
 
   if(drop & nrow(y) == 1) y <- unlist(y[, outvar])
 
