@@ -93,7 +93,7 @@
   }
 }
 
-check_ts <- function(x, minyear = 10, approx.missing = 5, accuracy = 0)
+validate <- function(x, minyear = 10, approx.missing = 5, accuracy = 0)
 {
   # we agreed on keeping the accuracy argument but
   # checking for negative values explicitly
@@ -155,3 +155,4 @@ check_ts <- function(x, minyear = 10, approx.missing = 5, accuracy = 0)
   x <- set_attr_smires(x, key = "dt", value = as.period(1, dt))
   return(x)
 }
+check_ts <- validate

@@ -142,8 +142,8 @@ plot_groups <- function(x)
       mutate(xmin = date2hday(start, start = int$major),
              # 366 must not overflow to 1
              xmax = date2hday(end-1, start = int$major) +1,
-             ymin = as.numeric(major) - dy,
-             ymax = as.numeric(major) + dy)
+             ymin = as.numeric(major) - dy + 0.2,
+             ymax = as.numeric(major) + dy + 0.2)
 
     label <- ungroup(x) %>%
       mutate(gstart = int$minor_hday[as.numeric(minor)],
@@ -152,7 +152,7 @@ plot_groups <- function(x)
              eend = date2hday(end, start = int$major),
              ystart = as.numeric(hydrological_year(start, start = int$major)) + dy,
              x = pmax(gstart, estart),
-             y = as.numeric(major) + dy)
+             y = as.numeric(major) + dy + 0.2)
 
     geom_seg <- if(rule == "end") {
       geom_text(data = subset(label, as.numeric(duration, unit = "days") >= 7),
@@ -169,7 +169,7 @@ plot_groups <- function(x)
                 aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax,
                     fill = state)) +
       geom_segment(data = label,
-                   aes(x = estart, xend = estart, y = ystart , yend = ystart-dy/2),
+                   aes(x = estart, xend = estart, y = ystart + 0.2 , yend = ystart-dy/2 + 0.2),
                    col = "white") +
       geom_seg +
       labs(title = paste0("Stream-Flow Permanence (threshold = ",

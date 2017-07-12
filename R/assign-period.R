@@ -386,7 +386,7 @@ hydrological_year <- function(x, start = 1)
 }
 
 
-group_by_interval <- function(.data, minor_interval,
+group_by_interval <- function(.data, minor_interval = intervals$month,
                               major_interval = min(minor_interval))
 {
   if (!is.numeric(major_interval) || length(major_interval) != 1) {

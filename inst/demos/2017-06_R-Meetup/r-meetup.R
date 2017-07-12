@@ -2,13 +2,21 @@ library(smires)
 library(lubridate)
 library(ggplot2)
 
-is.intermittent(x = ampneyBrook, ndays = 5, consecutive = TRUE, threshold = 0.001)
+# quickly check for intermittency
+is.intermittent(x = ampneyBrook, ndays = 5,
+                consecutive = TRUE,
+                threshold = 0.001)
 is.intermittent(ampneyBrook)
 
+# check input time series
 balder <- check_ts(balder)
-metric(balder, plot = T, fun_major = mean, fun_total = sum)
+
+# visualize time series and compute first metric
+metric(balder, plot = T, fun_group = mean, major =
+       fun_total = median)
 
 
+# deriving a binary time series
 ggplot(filter(balder, year(time) == 1976) , aes(time, discharge)) +
   geom_line() +
   scale_y_log10() +
@@ -19,17 +27,18 @@ smires(balder, plot = T)
 
 # threshold variation
 a <- smires(ampneyBrook, plot = T)
-a <- smires(ampneyBrook, threshold = 0.01, plot = T)
 a <- smires(ampneyBrook, threshold = 0.1, plot = T)
 
 
 # mean max duration
-smires(balder, fun_major = max, fun_total = mean, drop_na = "major", plot = T)
+smires(balder, fun_major = max,
+       fun_total = mean,
+       drop_na = "major", plot = T)
 
 
 # mean max duration, detailed
-grouped <- group_by_interval(balder, minor_interval = intervals$month)
-events <- find_events(grouped, rule = "start")
+grouped <- group_by_interval(balder,  minor_interval = intervals$month)
+events <- find_events(grouped, rule = "start", threshold = 1)
 
 events %>%
   group_by(major, state) %>%
@@ -50,7 +59,8 @@ smires(balder, major = 1, minor = intervals$month, drop_na = "group",
 b <- smires(balder, major = 32, plot = T)
 
 # changing the minor interval: seasonal analysis
-smires(balder, major = 60, minor = intervals$fourSeasons,
+smires(balder, major = 60,
+       minor = intervals$fourSeasons,
        fun_minor = mean, plot = T)
 
 smires(balder, major = 1, minor = intervals$week,
@@ -68,6 +78,7 @@ find_events(grouped, rule = "end") %>%
 
 
 
+# single value or distribution
 smires(balder, fun_major = max, fun_total = median, drop_na = "major", major = 32)
 
 b <- smires(balder, fun_major = max, drop_na = "major", major = 32)
@@ -87,7 +98,7 @@ minor <- intervals$week
 
 grouped <- group_by_interval(weekly, major_interval = yearStart, minor_interval = minor)
 events <- find_events(grouped, rule = "start")
-
+events
 # plot_groups(events)
 
 
