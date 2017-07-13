@@ -1,3 +1,23 @@
+.ordinal_suffix <- function(x) {
+  unit.pos <- x %% 10
+
+  # suffix for values > 10 has to be th
+  decade <- (x %% 100) %/% 10
+
+  suffix <- rep_len("th", length(x))
+  mask <- unit.pos %in% 1:3 & decade != 1
+  suffix[mask] <- c("st", "nd", "rd")[unit.pos[mask]]
+
+  return(suffix)
+}
+
+
+.rescale <- function(x, na.rm = TRUE)
+{
+  (x - min(x, na.rm = na.rm))/diff(range(x, na.rm = na.rm))
+}
+
+
 .nplural <- function(n, msg, suffix = "s")
 {
   # prints number + text, appends an plural "s" if n > 1
@@ -22,26 +42,7 @@
 # }
 
 
-# replace with lubridate::yday()?
-.date2julian <- function(x)
-{
-  if (is.instant(x)) {
-    x <- as.numeric(format(as.Date(x), "%j"))
-  }
-
-  if(!is.numeric(x) || x < 1 || x > 365) {
-    stop("Argument `x` must be either date or an integer inside [1, 365]. ")
-  }
-
-  return(x)
-}
-
-.is_leapyear <- function(x)
-{
-  year <- year(x)
-  (year%%4 == 0) & ((year%%100 != 0) | (year%%400 == 0))
-}
-
+# attributes of smires objects ----
 
 # to keep track of the variables
 set_vars <- function(x, value)
@@ -94,6 +95,28 @@ set_attr_smires <- function(x, key = NULL, value)
 
 
 
+# `[.smires`  <- function (x, i, j, ...) {
+#   y <- NextMethod()
+#   y <- `[`(y, i , j, ...)
+#   y <- set_attr_smires(y, value = get_attr_smires(x))
+#
+#   class(y) <- class(x)
+#   return(y)
+# }
+
+
+# date/time related functions ----
+
+date2hday <- function(x, start)
+{
+
+  if(is.instant(x)) x <- yday(x)
+  d <- x - start + 1
+  hday <- ifelse(d %% 366 == 0, 365, ((d-1) %% 365 ) + 1 )
+
+  return(hday)
+}
+
 
 
 format_jday <- function(x)
@@ -120,40 +143,23 @@ format_jday <- function(x)
   return(y)
 }
 
-.ordinal_suffix <- function(x) {
-  unit.pos <- x %% 10
 
-  # suffix for values > 10 has to be th
-  decade <- (x %% 100) %/% 10
-
-  suffix <- rep_len("th", length(x))
-  mask <- unit.pos %in% 1:3 & decade != 1
-  suffix[mask] <- c("st", "nd", "rd")[unit.pos[mask]]
-
-  return(suffix)
-}
-
-
-date2hday <- function(x, start)
+.date2julian <- function(x)
 {
+  if (is.instant(x)) {
+    x <- as.numeric(format(as.Date(x), "%j"))
+  }
 
-  if(is.instant(x)) x <- yday(x)
-  d <- x - start + 1
-  hday <- ifelse(d %% 366 == 0, 365, ((d-1) %% 365 ) + 1 )
+  if(!is.numeric(x) || x < 1 || x > 365) {
+    stop("Argument `x` must be either date or an integer inside [1, 365]. ")
+  }
 
-  return(hday)
+  return(x)
 }
 
-# `[.smires`  <- function (x, i, j, ...) {
-#   y <- NextMethod()
-#   y <- `[`(y, i , j, ...)
-#   y <- set_attr_smires(y, value = get_attr_smires(x))
-#
-#   class(y) <- class(x)
-#   return(y)
-# }
-
-.rescale <- function(x, na.rm = TRUE)
+.is_leapyear <- function(x)
 {
-  (x - min(x, na.rm = na.rm))/diff(range(x, na.rm = na.rm))
+  year <- year(x)
+  (year%%4 == 0) & ((year%%100 != 0) | (year%%400 == 0))
 }
+

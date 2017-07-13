@@ -1,12 +1,3 @@
-# plot_intermittency <- function(...)
-# {
-#   require(ggplot2)
-#   plot_events(find_events(...), label = FALSE) +
-#     theme(legend.position = "right")
-# }
-#
-
-
 smires <- function(x, major = min(minor), minor = intervals$month, drop_na = "group",
                    rule = "start", threshold = 0.001,
                    fun_group = NULL, fun_minor = NULL, fun_major = NULL,
@@ -118,7 +109,7 @@ metric <- function(x, major = min(minor), minor = intervals$month,
   return(y)
 }
 
-
+## metrics suggested in smires project ----
 
 mean_annual_max_duration_dry <- function(x)
 {
