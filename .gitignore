@@ -5,6 +5,8 @@
 inst/demos/*.html
 inst/demos/*-figure
 inst/demos/*.md
+inst/demos/2017-06_R-Meetup/presentation.pdf
+dev/
 ts/
 *.aux
 *.log
@@ -14,3 +16,5 @@ ts/
 *synctex.gz
 *.toc
 *.vrb
+*-concordance.tex
+hyear_start_french.pdf
