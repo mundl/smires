@@ -73,7 +73,9 @@
   missing <- fullseq[!fullseq %in% x$time]
 
   if(length(missing)) {
-    gaps <-data.frame(time = missing, value = NA_real_)
+    varname <- colnames(x)[2]
+    gaps <- data.frame(time = missing, value = NA_real_)
+    colnames(gaps)[2] <- varname
     x <- rbind(x, gaps, make.row.names = FALSE)
     x <- x[order(x$time), ]
     rownames(x) <- NULL
@@ -152,6 +154,7 @@ validate <- function(x, minyear = 10, approx.missing = 5, accuracy = 0)
             minyear, " years is advised.")
   }
 
+  x <- as_data_frame(x)
   x <- .set_attr_smires(x, key = "dt", value = as.period(1, dt))
   return(x)
 }
