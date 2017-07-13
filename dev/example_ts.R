@@ -31,3 +31,24 @@ balder <- read.nrfa(file = "ts/uk//nrfa_public_25022_gdf.csv") %>%
   as_tibble() %>% rename(discharge = value) %>% validate()
 
 use_data(balder, ampneyBrook, overwrite = TRUE)
+
+
+# Cypress ----
+infile <- read.csv2("ts/cy/converted.csv",
+                    colClasses = c("factor", "Date", "numeric")) %>%
+  rename(station = "Location.ID",
+         time = "Measurement.Date",
+         discharge = "Qmean_m3_s")
+
+levels(infile$station) <- paste0("cy", seq_len(nlevels(infile$station)))
+
+cy1 <- filter(infile, station == "cy1") %>%
+  select(time, discharge) %>% validate()
+
+cy2 <- filter(infile, station == "cy2") %>%
+  select(time, discharge) %>% validate()
+
+cy3 <- filter(infile, station == "cy3") %>%
+  select(time, discharge) %>% validate()
+
+use_data(cy1, cy2, cy3, overwrite = TRUE)
