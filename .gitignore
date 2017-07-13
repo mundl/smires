@@ -2,12 +2,17 @@
 .Rhistory
 .RData
 .Ruserdata
+
 inst/demos/*.html
 inst/demos/*-figure
 inst/demos/*.md
 inst/demos/2017-06_R-Meetup/presentation.pdf
+inst/demos/2017-07_useR/fig/fig-*
+inst/demos/2017-07_useR/useR_lightning_talk_smires.tex
+
 dev/
 ts/
+
 *.aux
 *.log
 *.nav
@@ -17,4 +22,4 @@ ts/
 *.toc
 *.vrb
 *-concordance.tex
-hyear_start_french.pdf
+Thumbs.db
