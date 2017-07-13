@@ -44,22 +44,22 @@ plot_groups <- function(x)
     rule <- .get_attr_smires(x, key = "rule")
     dy <- 0.2
     segment <- .get_attr_smires(x, "spell_cut") %>%
-      mutate(xmin = .date2hday(start, start = int$major),
+      mutate(xmin = .date2hday(onset, start = int$major),
              # 366 must not overflow to 1
-             xmax = .date2hday(end-1, start = int$major) +1,
+             xmax = .date2hday(termination-1, start = int$major) +1,
              ymin = as.numeric(major) - dy + 0.2,
              ymax = as.numeric(major) + dy + 0.2)
 
     label <- ungroup(x) %>%
       mutate(gstart = int$minor_hday[as.numeric(minor)],
              gend = int$minor_hday[as.numeric(minor) + 1],
-             estart = .date2hday(start, start = int$major),
-             eend = .date2hday(end, start = int$major),
-             ystart = as.numeric(hydrological_year(start, start = int$major)) + dy,
+             estart = .date2hday(onset, start = int$major),
+             eend = .date2hday(termination, start = int$major),
+             ystart = as.numeric(hydrological_year(onset, start = int$major)) + dy,
              x = pmax(gstart, estart),
              y = as.numeric(major) + dy + 0.2)
 
-    geom_seg <- if(rule == "end") {
+    geom_seg <- if(rule == "termination") {
       geom_text(data = subset(label, as.numeric(duration, unit = "days") >= 7),
                 aes(x = eend - 2, y = y, label = spell),
                 size = 3, hjust = 1, vjust = 1.1, col = "white")

@@ -1,5 +1,5 @@
 smires <- function(x, major = min(minor), minor = intervals$month, drop_na = "group",
-                   rule = "start", threshold = 0.001,
+                   rule = "onset", threshold = 0.001,
                    fun_group = NULL, fun_minor = NULL, fun_major = NULL,
                    fun_total = NULL,
                    state = c("no-flow", "flow"),

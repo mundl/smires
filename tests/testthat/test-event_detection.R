@@ -6,7 +6,7 @@ test_that("structure of tibble is correct", {
 
   # colnames
   expect_equal(colnames(e),
-               c("spell", "state", "start", "end", "duration"))
+               c("spell", "state", "onset", "termination", "duration"))
 
   # classes
   expect_equal(object = unname(sapply(as.list(e), class)),

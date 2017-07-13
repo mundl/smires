@@ -38,7 +38,7 @@ smires(balder, fun_major = max,
 
 # mean max duration, detailed
 grouped <- group_by_interval(balder,  minor_interval = intervals$month)
-spells <- find_spells(grouped, rule = "start", threshold = 1)
+spells <- find_spells(grouped, rule = "onset", threshold = 1)
 
 spells %>%
   group_by(major, state) %>%
@@ -50,7 +50,7 @@ spells %>%
 
 # all arguments
 smires(balder, major = 1, minor = intervals$month, drop_na = "group",
-       rule = "start", threshold = 0.001,
+       rule = "onset", threshold = 0.001,
        fun_group = NULL, fun_minor = NULL, fun_major = NULL, fun_total = NULL,
        state = c("no-flow", "flow"), invar = "duration", outvar = "variable",
        drop = FALSE, plot = FALSE)
@@ -70,10 +70,10 @@ smires(balder, major = 1, minor = intervals$week,
 find_spells(grouped) %>%
   plot_groups()
 
-find_spells(grouped, rule = "start") %>%
+find_spells(grouped, rule = "onset") %>%
   plot_groups()
 
-find_spells(grouped, rule = "end") %>%
+find_spells(grouped, rule = "termination") %>%
   plot_groups()
 
 

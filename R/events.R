@@ -1,5 +1,5 @@
 find_spells <- function(x, threshold = 0.001,
-                        rule = c("cut", "duplicate", "start", "end"),
+                        rule = c("cut", "duplicate", "onset", "termination"),
                         na.rm = TRUE, warn = TRUE)
 {
   rule <- match.arg(rule)
@@ -13,7 +13,7 @@ find_spells <- function(x, threshold = 0.001,
 }
 
 
-.assign_spell <- function(x, rule = c("cut", "duplicate", "start", "end"))
+.assign_spell <- function(x, rule = c("cut", "duplicate", "onset", "termination"))
 {
   rule <- match.arg(rule)
   x <- .set_attr_smires(x, "rule", rule)
@@ -24,12 +24,12 @@ find_spells <- function(x, threshold = 0.001,
   # spells are already cut or duplicated
   if(rule %in% c("cut", "duplicate")) return(x)
 
-  if(rule == "start") {
+  if(rule == "onset") {
     y <- arrange(ungroup(x), spell, group) %>%
       distinct(spell, .keep_all = TRUE)
   }
 
-  if(rule == "end") {
+  if(rule == "termination") {
     y <- arrange(ungroup(x), desc(spell), desc(group)) %>%
       distinct(spell, .keep_all = TRUE) %>%
       arrange(spell)
@@ -80,16 +80,16 @@ find_spells <- function(x, threshold = 0.001,
     cut <- group_by(x, spell, state)
   }
   cut <- cut %>%
-    summarize(start = min(time), end = max(time) + att$dt,
-              duration = end - start)
+    summarize(onset = min(time), termination = max(time) + att$dt,
+              duration = termination - onset)
 
   if(duplicate) {
-    res <- y %>% do(data.frame(start = min(.$time), end = max(.$time) + att$dt,
+    res <- y %>% do(data.frame(onset = min(.$time), termination = max(.$time) + att$dt,
                                group = unique(.$group))) %>%
-      mutate(duration = end - start)
+      mutate(duration = termination - onset)
   } else {
-    res <- summarize(y, start = min(time), end = max(time) + att$dt,
-                     duration = end - start)
+    res <- summarize(y, onset = min(time), termination = max(time) + att$dt,
+                     duration = termination - onset)
   }
 
   if(grouped) {
