@@ -9,7 +9,7 @@ is.intermittent(x = ampneyBrook, ndays = 5,
 is.intermittent(ampneyBrook)
 
 # check input time series
-balder <- check_ts(balder)
+balder <- validate(balder)
 
 # visualize time series and compute first metric
 metric(balder, plot = T, fun_group = mean, major =
@@ -91,7 +91,7 @@ ggplot(b, aes(y = as.numeric(variable), x = state)) +
 
 # weekly ----
 weekly <- balder[c(T, rep(F, 6)), ]
-weekly <- check_ts(weekly)
+weekly <- validate(weekly)
 
 yearStart <- 92
 minor <- intervals$week
@@ -104,7 +104,7 @@ spells
 
 # monthly ----
 monthly <- balder[mday(balder$time) == 1, ]
-monthly <- check_ts(monthly)
+monthly <- validate(monthly)
 
 yearStart <- 182
 minor <- intervals$month

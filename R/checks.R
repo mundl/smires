@@ -2,7 +2,7 @@
 
 # extract dt
 .dt <- function(x) {
-  dt <- get_attr_smires(x, "dt")
+  dt <- .get_attr_smires(x, "dt")
   if(is.null(dt)) dt <- median(diff(x$time))
 
   return(as.period(dt))
@@ -152,7 +152,7 @@ validate <- function(x, minyear = 10, approx.missing = 5, accuracy = 0)
             minyear, " years is advised.")
   }
 
-  x <- set_attr_smires(x, key = "dt", value = as.period(1, dt))
+  x <- .set_attr_smires(x, key = "dt", value = as.period(1, dt))
   return(x)
 }
 

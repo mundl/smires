@@ -9,8 +9,12 @@ test_that("structure of tibble is correct", {
                c("spell", "state", "start", "end", "duration"))
 
   # classes
-  expect_equal(unname(sapply(as.list(e), class)),
-               c("factor", "factor", "Date", "Date", "difftime"))
+  expect_equal(object = unname(sapply(as.list(e), class)),
+               expected = list(c("ordered", "factor"),
+                               "factor",
+                               "Date",
+                               "Date",
+                               "difftime"))
 })
 
 

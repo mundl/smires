@@ -8,17 +8,18 @@ find_spells <- function(x, threshold = 0.001,
     .detect_noflow_spells(threshold = threshold) %>%
 
     .add_spellvars(warn = warn, duplicate = rule != "cut") %>%
-    assign_spell(rule = rule) %>%
+    .assign_spell(rule = rule) %>%
     arrange(spell) # sort by spell
 }
 
 
-assign_spell <- function(x, rule = c("cut", "duplicate", "start", "end"))
+.assign_spell <- function(x, rule = c("cut", "duplicate", "start", "end"))
 {
   rule <- match.arg(rule)
-  x <- set_attr_smires(x, "rule", rule)
+  x <- .set_attr_smires(x, "rule", rule)
 
   # todo: rules for "majority" and "center"
+  # todo: cut = cut_group = cut_minor, cut_major
 
   # spells are already cut or duplicated
   if(rule %in% c("cut", "duplicate")) return(x)
@@ -44,14 +45,14 @@ assign_spell <- function(x, rule = c("cut", "duplicate", "start", "end"))
   {
     x$spell <- seq_len(nrow(x))
   } else {
-    att <- get_attr_smires(x)
+    att <- .get_attr_smires(x)
 
     x$state <- ifelse(x$discharge <= threshold, "no-flow", "flow")
     x$state <- factor(x$state, levels = c("no-flow", "flow"))
     x <- mutate(x, spell = .spell(x$state))
 
     att[["threshold"]] <- threshold
-    x <- set_attr_smires(x, value = att)
+    x <- .set_attr_smires(x, value = att)
   }
 
 
@@ -70,7 +71,7 @@ assign_spell <- function(x, rule = c("cut", "duplicate", "start", "end"))
     group_by(x, spell, state)
   }
 
-  att <- get_attr_smires(x)
+  att <- .get_attr_smires(x)
 
   # always store cutted spells in attributes,  needed for plotting
   if(grouped) {
@@ -101,7 +102,7 @@ assign_spell <- function(x, rule = c("cut", "duplicate", "start", "end"))
   att[["spell_cut"]] <- cut[, seq_along(cut)]
 
   #if(grouped | duplicate)
-  res <- set_attr_smires(res, value = att)
+  res <- .set_attr_smires(res, value = att)
 
 
   return(res)

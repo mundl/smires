@@ -1,7 +1,7 @@
 plot_groups <- function(x)
 {
-  frame <- get_attr_smires(x, key = "group_interval")
-  int <- get_attr_smires(x, "interval")
+  frame <- .get_attr_smires(x, key = "group_interval")
+  int <- .get_attr_smires(x, "interval")
   int$minor_hday <- c(int$minor_hday, 366)
 
   frame <- frame %>% mutate(x = as.numeric(minor),
@@ -40,21 +40,21 @@ plot_groups <- function(x)
 
   if("spell" %in% colnames(x)) {
     # todo: only works if spells are cutted
-    threshold <- get_attr_smires(x, key = "threshold")
-    rule <- get_attr_smires(x, key = "rule")
+    threshold <- .get_attr_smires(x, key = "threshold")
+    rule <- .get_attr_smires(x, key = "rule")
     dy <- 0.2
-    segment <- get_attr_smires(x, "spell_cut") %>%
-      mutate(xmin = date2hday(start, start = int$major),
+    segment <- .get_attr_smires(x, "spell_cut") %>%
+      mutate(xmin = .date2hday(start, start = int$major),
              # 366 must not overflow to 1
-             xmax = date2hday(end-1, start = int$major) +1,
+             xmax = .date2hday(end-1, start = int$major) +1,
              ymin = as.numeric(major) - dy + 0.2,
              ymax = as.numeric(major) + dy + 0.2)
 
     label <- ungroup(x) %>%
       mutate(gstart = int$minor_hday[as.numeric(minor)],
              gend = int$minor_hday[as.numeric(minor) + 1],
-             estart = date2hday(start, start = int$major),
-             eend = date2hday(end, start = int$major),
+             estart = .date2hday(start, start = int$major),
+             eend = .date2hday(end, start = int$major),
              ystart = as.numeric(hydrological_year(start, start = int$major)) + dy,
              x = pmax(gstart, estart),
              y = as.numeric(major) + dy + 0.2)
@@ -83,3 +83,13 @@ plot_groups <- function(x)
 
   return(p)
 }
+
+
+plot_intermittency <- function(x, ...)
+{
+  null <- smires(x, ..., plot = TRUE)
+  return(invisible())
+}
+
+# todo: write a functions() plot_spell that works for ungrouped events
+# or make plot_groups() compatible with ungrouped events --> better name?

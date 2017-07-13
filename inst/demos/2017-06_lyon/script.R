@@ -5,23 +5,19 @@ is.intermittent(ampneyBrook)
 plot_intermittency(ampneyBrook)
 plot_intermittency(balder)
 
-discharge <- check_ts(balder)
+discharge <- validate(balder)
 
 
 spells <- find_spells(discharge)
-plot_spells(spells)
 print(spells)
 
-metric(discharge, period = "year", agg1  = "max", agg2 = "mean")
-
-metric(discharge, period = "year", agg1  = "max", agg2 = c("sd", "mean"))
-metric(discharge, period = "year", agg1  = "sum", agg2 = "mean")
+metric(discharge, fun_major = max, fun_total = mean)
 
 
-find_spells(discharge) %>% assign_period(interval = "year") %>%
-  split_spells() %>%
-  drop_na_periods(year) %>%  group_by(year, state) %>%
-  summarise_at(vars(duration), funs(max)) %>% group_by(state) %>%
-  summarise_at(vars(-year, -state), funs(mean))
-
-
+discharge %>%
+  group_by_interval() %>%
+  drop_na_periods(period = "group") %>%
+  group_by(major) %>%
+  summarise(var = max(discharge)) %>%
+  ungroup() %>%
+  summarise(variable = mean(var))

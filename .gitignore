@@ -10,6 +10,8 @@ inst/demos/2017-06_R-Meetup/presentation.pdf
 inst/demos/2017-07_useR/fig/fig-*
 inst/demos/2017-07_useR/useR_lightning_talk_smires.tex
 
+tests/testthat/Rplots.pdf
+
 dev/
 ts/
 

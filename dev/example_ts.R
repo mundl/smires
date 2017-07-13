@@ -25,9 +25,9 @@ fr <- lapply(files, .read_txt_france)
 # United Kingdom ----
 require(readhyd)
 ampneyBrook <- read.nrfa(file = "ts/uk//nrfa_public_39099_gdf.csv") %>%
-  as_tibble() %>% rename(discharge = value) %>% check_ts()
+  as_tibble() %>% rename(discharge = value) %>% validate()
 
 balder <- read.nrfa(file = "ts/uk//nrfa_public_25022_gdf.csv") %>%
-  as_tibble() %>% rename(discharge = value) %>% check_ts()
+  as_tibble() %>% rename(discharge = value) %>% validate()
 
 use_data(balder, ampneyBrook, overwrite = TRUE)

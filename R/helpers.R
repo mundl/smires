@@ -45,29 +45,30 @@
 # attributes of smires objects ----
 
 # to keep track of the variables
-set_vars <- function(x, value)
+# currently unused!
+.set_vars <- function(x, value)
 {
   bad <- setdiff(value, colnames(x))
   if(length(bad)) {
     stop("The following variables are not present: ", paste(bad, collapse = ", "))
   }
-  x <- set_attr_smires(x, "var") <- value
+  x <- .set_attr_smires(x, "var") <- value
   return(x)
 }
 
-`set_vars<-` <- function(x, value)
+`.set_vars<-` <- function(x, value)
 {
   set_vars(x = x, value = value)
 }
 
-get_vars <- function(x)
+.get_vars <- function(x)
 {
-  return(get_attr_smires(x, "var"))
+  return(.get_attr_smires(x, "var"))
 }
 
 
 # setting and retaining all smires attributes
-get_attr_smires <- function(x, key = NULL)
+.get_attr_smires <- function(x, key = NULL)
 {
   att <- as.list(attr(x, "smires"))
   if(is.null(key)) return(att)
@@ -78,9 +79,9 @@ get_attr_smires <- function(x, key = NULL)
   return(y)
 }
 
-set_attr_smires <- function(x, key = NULL, value)
+.set_attr_smires <- function(x, key = NULL, value)
 {
-  att <- get_attr_smires(x)
+  att <- .get_attr_smires(x)
   if(is.null(key)) {
     # todo: remove comment, is.intermittent()
     # if (length(att)) warning("Overwriting existing attributes.")
@@ -98,7 +99,7 @@ set_attr_smires <- function(x, key = NULL, value)
 # `[.smires`  <- function (x, i, j, ...) {
 #   y <- NextMethod()
 #   y <- `[`(y, i , j, ...)
-#   y <- set_attr_smires(y, value = get_attr_smires(x))
+#   y <- .set_attr_smires(y, value = .get_attr_smires(x))
 #
 #   class(y) <- class(x)
 #   return(y)
@@ -107,7 +108,7 @@ set_attr_smires <- function(x, key = NULL, value)
 
 # date/time related functions ----
 
-date2hday <- function(x, start)
+.date2hday <- function(x, start)
 {
 
   if(is.instant(x)) x <- yday(x)
@@ -118,8 +119,8 @@ date2hday <- function(x, start)
 }
 
 
-
-format_jday <- function(x)
+# currently unused
+.format_jday <- function(x)
 {
   nam <- names(x)
   if(is.numeric(x)) {
@@ -162,4 +163,39 @@ format_jday <- function(x)
   year <- year(x)
   (year%%4 == 0) & ((year%%100 != 0) | (year%%400 == 0))
 }
+
+.correct_leapyear <- function(x)
+{
+  x <- as.Date(x)
+  day <- yday(x)
+
+  wrong <- .is_leapyear(x) & day >= 60
+  if(any(wrong)) {
+    # we are in a leap year and after Feb 28th
+    warning("Date falls into a leap year. Using the previous day.")
+    x[wrong] <- x[wrong] - 1
+  }
+
+  return(x)
+}
+
+
+.yday2 <- function(x, correct_leapyear = TRUE)
+{
+  if(is.instant(x)) {
+    x <- as.Date(x)
+
+    if(correct_leapyear) x <- .correct_leapyear(x)
+    day <- yday(x)
+
+  } else if(is.numeric(x) &&  x <= 365 && x > 0) {
+    day <- x
+  } else {
+    stop("Argument 'x' must be eihter of class Date or an integer in [1, 365]")
+  }
+
+  return(day)
+}
+
+
 

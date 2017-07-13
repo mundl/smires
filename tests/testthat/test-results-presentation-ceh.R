@@ -1,17 +1,20 @@
 context("Internal Presentation CEH")
 
 test_that("Mean annual maximum Duration for Balder", {
-  meanMaxDur <- balder %>% find_spells(threshold = 0.001) %>%
-    assign_period() %>%
-    split_spells(at = "year") %>%
-    drop_na_periods(year) %>%
-    group_by(year, state) %>% summarise_at(vars(duration), funs(max)) %>%
-    group_by(state) %>% summarise_at(vars(duration), funs(mean))
+  current <- smires(balder, fun_major = max, fun_total = mean,
+                    drop_na = "major", rule = "start",
+                    state = "no-flow", drop = T)
 
-  current <- as.numeric(meanMaxDur$duration[meanMaxDur$state == "no-flow"])
-  expected <- 38.6
-
+  expected <- c("variable" = 39.8)
   expect_equal(current, expected)
 
-  })
+  # not yet implemented
+  # current <- smires(balder, fun_major = max, fun_total = mean,
+  #                   drop_na = "major", rule = "cut_major",
+  #                   state = "no-flow", drop = T)
+  #
+  # expected <- c("variable" = 38.6)
+  # expect_equal(current, expected)
+
+})
 
