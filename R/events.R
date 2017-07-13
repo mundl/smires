@@ -1,54 +1,54 @@
-find_events <- function(x, threshold = 0.001,
+find_spells <- function(x, threshold = 0.001,
                         rule = c("cut", "duplicate", "start", "end"),
                         na.rm = TRUE, warn = TRUE)
 {
   rule <- match.arg(rule)
 
   x %>%
-    .detect_noflow_events(threshold = threshold) %>%
+    .detect_noflow_spells(threshold = threshold) %>%
 
-    .add_eventvars(warn = warn, duplicate = rule != "cut") %>%
-    assign_event(rule = rule) %>%
-    arrange(event) # sort by event
+    .add_spellvars(warn = warn, duplicate = rule != "cut") %>%
+    assign_spell(rule = rule) %>%
+    arrange(spell) # sort by spell
 }
 
 
-assign_event <- function(x, rule = c("cut", "duplicate", "start", "end"))
+assign_spell <- function(x, rule = c("cut", "duplicate", "start", "end"))
 {
   rule <- match.arg(rule)
   x <- set_attr_smires(x, "rule", rule)
 
   # todo: rules for "majority" and "center"
 
-  # events are already cut or duplicated
+  # spells are already cut or duplicated
   if(rule %in% c("cut", "duplicate")) return(x)
 
   if(rule == "start") {
-    y <- arrange(ungroup(x), event, group) %>%
-      distinct(event, .keep_all = TRUE)
+    y <- arrange(ungroup(x), spell, group) %>%
+      distinct(spell, .keep_all = TRUE)
   }
 
   if(rule == "end") {
-    y <- arrange(ungroup(x), desc(event), desc(group)) %>%
-      distinct(event, .keep_all = TRUE) %>%
-      arrange(event)
+    y <- arrange(ungroup(x), desc(spell), desc(group)) %>%
+      distinct(spell, .keep_all = TRUE) %>%
+      arrange(spell)
   }
 
   return(y)
 }
 
 
-.detect_noflow_events <- function(x, threshold = 0.1)
+.detect_noflow_spells <- function(x, threshold = 0.1)
 {
   if(is.null(threshold))
   {
-    x$event <- seq_len(nrow(x))
+    x$spell <- seq_len(nrow(x))
   } else {
     att <- get_attr_smires(x)
 
     x$state <- ifelse(x$discharge <= threshold, "no-flow", "flow")
     x$state <- factor(x$state, levels = c("no-flow", "flow"))
-    x <- mutate(x, event = .event(x$state))
+    x <- mutate(x, spell = .spell(x$state))
 
     att[["threshold"]] <- threshold
     x <- set_attr_smires(x, value = att)
@@ -60,23 +60,23 @@ assign_event <- function(x, rule = c("cut", "duplicate", "start", "end"))
 
 
 
-.add_eventvars <- function(x, warn = TRUE, duplicate = FALSE)
+.add_spellvars <- function(x, warn = TRUE, duplicate = FALSE)
 {
   grouped <- "group" %in% colnames(x)
 
   y <- if(grouped && !duplicate) {
-    group_by(x, event, state, group)
+    group_by(x, spell, state, group)
   } else {
-    group_by(x, event, state)
+    group_by(x, spell, state)
   }
 
   att <- get_attr_smires(x)
 
-  # always store cutted events in attributes,  needed for plotting
+  # always store cutted spells in attributes,  needed for plotting
   if(grouped) {
-    cut <- group_by(x, event, state, group)
+    cut <- group_by(x, spell, state, group)
   } else{
-    cut <- group_by(x, event, state)
+    cut <- group_by(x, spell, state)
   }
   cut <- cut %>%
     summarize(start = min(time), end = max(time) + att$dt,
@@ -98,7 +98,7 @@ assign_event <- function(x, rule = c("cut", "duplicate", "start", "end"))
   }
 
   # quick and dirty way to drop smires attributes, no need to store them twice
-  att[["event_cut"]] <- cut[, seq_along(cut)]
+  att[["spell_cut"]] <- cut[, seq_along(cut)]
 
   #if(grouped | duplicate)
   res <- set_attr_smires(res, value = att)
@@ -108,7 +108,7 @@ assign_event <- function(x, rule = c("cut", "duplicate", "start", "end"))
 }
 
 
-.event <- function(x, new.group.na = TRUE, as.factor = TRUE)
+.spell <- function(x, new.group.na = TRUE, as.factor = TRUE)
 {
   # copied from lfstat group()
   # operates just on the grouping variable

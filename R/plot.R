@@ -22,7 +22,7 @@ plot_groups <- function(x)
                        breaks = seq_len(nlevels(frame$major)),
                        labels = levels(frame$major),
                        expand = c(0, 0)) +
-    # labs(subtitle = "Boxes are groups, segments are events.") +
+    # labs(subtitle = "Boxes are groups, segments are spells.") +
     geom_text(data = frame,
               aes(x = xmax - 2,  y = ymin + 0.1, label = group),
               size = 3, hjust = 1, vjust = 0, col = "darkgrey") +
@@ -38,12 +38,12 @@ plot_groups <- function(x)
   }
 
 
-  if("event" %in% colnames(x)) {
-    # todo: only works if events are cutted
+  if("spell" %in% colnames(x)) {
+    # todo: only works if spells are cutted
     threshold <- get_attr_smires(x, key = "threshold")
     rule <- get_attr_smires(x, key = "rule")
     dy <- 0.2
-    segment <- get_attr_smires(x, "event_cut") %>%
+    segment <- get_attr_smires(x, "spell_cut") %>%
       mutate(xmin = date2hday(start, start = int$major),
              # 366 must not overflow to 1
              xmax = date2hday(end-1, start = int$major) +1,
@@ -61,11 +61,11 @@ plot_groups <- function(x)
 
     geom_seg <- if(rule == "end") {
       geom_text(data = subset(label, as.numeric(duration, unit = "days") >= 7),
-                aes(x = eend - 2, y = y, label = event),
+                aes(x = eend - 2, y = y, label = spell),
                 size = 3, hjust = 1, vjust = 1.1, col = "white")
     } else {
       geom_text(data = subset(label, as.numeric(duration, unit = "days") >= 7),
-                aes(x = estart + 2, y = y, label = event),
+                aes(x = estart + 2, y = y, label = spell),
                 size = 3, hjust = 0, vjust = 1.1, col = "white")
     }
 

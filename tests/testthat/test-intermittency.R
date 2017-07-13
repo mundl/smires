@@ -9,7 +9,7 @@ test_that("is.intermittent() works on Ampney Brook", {
   expect_equal(is.intermittent(x, ndays = 386, consecutive = F), T)
   expect_equal(is.intermittent(x, ndays = 387, consecutive = F), F)
 
-  # longest no-flow event lasts 143 daxs
+  # longest no-flow spell lasts 143 daxs
   expect_equal(is.intermittent(x, ndays = 386, consecutive = T), F)
   expect_equal(is.intermittent(x, ndays = 144, consecutive = T), F)
   expect_equal(is.intermittent(x, ndays = 143, consecutive = T), T)

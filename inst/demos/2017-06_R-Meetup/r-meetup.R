@@ -38,9 +38,9 @@ smires(balder, fun_major = max,
 
 # mean max duration, detailed
 grouped <- group_by_interval(balder,  minor_interval = intervals$month)
-events <- find_events(grouped, rule = "start", threshold = 1)
+spells <- find_spells(grouped, rule = "start", threshold = 1)
 
-events %>%
+spells %>%
   group_by(major, state) %>%
   drop_na_periods("major") %>%
   summarise(var = max(duration)) %>%
@@ -66,14 +66,14 @@ smires(balder, major = 60,
 smires(balder, major = 1, minor = intervals$week,
        fun_minor = mean, plot = T)
 
-# demo split events
-find_events(grouped) %>%
+# demo split spells
+find_spells(grouped) %>%
   plot_groups()
 
-find_events(grouped, rule = "start") %>%
+find_spells(grouped, rule = "start") %>%
   plot_groups()
 
-find_events(grouped, rule = "end") %>%
+find_spells(grouped, rule = "end") %>%
   plot_groups()
 
 
@@ -97,9 +97,9 @@ yearStart <- 92
 minor <- intervals$week
 
 grouped <- group_by_interval(weekly, major_interval = yearStart, minor_interval = minor)
-events <- find_events(grouped, rule = "start")
-events
-# plot_groups(events)
+spells <- find_spells(grouped, rule = "start")
+spells
+# plot_groups(spells)
 
 
 # monthly ----
@@ -110,8 +110,8 @@ yearStart <- 182
 minor <- intervals$month
 
 grouped <- group_by_interval(monthly, major_interval = yearStart, minor_interval = minor)
-events <- find_events(grouped, rule = "start")
+spells <- find_spells(grouped, rule = "start")
 
 
-plot_groups(events)
+plot_groups(spells)
 

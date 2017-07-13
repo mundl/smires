@@ -51,7 +51,7 @@ drop_na_periods <- function(x, period = group_vars(x))
   if(!period %in% colnames(x)) stop("Period not present in data.")
 
   # todo: use get_vars()
-  # todo: instead of deleting the events, set value to NA to visualise missingness in plot
+  # todo: instead of deleting the spells, set value to NA to visualise missingness in plot
   var <- intersect(colnames(x), c("state", "discharge"))
   nas <- x[is.na(x[, var]), period]
 

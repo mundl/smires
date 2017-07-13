@@ -49,7 +49,7 @@
 .fill_na <- function(x, max.len = Inf, warn = TRUE, ...)
 {
   # copied from lfstat
-  g <- .event(is.na(x), as.factor = FALSE)
+  g <- .spell(is.na(x), as.factor = FALSE)
   rl <- rle(g)
   len <- rep(rl$lengths, rl$lengths)
 

@@ -1,12 +1,12 @@
-context("Event Detection")
+context("Spell Detection")
 
-e <- find_events(balder)
+e <- find_spells(balder)
 
 test_that("structure of tibble is correct", {
 
   # colnames
   expect_equal(colnames(e),
-               c("event", "state", "start", "end", "duration"))
+               c("spell", "state", "start", "end", "duration"))
 
   # classes
   expect_equal(unname(sapply(as.list(e), class)),

@@ -8,16 +8,16 @@ smires <- function(x, major = min(minor), minor = intervals$month, drop_na = "gr
 
   state <- match.arg(state, several.ok = TRUE)
 
-  events <- x %>%
+  spells <- x %>%
     group_by_interval(major_interval = major, minor_interval = minor) %>%
-    find_events(rule = rule, threshold = threshold) %>%
+    find_spells(rule = rule, threshold = threshold) %>%
     arrange(group)
 
-  events[, "var"] <- events[, invar]
+  spells[, "var"] <- spells[, invar]
 
-  if(plot) print(plot_groups(events))
+  if(plot) print(plot_groups(spells))
 
-  y <- events %>%
+  y <- spells %>%
     drop_na_periods(period = drop_na) %>%
     arrange(group)
 
