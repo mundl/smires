@@ -43,9 +43,9 @@ spells <- find_spells(grouped, rule = "onset", threshold = 1)
 spells %>%
   group_by(major, state) %>%
   drop_na_periods("major") %>%
-  summarise(var = max(duration)) %>%
+  summarize(var = max(duration)) %>%
   group_by(state) %>%
-  summarise(meanMaxDur = mean(var))
+  summarize(meanMaxDur = mean(var))
 
 
 # all arguments

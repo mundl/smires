@@ -62,7 +62,7 @@ dryday$country <- nstation[dryday$country]
 
 library(tidyr)
 library(dplyr)
-days <- group_by(dryday, country, day) %>% summarise(fraction = mean(value))
+days <- group_by(dryday, country, day) %>% summarize(fraction = mean(value))
 
 saveRDS(days, file = "../smires/dev/day_drought95.rds")
 days <- readRDS("dev/day_drought.rds")
@@ -73,7 +73,7 @@ days <- na.omit(days)
 
 
 library(tidyr)
-col <- group_by(days, country) %>% summarise(min = (time[which.min(fraction)]),
+col <- group_by(days, country) %>% summarize(min = (time[which.min(fraction)]),
                                       max = (time[which.max(fraction)]))
 
 

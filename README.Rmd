@@ -150,7 +150,7 @@ dat <- subset(series, !is.na(series$`time series`), select = c("country", "inclu
 
 Currently ``r length(unique(dat$country))`` countries have submitted time series of which  ``r length(unique(dat$country[dat$include]))`` countries agreed on indluding the data into the R-package.
 
-```{r, coverage, echo = FALSE}
+```{r, coverage, echo = FALSE, message=FALSE}
 poly <- readRDS(file = "dev/coastlines.rds")
 levels(poly$country)[levels(poly$country) == "gb"] <- "uk"
 
@@ -159,15 +159,16 @@ poly$col[poly$country %in% dat$country] <- "available"
 poly$col[poly$country %in% dat$country[dat$include]] <- "available & included"
 
 library(ggplot2)
-ggplot(poly, aes(long, lat, group = id, fill = col)) + 
+p <- ggplot(poly, aes(long, lat, group = id, fill = col)) + 
   geom_polygon(col = 1, size = 0.2) +
   scale_fill_manual("Data Availability", values = c("not available" = "white", "available" = "grey80", "available & included" = "grey60")) + 
   coord_fixed(xlim = c(2923408-500000, 5309418), ylim = c(1576769-300000, 4855870 - 700000)) + 
   theme_void() +
   theme(panel.background = element_rect(fill = "#C5DAE3"))
-  
+ggsave(plot = p, file = "inst/contributors.png")
 ```
 
+![](inst/contributors.png)
 
 ```{r results = 'asis', echo = FALSE} 
 options(knitr.kable.NA = '')

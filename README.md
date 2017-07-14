@@ -25,7 +25,7 @@ install_github("mundl/smires")
 library(smires)
 ```
 
-The current version is `0.4.0`. To load this package in an R session, `library(smires)` has to be called.
+The current version is `0.4.1`. To load this package in an R session, `library(smires)` has to be called.
 
 ``` r
 library(smires)
@@ -41,7 +41,7 @@ Each participating country was asked to suggest metrics and to submit a few time
 
 Currently `12` countries have submitted time series of which `9` countries agreed on indluding the data into the R-package.
 
-![](README_files/figure-markdown_github/coverage-1.png)
+![](inst/contributors.png)
 
 <table>
 <colgroup>

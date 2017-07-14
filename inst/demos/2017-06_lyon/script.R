@@ -18,6 +18,6 @@ discharge %>%
   group_by_interval() %>%
   drop_na_periods(period = "group") %>%
   group_by(major) %>%
-  summarise(var = max(discharge)) %>%
+  summarize(var = max(discharge)) %>%
   ungroup() %>%
-  summarise(variable = mean(var))
+  summarize(variable = mean(var))

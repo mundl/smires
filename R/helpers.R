@@ -52,13 +52,13 @@
   if(length(bad)) {
     stop("The following variables are not present: ", paste(bad, collapse = ", "))
   }
-  x <- .set_attr_smires(x, "var") <- value
+  x <- .set_attr_smires(x, key = "var", value = value)
   return(x)
 }
 
 `.set_vars<-` <- function(x, value)
 {
-  set_vars(x = x, value = value)
+  .set_vars(x = x, value = value)
 }
 
 .get_vars <- function(x)

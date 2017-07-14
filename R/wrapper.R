@@ -23,12 +23,12 @@ smires <- function(x, major = min(minor), minor = intervals$month, drop_na = "gr
 
   if(is.function(fun_group)) {
     y <- y %>% group_by(group, minor, major, state) %>%
-      summarise(var = fun_group(var))
+      summarize(var = fun_group(var))
   }
 
   if(is.function(fun_minor)) {
     y <- y %>% group_by(minor, state) %>%
-      summarise(var = fun_minor(var))
+      summarize(var = fun_minor(var))
   }
 
   if(is.function(fun_major)) {
@@ -36,12 +36,12 @@ smires <- function(x, major = min(minor), minor = intervals$month, drop_na = "gr
       stop("You can eihter aggregate by minor interval or major interval, not both.")
     }
     y <- y %>% group_by(major, state) %>%
-      summarise(var = fun_major(var))
+      summarize(var = fun_major(var))
   }
 
   if(is.function(fun_total)) {
     y <- y %>% group_by(state) %>%
-      summarise(var = fun_total(var))
+      summarize(var = fun_total(var))
   }
 
   y <- y %>%
@@ -79,12 +79,12 @@ metric <- function(x, major = min(minor), minor = intervals$month,
 
   if(is.function(fun_group)) {
     y <- y %>% group_by(group, minor, major) %>%
-      summarise(var = fun_group(var))
+      summarize(var = fun_group(var))
   }
 
   if(is.function(fun_minor)) {
     y <- y %>% group_by(minor) %>%
-      summarise(var = fun_minor(var))
+      summarize(var = fun_minor(var))
   }
 
   if(is.function(fun_major)) {
@@ -92,12 +92,12 @@ metric <- function(x, major = min(minor), minor = intervals$month,
       stop("You can eihter aggregate by minor interval or major interval, not both.")
     }
     y <- y %>% group_by(major) %>%
-      summarise(var = fun_major(var))
+      summarize(var = fun_major(var))
   }
 
   if(is.function(fun_total)) {
     y <- ungroup(y) %>%
-      summarise(var = fun_total(var))
+      summarize(var = fun_total(var))
   }
 
   y <- y %>%
@@ -111,14 +111,14 @@ metric <- function(x, major = min(minor), minor = intervals$month,
 
 ## metrics suggested in smires project ----
 
-mean_annual_max_duration_dry <- function(x)
-{
-  y <- metric(x, period = "year", agg1  = "max", agg2 = "mean")
-  y$duration[y$state == "no-flow"]
-}
-
-mean_annual_number_dry_days <- function(x)
-{
-  y <- metric(x, period = "year", agg1  = "sum", agg2 = "mean")
-  y$duration[y$state == "no-flow"]
-}
+# mean_annual_max_duration_dry <- function(x)
+# {
+#   y <- metric(x, period = "year", agg1  = "max", agg2 = "mean")
+#   y$duration[y$state == "no-flow"]
+# }
+#
+# mean_annual_number_dry_days <- function(x)
+# {
+#   y <- metric(x, period = "year", agg1  = "sum", agg2 = "mean")
+#   y$duration[y$state == "no-flow"]
+# }
