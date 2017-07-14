@@ -4,7 +4,7 @@
 # - keep track of filenames
 
 
-
+library(devtools)
 library(smires)
 cnames <- c("country", "station", "id", "river", "x", "y", "z", "catchment")
 station <- list()

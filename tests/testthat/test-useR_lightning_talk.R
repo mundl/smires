@@ -50,7 +50,7 @@ test_that("Results are identical to the ones in rnw/pdf", {
   seasons <- c(spring = 60, summer = 152,
                autumn = 244, winter = 335)
 
-  u <- smires(balder, minor = seasons, fun_minor = max)
+  u <- smires(balder, minor = seasons, fun_minor = max, drop_na = "group")
   current <- as_tibble(u[,seq_len(ncol(u))])
 
   expected <- structure(list(
