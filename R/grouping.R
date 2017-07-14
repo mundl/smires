@@ -42,8 +42,10 @@ drop_na_periods <- function(x, period = group_vars(x))
   }
 
   period <- match.arg(arg = period,
-                      choices = c("group", "minor", "major"),
+                      choices = c("none", "group", "minor", "major"),
                       several.ok = TRUE)
+
+  if(period == "none") return(x)
 
   if(!period %in% colnames(x)) stop("Period not present in data.")
 

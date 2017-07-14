@@ -14,7 +14,8 @@ importFrom(lubridate, as.period, is.interval, interval, int_overlaps,
 importFrom(ggplot2, ggplot, geom_segment, aes, geom_vline, geom_hline, labs,
            scale_x_continuous, scale_y_discrete, theme, element_blank, geom_text,
            geom_density, facet_wrap, geom_rug, geom_point, geom_line,
-           expand_limits, scale_y_continuous, geom_rect, theme_bw)
+           expand_limits, scale_y_continuous, geom_rect, theme_bw,
+           scale_fill_discrete)
 
 importFrom("stats", "approx", "median", "na.omit")
 importFrom("utils", "head", "tail")

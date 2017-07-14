@@ -1,8 +1,8 @@
-smires <- function(x, major = min(minor), minor = intervals$month, drop_na = "group",
-                   rule = "onset", threshold = 0.001,
+smires <- function(x, major = min(minor), minor = intervals$month,
+                   drop_na = "none", rule = "onset", threshold = 0.001,
                    fun_group = NULL, fun_minor = NULL, fun_major = NULL,
                    fun_total = NULL,
-                   state = c("no-flow", "flow"),
+                   state = c("no-flow", "flow", NA),
                    invar = "duration", outvar = "variable",
                    drop = FALSE, plot = FALSE) {
 

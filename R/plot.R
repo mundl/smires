@@ -77,6 +77,7 @@ plot_groups <- function(x)
                    aes(x = estart, xend = estart, y = ystart + 0.2 , yend = ystart-dy/2 + 0.2),
                    col = "white") +
       geom_seg +
+      scale_fill_discrete(drop = F) +
       labs(title = paste0("Stream-Flow Permanence (threshold = ",
                           threshold, ")"))
   }

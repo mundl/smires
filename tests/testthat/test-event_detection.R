@@ -28,4 +28,22 @@ test_that("state is either 'no-flow', 'flow' or NA", {
   expect_true(any(is.na(e$state)))
 })
 
+test_that("levels of factor state are in correct order", {
+  x <- data_frame(time = Sys.Date() + 0:10,
+                  discharge = c(NA, rep(0.23, 5), NA, rep(0.8, 4))) %>%
+    validate(approx.missing = 0)
+
+  flow <- smires(x, threshold = 0.001, drop_na = "none")
+  expect_equal(object = levels(flow$state), expected = c("no-flow", "flow"))
+  expect_equal(object = as.character(flow$state),
+               expected = c(NA, "flow", NA, "flow"))
+
+  noflow <- smires(x, threshold = 1)
+  expect_equal(object = levels(noflow$state), expected = c("no-flow", "flow"))
+  expect_equal(object = as.character(noflow$state),
+               expected = c(NA, "no-flow", NA, "no-flow"))
+})
+
+
+
 
