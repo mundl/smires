@@ -79,9 +79,6 @@ FAN <- function(...) {
          complete = TRUE, state = "no-flow", outvar = "FAN", simplify = TRUE)
 }
 
-smires(balder, fun_major = sum, drop_na = "major", rule = "cut",
-       complete = "major", state = "no-flow", outvar = "FAN", simplify = FALSE)
-
 
 # Duration -----
 tbl_metric(name = "Mean annual maximum duration",

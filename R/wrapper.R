@@ -25,7 +25,8 @@ smires <- function(x, major = min(minor), minor = intervals$month,
 
   spells <- x %>%
     group_by_interval(major_interval = major, minor_interval = minor) %>%
-    find_spells(rule = rule, threshold = threshold, complete = complete) %>%
+    # complete spells after dropping NA periods
+    find_spells(rule = rule, threshold = threshold, complete = "none") %>%
     arrange(group)
 
   spells[, "var"] <- spells[, invar]
@@ -34,6 +35,7 @@ smires <- function(x, major = min(minor), minor = intervals$month,
 
   y <- spells %>%
     drop_na_periods(period = drop_na) %>%
+    .complete_spell(complete = complete, fill = 0) %>%
     arrange(group)
 
   if(is.function(fun_group)) {

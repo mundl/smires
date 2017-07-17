@@ -7,17 +7,16 @@ find_spells <- function(x, threshold = 0.001,
   x %>%
     .detect_noflow_spells(threshold = threshold) %>%
     .add_spellvars(warn = warn, duplicate = rule != "cut") %>%
-    .assign_spell(rule = rule, complete = complete) %>%
+    .assign_spell(rule = rule) %>%
+    .complete_spell(complete = complete) %>%
     arrange(spell) # sort by spell
 }
 
 
 .assign_spell <- function(x,
-                          rule = c("cut", "duplicate", "onset", "termination"),
-                          complete = c("none", "major", "minor", "group"))
+                          rule = c("cut", "duplicate", "onset", "termination"))
 {
   rule <- match.arg(rule)
-  complete <- match.arg(complete)
   x <- .set_attr_smires(x, "rule", rule)
 
   # todo: rules for "majority" and "center"
@@ -39,20 +38,28 @@ find_spells <- function(x, threshold = 0.001,
       arrange(spell)
   }
 
-  # retain zero length events
-  fill <- list(onset = NA, termination = NA, duration = 0,
-               group = 0, major = 0, minor = 0)
-
-
-  y <- switch(complete,
-              major = complete(y, state, major, fill = fill),
-              minor = complete(y, state, minor, fill = fill),
-              group = complete(y, state, group, fill = fill),
-              y)
-
-    return(y)
+  return(y)
 }
 
+.complete_spell <- function(x, complete = c("none", "major", "minor", "group"),
+                            fill = NA)
+{
+  complete <- match.arg(complete)
+
+  # retain zero length events
+  fill <- list(onset = NA, termination = NA, duration = 0,
+               group = NA, major = NA, minor = NA, var = fill)
+
+
+  x <- ungroup(x)
+  y <- switch(complete,
+              major = complete(x, state, major, fill = fill),
+              minor = complete(x, state, minor, fill = fill),
+              group = complete(x, state, group, fill = fill),
+              x)
+
+  return(y)
+}
 
 .detect_noflow_spells <- function(x, threshold = 0.1)
 {
