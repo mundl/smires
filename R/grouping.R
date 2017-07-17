@@ -52,7 +52,7 @@ drop_na_periods <- function(x, period = group_vars(x))
   # todo: use .get_vars()
   # todo: instead of deleting the spells, set value to NA to visualise missingness in plot
   var <- intersect(colnames(x), c("state", "discharge"))
-  nas <- x[is.na(x[, var]), period]
+  nas <- unique(x[is.na(x[, var]) & x$duration > 0, period])
 
   # todo: anti_joins reverses row order...
   y <- suppressMessages(anti_join(x, nas))

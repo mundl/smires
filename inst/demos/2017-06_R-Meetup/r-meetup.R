@@ -53,7 +53,7 @@ smires(balder, major = 1, minor = intervals$month, drop_na = "group",
        rule = "onset", threshold = 0.001,
        fun_group = NULL, fun_minor = NULL, fun_major = NULL, fun_total = NULL,
        state = c("no-flow", "flow"), invar = "duration", outvar = "variable",
-       drop = FALSE, plot = FALSE)
+       simplify = FALSE, plot = FALSE)
 
 # changing the major interval: start of hydrological year
 b <- smires(balder, major = 32, plot = T)

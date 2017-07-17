@@ -4,13 +4,28 @@ smires <- function(x, major = min(minor), minor = intervals$month,
                    fun_total = NULL,
                    state = c("no-flow", "flow", NA),
                    invar = "duration", outvar = "variable",
-                   simplify = FALSE, drop = TRUE, plot = FALSE) {
+                   simplify = FALSE, complete = FALSE, plot = FALSE) {
 
   state <- match.arg(state, several.ok = TRUE)
 
+  if(isTRUE(complete)) {
+    # guess which periods should be completed
+    complete <- if(is.function(fun_group)) {
+      "group"
+    } else if(is.function(fun_minor)) {
+      "minor"
+    } else if(is.function(fun_major)) {
+      "major"
+    }
+  }
+
+  if(complete == FALSE) {
+    complete <- "none"
+  }
+
   spells <- x %>%
     group_by_interval(major_interval = major, minor_interval = minor) %>%
-    find_spells(rule = rule, threshold = threshold, drop = drop) %>%
+    find_spells(rule = rule, threshold = threshold, complete = complete) %>%
     arrange(group)
 
   spells[, "var"] <- spells[, invar]

@@ -1,41 +1,56 @@
 find_spells <- function(x, threshold = 0.001,
                         rule = c("cut", "duplicate", "onset", "termination"),
-                        na.rm = TRUE, warn = TRUE, drop = TRUE)
+                        na.rm = TRUE, warn = TRUE, complete = "none")
 {
   rule <- match.arg(rule)
 
   x %>%
     .detect_noflow_spells(threshold = threshold) %>%
-
-    .add_spellvars(warn = warn, duplicate = rule != "cut", drop = drop) %>%
-    .assign_spell(rule = rule) %>%
+    .add_spellvars(warn = warn, duplicate = rule != "cut") %>%
+    .assign_spell(rule = rule, complete = complete) %>%
     arrange(spell) # sort by spell
 }
 
 
-.assign_spell <- function(x, rule = c("cut", "duplicate", "onset", "termination"))
+.assign_spell <- function(x,
+                          rule = c("cut", "duplicate", "onset", "termination"),
+                          complete = c("none", "major", "minor", "group"))
 {
   rule <- match.arg(rule)
+  complete <- match.arg(complete)
   x <- .set_attr_smires(x, "rule", rule)
 
   # todo: rules for "majority" and "center"
   # todo: cut = cut_group = cut_minor, cut_major
 
   # spells are already cut or duplicated
-  if(rule %in% c("cut", "duplicate")) return(x)
+  if(rule %in% c("cut", "duplicate")) {
+    y <- x
+  }
 
   if(rule == "onset") {
     y <- arrange(ungroup(x), spell, group) %>%
-      distinct(spell, .keep_all = TRUE)
+      distinct(spell, state, .keep_all = TRUE)
   }
 
   if(rule == "termination") {
     y <- arrange(ungroup(x), desc(spell), desc(group)) %>%
-      distinct(spell, .keep_all = TRUE) %>%
+      distinct(spell, state, .keep_all = TRUE) %>%
       arrange(spell)
   }
 
-  return(y)
+  # retain zero length events
+  fill <- list(onset = NA, termination = NA, duration = 0,
+               group = 0, major = 0, minor = 0)
+
+
+  y <- switch(complete,
+              major = complete(y, state, major, fill = fill),
+              minor = complete(y, state, minor, fill = fill),
+              group = complete(y, state, group, fill = fill),
+              y)
+
+    return(y)
 }
 
 
@@ -61,7 +76,7 @@ find_spells <- function(x, threshold = 0.001,
 
 
 
-.add_spellvars <- function(x, warn = TRUE, duplicate = FALSE, drop = TRUE)
+.add_spellvars <- function(x, warn = TRUE, duplicate = FALSE)
 {
   grouped <- "group" %in% colnames(x)
 
@@ -93,15 +108,7 @@ find_spells <- function(x, threshold = 0.001,
                      duration = termination - onset)
   }
 
-  # retain implicit missing values
-  if(!drop) {
-    fill <- list(onset = NA, termination = NA, duration = 0)
-    if(grouped) {
-      res <- complete(res, state, group, fill = fill)
-    } else{
-      res <- complete(res, state, fill = fill)
-    }
-  }
+
   if(grouped) {
     # merge with minor an major intervals, if data was grouped
     res <- right_join(res, att[["group_interval"]], by = "group")

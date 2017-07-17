@@ -11,7 +11,7 @@ test_that("Mean annual maximum Duration for Balder", {
   # not yet implemented
   # current <- smires(balder, fun_major = max, fun_total = mean,
   #                   drop_na = "major", rule = "cut_major",
-  #                   state = "no-flow", drop = T)
+  #                   state = "no-flow", simplify = T)
   #
   # expected <- c("variable" = 38.6)
   # expect_equal(current, expected)

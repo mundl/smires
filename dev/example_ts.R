@@ -54,11 +54,7 @@ if(any(!im)) stop("Not all intermittent.")
 meta <- lapply(values, function(x) attr(x, "meta"))
 meta <- do.call(rbind, meta)
 meta$country <- "fr"
-meta$catchment <- NA
-meta$id <- NA
-meta$x <- NA
-meta$y <- NA
-meta$z <- NA
+meta[, setdiff(cnames, colnames(meta))] <- NA
 
 
 station$fr1 <- as_data_frame(meta) %>%
@@ -100,7 +96,7 @@ colnames(name) <- c("river", "station")
 meta <- cbind(meta, name)
 meta <- meta[match(basename(files), meta$filename), ]
 meta$country <- "fr"
-meta$id <- NA
+meta[, setdiff(cnames, colnames(meta))] <- NA
 
 station$fr2 <- as_data_frame(meta) %>%
   select(one_of(cnames)) %>%
@@ -135,11 +131,7 @@ smiresData$gb <- values
 
 meta <- lapply(values, function(x) attr(x, "meta"))
 meta <- do.call(rbind, meta)
-meta$id <- NA
-meta$catchment <- NA
-meta$x <- NA
-meta$y <- NA
-meta$z <- NA
+meta[, setdiff(cnames, colnames(meta))] <- NA
 
 station$gb <- as_data_frame(meta) %>%
   select(one_of(cnames)) %>%
@@ -202,10 +194,7 @@ smiresData$es1 <- values
 
 meta <- read.csv2("ts/es/metadata.csv")
 meta$country <- "es"
-meta$station <- NA
-meta$river <- NA
-meta$id <- NA
-meta$z <- NA
+meta[, setdiff(cnames, colnames(meta))] <- NA
 
 station$es1 <- as_data_frame(meta) %>%
   select(one_of(cnames)) %>%
@@ -262,6 +251,115 @@ station$gr <- data_frame(country = "gr",
                           river = "Evrotas",
                           x = 5451347, y = 1636692, z = 140,
                           catchment = 1500) %>%
+  select(one_of(cnames)) %>%
+  arrange(desc(y))
+
+
+
+# Italy Puglia -----
+files <- paste0("ts/it/", c("salsola", "celone"), ".csv")
+
+read.it <- function(file)
+{
+  read.csv2(file, colClasses = c("Date", "numeric"), na.strings = "NAV") %>%
+    validate(approx.missing = 0)
+}
+
+values <- lapply(files, read.it)
+smiresData$it1 <- values
+
+
+meta <- read.csv2("ts/it/metadata-it1.csv")
+meta$country <- "it"
+
+meta[, setdiff(cnames, colnames(meta))] <- NA
+
+station$it1 <- as_data_frame(meta) %>%
+  select(one_of(cnames)) %>%
+  arrange(desc(y))
+
+# Italy 2 -----
+files <- "ts/it/carapelle-torrent.csv"
+
+infile <- read.csv2(files, as.is = TRUE, check.names = FALSE)
+infile$month <- match(infile$month, month.name)
+
+library(tidyr)
+values <- gather(infile, key = year, value = discharge, -month, -day) %>%
+  mutate(time = as.Date(paste(year, month, day, sep = "-"))) %>%
+  select(time, discharge) %>%
+  # every year has a cell for Feb 29th
+  filter(!is.na(time)) %>%
+  validate(approx.missing = 0)
+
+smiresData$it2 <- values
+
+meta <- data.frame(country = "it", "river" = "Carapelle Torrent")
+meta[, setdiff(cnames, colnames(meta))] <- NA
+
+station$it2 <- as_data_frame(meta) %>%
+  select(one_of(cnames)) %>%
+  arrange(desc(y))
+
+
+
+# Poland ----
+smiresData$pl1 <- read.csv2("ts/pl/goryczkowy.csv") %>%
+  validate(approx.missing = 0)
+
+
+# Poland Kazimierz ----
+infile <- read.table("ts/pl/QPS15.777",
+                     col.names = c("hyear", "hmonth", "day", "discharge"))
+infile$month <- ((infile$hmonth - 1 + 10) %% 12) + 1
+infile$year <- infile$hyear
+mask <- infile$hmonth %in% 1:2
+infile$year[mask] <- infile$year[mask] - 1
+
+values <- infile%>%
+  mutate(time = as.Date(paste(year, month, day, sep = "-"))) %>%
+  select(time, discharge) %>%
+  validate(approx.missing = 0)
+
+# Portugal ----
+files <- paste0("ts/pt/", c("alentejo", "gamitinha"), ".csv")
+
+read.pt <- function(file)
+{
+  read.csv2(file, colClasses = c("Date", "numeric")) %>%
+    validate(approx.missing = 0)
+}
+
+values <- lapply(files, read.pt)
+smiresData$pt1 <- values
+
+# Portugal Teresa ----
+files <- list.files("ts/pt/runoff/", full.names = TRUE)
+name <- gsub("^serie_|\\.txt", "", basename(files))
+
+
+read.snirh <- function(file)
+{
+  infile <- read.table(file, skip = 4, sep = "\t",
+                       colClasses = c("character", "NULL", "NULL", "numeric",
+                                      rep("NULL", 4)),
+                       col.names = c("time", "?", "flag", "discharge",
+                                     rep("?", 4)))  %>%
+    mutate(time = as.Date(time, format = "%d/%m/%Y")) %>%
+    validate(approx.missing = 0)
+}
+
+values <- lapply(files, read.snirh)
+smiresData$pt2 <- values
+
+
+meta <- read.csv("ts/pt/meta.csv", sep = ";", as.is = TRUE)
+meta <- meta[pmatch(name, tolower(meta$station)), ]
+meta$country <- "pt"
+
+meta[, setdiff(cnames, colnames(meta))] <- NA
+
+station$pt2 <- as_data_frame(meta) %>%
   select(one_of(cnames)) %>%
   arrange(desc(y))
 
