@@ -104,6 +104,13 @@ validate <- function(x, minyear = 10, approx.missing = 5, accuracy = 0)
   x$time <- as.Date(x$time)
   x$discharge <- as.numeric(x$discharge)
 
+  # check for NA in time index
+  bad <- which(is.na(x$time))
+  if(length(bad)){
+    stop("Invalid time index at position: ", paste(bad, collapse = ", "))
+  }
+
+
   # remove complete duplicates and order time series
   x <- unique(x)
   x <- x[order(x$time), ]
