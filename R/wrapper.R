@@ -4,13 +4,13 @@ smires <- function(x, major = min(minor), minor = intervals$month,
                    fun_total = NULL,
                    state = c("no-flow", "flow", NA),
                    invar = "duration", outvar = "variable",
-                   drop = FALSE, plot = FALSE) {
+                   simplify = FALSE, drop = TRUE, plot = FALSE) {
 
   state <- match.arg(state, several.ok = TRUE)
 
   spells <- x %>%
     group_by_interval(major_interval = major, minor_interval = minor) %>%
-    find_spells(rule = rule, threshold = threshold) %>%
+    find_spells(rule = rule, threshold = threshold, drop = drop) %>%
     arrange(group)
 
   spells[, "var"] <- spells[, invar]
@@ -49,7 +49,8 @@ smires <- function(x, major = min(minor), minor = intervals$month,
     filter(state %in% !!state) %>%
     ungroup()
 
-  if(drop & nrow(y) == 1) y <- unlist(y[, outvar])
+
+  if(simplify) y <- unlist(y[, outvar], use.names = nrow(y)==1)
 
   return(y)
 }
@@ -60,7 +61,7 @@ metric <- function(x, major = min(minor), minor = intervals$month,
                    fun_group = NULL, fun_minor = NULL, fun_major = NULL,
                    fun_total = NULL,
                    invar = "discharge", outvar = "variable",
-                   drop = FALSE, plot = FALSE) {
+                   simplify = FALSE, plot = FALSE) {
 
   grouped <- x %>%
     group_by_interval(major_interval = major, minor_interval = minor)
@@ -104,7 +105,7 @@ metric <- function(x, major = min(minor), minor = intervals$month,
     rename(!!outvar := var)%>%
     ungroup()
 
-  if(drop & nrow(y) == 1) y <- unlist(y[, outvar])
+  if(simplify) y <- unlist(y[, outvar], use.names = nrow(y)==1)
 
   return(y)
 }

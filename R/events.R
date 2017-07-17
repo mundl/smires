@@ -1,13 +1,13 @@
 find_spells <- function(x, threshold = 0.001,
                         rule = c("cut", "duplicate", "onset", "termination"),
-                        na.rm = TRUE, warn = TRUE)
+                        na.rm = TRUE, warn = TRUE, drop = TRUE)
 {
   rule <- match.arg(rule)
 
   x %>%
     .detect_noflow_spells(threshold = threshold) %>%
 
-    .add_spellvars(warn = warn, duplicate = rule != "cut") %>%
+    .add_spellvars(warn = warn, duplicate = rule != "cut", drop = drop) %>%
     .assign_spell(rule = rule) %>%
     arrange(spell) # sort by spell
 }
@@ -61,7 +61,7 @@ find_spells <- function(x, threshold = 0.001,
 
 
 
-.add_spellvars <- function(x, warn = TRUE, duplicate = FALSE)
+.add_spellvars <- function(x, warn = TRUE, duplicate = FALSE, drop = TRUE)
 {
   grouped <- "group" %in% colnames(x)
 
@@ -83,6 +83,7 @@ find_spells <- function(x, threshold = 0.001,
     summarize(onset = min(time), termination = max(time) + att$dt,
               duration = termination - onset)
 
+
   if(duplicate) {
     res <- y %>% do(data.frame(onset = min(.$time), termination = max(.$time) + att$dt,
                                group = unique(.$group))) %>%
@@ -92,6 +93,15 @@ find_spells <- function(x, threshold = 0.001,
                      duration = termination - onset)
   }
 
+  # retain implicit missing values
+  if(!drop) {
+    fill <- list(onset = NA, termination = NA, duration = 0)
+    if(grouped) {
+      res <- complete(res, state, group, fill = fill)
+    } else{
+      res <- complete(res, state, fill = fill)
+    }
+  }
   if(grouped) {
     # merge with minor an major intervals, if data was grouped
     res <- right_join(res, att[["group_interval"]], by = "group")

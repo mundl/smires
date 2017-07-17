@@ -3,7 +3,7 @@ context("Results from useR!2017 lightning talk")
 test_that("Results are identical to the ones in rnw/pdf", {
   current <- metric(balder,
                     fun_major = max, fun_total = mean,
-                    drop = T, outvar = "mean.annual.max")
+                    simplify = TRUE, outvar = "mean.annual.max")
 
   expected <- c(mean.annual.max = 5.438429)
   expect_equal(round(current, 6), expected)
@@ -11,7 +11,7 @@ test_that("Results are identical to the ones in rnw/pdf", {
 
   current <- metric(balder, major = 244,
                     fun_major = max, fun_total = mean,
-                    drop = T, outvar = "mean.annual.max")
+                    simplify = TRUE, outvar = "mean.annual.max")
 
   expected <- c(mean.annual.max = 5.696429)
   expect_equal(round(current, 6), expected)
