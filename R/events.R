@@ -61,7 +61,7 @@ find_spells <- function(x, threshold = 0.001,
   return(y)
 }
 
-.detect_noflow_spells <- function(x, threshold = 0.1)
+.detect_noflow_spells <- function(x, threshold = 0.001)
 {
   if(is.null(threshold))
   {

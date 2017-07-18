@@ -88,13 +88,22 @@ metric <- function(x, major = min(minor), minor = intervals$month,
                    drop_na = "group", threshold = 0.001,
                    fun_group = NULL, fun_minor = NULL, fun_major = NULL,
                    fun_total = NULL,
-                   invar = "discharge", varname = "variable",
+                   ...,
+                   # invar = "discharge",
+                   varname = "variable",
                    simplify = FALSE, plot = FALSE) {
 
   grouped <- x %>%
     group_by_interval(major_interval = major, minor_interval = minor)
 
-  grouped[, "var"] <- grouped[, invar]
+  # computing new variables
+  variables <- quos(...)
+  if(length(variables)) {
+    grouped <- mutate(grouped, !!!variables) %>%
+      rename(var :=!!names(variables)[[1]])
+  } else {
+    grouped[, "var"] <- grouped[, "discharge"]
+  }
 
 
   # mutate drops arguments

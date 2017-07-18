@@ -148,7 +148,11 @@
 julian_day <- function(x)
 {
   if (is.instant(x)) {
-    x <- as.numeric(format(as.Date(x), "%j"))
+    # correct leap years
+    day <- as.numeric(format(as.Date(x), "%j"))
+    wrong <- .is_leapyear(x) & day >= 60
+    day[wrong] <- day[wrong] - 1
+    x <- day
   }
 
   if(!is.numeric(x) || x < 1 || x > 365) {
@@ -222,8 +226,8 @@ julian_day <- function(x)
 circular_mean <- function(x, lwr = 0, upr = 365)
   .circular_stats(x = x, lwr = lwr, upr = upr)["mean"]
 
-circular_sd <- function(x, lwr = 0, upr = 365)
-  .circular_stats(x = x, lwr = lwr, upr = upr)["sd"]
+circular_r <- function(x, lwr = 0, upr = 365)
+  .circular_stats(x = x, lwr = lwr, upr = upr)["abs"]
 
 # circular_cv <- function(x, lwr = 0, upr = 365){
 #   y <- .circular_stats(x = x, lwr = lwr, upr = upr)

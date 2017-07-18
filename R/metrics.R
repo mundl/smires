@@ -90,7 +90,7 @@ tbl_metric(name = "Mean annual maximum duration",
 
 MAMD <- function(...) {
   smires(..., fun_major = max, fun_total = mean, drop_na = "major",
-         rule = "onset", state = "no-flow", varname = "MAMD", simplify = TRUE)
+         state = "no-flow", varname = "MAMD", simplify = TRUE)
 }
 
 #
@@ -103,7 +103,7 @@ tbl_metric(name = "CV of annual maximum duration",
 
 CVAMD <- function(...) {
   smires(..., fun_major = max, fun_total = cv, drop_na = "major",
-         rule = "onset", state = "no-flow", varname = "CVAMD", simplify = TRUE)
+         state = "no-flow", varname = "CVAMD", simplify = TRUE)
 }
 
 #
@@ -116,7 +116,7 @@ tbl_metric(name = "Distribution of annual maximum duration",
 
 FAMD <- function(...) {
   smires(..., fun_major = max, drop_na = "major", complete = TRUE,
-         rule = "onset", state = "no-flow", varname = "FAMD", simplify = TRUE)
+         state = "no-flow", varname = "FAMD", simplify = TRUE)
 }
 
 
@@ -126,24 +126,74 @@ tbl_metric(name = "Mean onset",
            section = "Timing and Seasonality",
            acronym = "tau0",
            fun = "Tau0",
-           args = "fun_major = min, fun_total = mean_day, drop_na = 'major', rule = 'onset', jday = julian_day(onset)")
+           args = "fun_major = min, fun_total = mean_day, drop_na = 'major', jday = julian_day(onset)")
 
 Tau0 <- function(...) {
   smires(..., fun_major = min, fun_total = mean_day, drop_na = "major",
-         jday = julian_day(onset),
-         rule = "onset", state = "no-flow", simplify = TRUE)
+         jday = julian_day(onset), state = "no-flow", simplify = TRUE)
 }
 
-tbl_metric(name = "Mean onset",
+tbl_metric(name = "Variability of onset",
+           description = "Circular variability index r (between 0 and 1) of the onset",
+           section = "Timing and Seasonality",
+           acronym = "tau0r",
+           fun = "Tau0r",
+           args = "fun_major = min, fun_total = circular_r, drop_na = 'major', jday = julian_day(onset)")
+
+Tau0r <- function(...) {
+  smires(..., fun_major = min, fun_total = circular_r, drop_na = "major",
+         jday = julian_day(onset), state = "no-flow", simplify = TRUE)
+}
+
+tbl_metric(name = "Mean termination",
            description = "Mean Julian date (day-of-year) of the first annual no-flow day (using circular statistics)",
            section = "Timing and Seasonality",
            acronym = "tau0",
            fun = "Tau0",
-           args = "fun_major = min, fun_total = mean_day, drop_na = 'major', rule = 'onset', jday = julian_day(onset)")
+           args = "fun_major = min, fun_total = mean_day, drop_na = 'major', jday = julian_day(termination)")
 
-Tau0cv <- function(...) {
-  smires(..., fun_major = min, fun_total = circular_sd, drop_na = "major",
-         jday = julian_day(onset),
-         rule = "onset", state = "no-flow", simplify = TRUE)
+TauE <- function(...) {
+  smires(..., fun_major = min, fun_total = mean_day, drop_na = "major",
+         jday = julian_day(termination), state = "no-flow", simplify = TRUE)
 }
 
+tbl_metric(name = "Variability of termination",
+           description = "Circular variability index r (between 0 and 1) of the termination",
+           section = "Timing and Seasonality",
+           acronym = "tau0r",
+           fun = "Tau0r",
+           args = "fun_major = min, fun_total = circular_r, drop_na = 'major', jday = julian_day(termination)")
+
+TauEr <- function(...) {
+  smires(..., fun_major = min, fun_total = circular_r, drop_na = "major",
+         jday = julian_day(termination), state = "no-flow", simplify = TRUE)
+}
+
+
+tbl_metric(name = "Mean seasonality",
+           description = "Mean Julian date of all no-flow days (using circular statistics)",
+           section = "Timing and Seasonality",
+           acronym = "tau",
+           fun = "Tau")
+
+Tau <- function(x) {
+  .detect_noflow_spells(x) %>%
+    mutate(jday = julian_day(time)) %>%
+    filter(state == "no-flow") %>%
+    summarize(variable = mean_day(jday)) %>%
+    unlist(use.names = FALSE)
+}
+
+tbl_metric(name = "Strength of seasonality",
+           description = "Circular variability index r (between 0 and 1) of all no-flow days",
+           section = "Timing and Seasonality",
+           acronym = "taur",
+           fun = "Taur")
+
+Taur <- function(x) {
+  .detect_noflow_spells(x) %>%
+    mutate(jday = julian_day(time)) %>%
+    filter(state == "no-flow") %>%
+    summarize(variable = circular_r(jday)) %>%
+    unlist(use.names = FALSE)
+}
