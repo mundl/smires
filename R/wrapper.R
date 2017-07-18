@@ -66,8 +66,10 @@ smires <- function(x, major = min(minor), minor = intervals$month,
     filter(state %in% !!state) %>%
     ungroup()
 
-
-  if(simplify) y <- unlist(y[, outvar], use.names = nrow(y)==1)
+  if(simplify){
+    y <- as.double(y[[outvar]])
+    if(length(y) == 1) names(y) <- outvar
+  }
 
   return(y)
 }

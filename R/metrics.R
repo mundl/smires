@@ -73,7 +73,7 @@ tbl_metric(name = "Distribution of the annual number of no-flow days",
            acronym = "FAN",
            fun = "FAN",
            args = "fun_major = sum, drop_na = 'major', rule = 'cut', complete = TRUE")
-# todo
+
 FAN <- function(...) {
   smires(..., fun_major = sum, drop_na = "major", rule = "cut",
          complete = TRUE, state = "no-flow", outvar = "FAN", simplify = TRUE)
@@ -115,10 +115,25 @@ tbl_metric(name = "Distribution of annual maximum duration",
            args = "fun_major = max, drop_na = 'major', rule = 'onset'")
 
 FAMD <- function(...) {
-  smires(..., fun_major = max, drop_na = "major", drop = FALSE,
+  smires(..., fun_major = max, drop_na = "major", complete = TRUE,
          rule = "onset", state = "no-flow", outvar = "FAMD", simplify = TRUE)
 }
 
 
-# smires(ampneyBrook, fun_major = max, drop_na = "major", complete = FALSE,
-#        rule = "onset", state = "no-flow", outvar = "FAMD", simplify = TRUE)
+# Timing and Seasonality ----
+tbl_metric(name = "Mean onset",
+           description = "Mean Julian date (day-of-year) of the first annual no-flow day (using circular statistics)",
+           section = "Timing and Seasonality",
+           acronym = "tau0",
+           fun = "Tau0",
+           args = "fun_major = max, drop_na = 'major', rule = 'onset'")
+
+Tau0 <- function(...) {
+  yday <- smires(..., fun_major = min, drop_na = "major", invar = "onset",
+         rule = "onset", state = "no-flow", simplify = TRUE) %>%
+    .date2julian()
+  y <- circular_mean(yday)
+  names(y) <- "tau0"
+
+  return(.format_jday(y))
+}

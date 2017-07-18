@@ -50,7 +50,7 @@
 {
   bad <- setdiff(value, colnames(x))
   if(length(bad)) {
-    stop("The following variables are not present: ", paste(bad, collapse = ", "))
+    stop("The follwring variables are not present: ", paste(bad, collapse = ", "))
   }
   x <- .set_attr_smires(x, key = "var", value = value)
   return(x)
@@ -197,5 +197,29 @@
   return(day)
 }
 
+.circular_stats <- function(x, lwr = 0, upr = 365) {
+  if(any(x < lwr | x > upr))
+    stop("input data not in range [", lwr, ", ", upr, "]")
 
+  ang <- (x - lwr)/upr * 2 *pi
+  m <- mean(exp(1i * ang))
+
+  res <- ifelse(Arg(m) < 0, Arg(m) + 2*pi, Arg(m))
+  cm <- res * (upr - lwr)/2/pi + lwr
+
+  res <- Mod(m)
+  cv <- ((upr - lwr)/2/pi)^2 * 2 * log(1/res)
+
+  csd <- ((upr - lwr)/2/pi) * sqrt(-2* log(res))
+
+  return(c(mean = cm, var = cv, sd = csd))
+}
+
+circular_mean <- function(x, lwr = 0, upr = 365)
+  .circular_stats(x = x, lwr = lwr, upr = upr)["mean"]
+
+circular_cv <- function(x, lwr = 0, upr = 365){
+  y <- .circular_stats(x = x, lwr = lwr, upr = upr)
+  return(y["sd"]/y["mean"])
+}
 
