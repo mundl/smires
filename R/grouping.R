@@ -24,7 +24,7 @@ start_season <- function(x)
     warning("Seasons should have meaningful, unambiguous names.")
   }
 
-  day <- .date2julian(x)
+  day <- julian_day(x)
   names(day) <- n
 
   return(day)

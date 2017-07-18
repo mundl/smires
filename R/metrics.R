@@ -42,7 +42,7 @@ tbl_metric(name = "Mean annual number of no-flow days",
 
 MAN <- function(...) {
   smires(..., fun_major = sum, fun_total = mean, drop_na = "major",
-         rule = "cut", state = "no-flow", outvar = "MAN", simplify = TRUE)
+         rule = "cut", state = "no-flow", varname = "MAN", simplify = TRUE)
 }
 
 
@@ -62,7 +62,7 @@ cv <- function(x) {
 
 CVAN <- function(...) {
   smires(..., fun_major = sum, fun_total = cv, drop_na = "major",
-         rule = "cut", state = "no-flow", outvar = "CVAN", simplify = TRUE)
+         rule = "cut", state = "no-flow", varname = "CVAN", simplify = TRUE)
 }
 
 
@@ -73,10 +73,10 @@ tbl_metric(name = "Distribution of the annual number of no-flow days",
            acronym = "FAN",
            fun = "FAN",
            args = "fun_major = sum, drop_na = 'major', rule = 'cut', complete = TRUE")
-# todo
+
 FAN <- function(...) {
   smires(..., fun_major = sum, drop_na = "major", rule = "cut",
-         complete = TRUE, state = "no-flow", outvar = "FAN", simplify = TRUE)
+         complete = TRUE, state = "no-flow", varname = "FAN", simplify = TRUE)
 }
 
 
@@ -90,7 +90,7 @@ tbl_metric(name = "Mean annual maximum duration",
 
 MAMD <- function(...) {
   smires(..., fun_major = max, fun_total = mean, drop_na = "major",
-         rule = "onset", state = "no-flow", outvar = "MAMD", simplify = TRUE)
+         rule = "onset", state = "no-flow", varname = "MAMD", simplify = TRUE)
 }
 
 #
@@ -103,7 +103,7 @@ tbl_metric(name = "CV of annual maximum duration",
 
 CVAMD <- function(...) {
   smires(..., fun_major = max, fun_total = cv, drop_na = "major",
-         rule = "onset", state = "no-flow", outvar = "CVAMD", simplify = TRUE)
+         rule = "onset", state = "no-flow", varname = "CVAMD", simplify = TRUE)
 }
 
 #
@@ -115,10 +115,35 @@ tbl_metric(name = "Distribution of annual maximum duration",
            args = "fun_major = max, drop_na = 'major', rule = 'onset'")
 
 FAMD <- function(...) {
-  smires(..., fun_major = max, drop_na = "major", drop = FALSE,
-         rule = "onset", state = "no-flow", outvar = "FAMD", simplify = TRUE)
+  smires(..., fun_major = max, drop_na = "major", complete = TRUE,
+         rule = "onset", state = "no-flow", varname = "FAMD", simplify = TRUE)
 }
 
 
-# smires(ampneyBrook, fun_major = max, drop_na = "major", complete = FALSE,
-#        rule = "onset", state = "no-flow", outvar = "FAMD", simplify = TRUE)
+# Timing and Seasonality ----
+tbl_metric(name = "Mean onset",
+           description = "Mean Julian date (day-of-year) of the first annual no-flow day (using circular statistics)",
+           section = "Timing and Seasonality",
+           acronym = "tau0",
+           fun = "Tau0",
+           args = "fun_major = min, fun_total = mean_day, drop_na = 'major', rule = 'onset', jday = julian_day(onset)")
+
+Tau0 <- function(...) {
+  smires(..., fun_major = min, fun_total = mean_day, drop_na = "major",
+         jday = julian_day(onset),
+         rule = "onset", state = "no-flow", simplify = TRUE)
+}
+
+tbl_metric(name = "Mean onset",
+           description = "Mean Julian date (day-of-year) of the first annual no-flow day (using circular statistics)",
+           section = "Timing and Seasonality",
+           acronym = "tau0",
+           fun = "Tau0",
+           args = "fun_major = min, fun_total = mean_day, drop_na = 'major', rule = 'onset', jday = julian_day(onset)")
+
+Tau0cv <- function(...) {
+  smires(..., fun_major = min, fun_total = circular_sd, drop_na = "major",
+         jday = julian_day(onset),
+         rule = "onset", state = "no-flow", simplify = TRUE)
+}
+

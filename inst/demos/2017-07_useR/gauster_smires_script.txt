@@ -1,0 +1,32 @@
+1. I want to introduce the R-package smires which offers a framework for the calculation of hydrological or ecological metrics derived from univariate time series.
+
+2. smires is a huge EU project dedicated on researching intermittent rivers. In this project we have to compute lots of similar metrics. Instead of implementing every metric as a single function we developed a general framework offering the same functionality or even more.
+
+3. The package smires provides this framework and also many hydrological sample data sets. It is primarily aimed at inexperienced R users and tries to keep the requirements on the input data as low as possible. For example it can even work with binary data and tries to be smart about missing values.
+
+4. There are two main functions: metric, which is used for continuous variables (like daily discharges) and smires for analyzing binary time series.  We also offer many low level functions as well as a predicate function to check a given time series for intermittency.
+
+5. Lets compute the first metric, the mean annual maximum discharge, which is 5.4 m³/s for the river balder. Many hydrological metrics are calculated in this way, split the time series by year, aggregate each year and then aggregate all the years to obtain a single value.
+
+6. The function metric gives you almost complete freedom on the choice of aggregation periods and on the choice of aggregation functions. It furthermore allows to set the start of the hydrological year to -- for example -- the first of September or any other day. This is common practice in hydrology.
+
+7. If we omit the final aggregation function and just supply a function for the major interval (which are years per default) we retrieve the yearly aggregates. Internally the splitting and aggregating is done by dplyr.
+
+The following slides cover the function smires and the treatment of binary time series.
+
+8. When calling the function smires just with the default arguments, a binary time series of events is derived from the original time series, using a default threshold of 1 l/s. Red segments indicate periods with a flow smaller than the threshold (dry states) wet periods are blue.
+
+9. The default threshold can easily be overridden as you can see here. In either case, the result is a table where one row represents an event with a unique id, a state, a start and end date, a duration along with other useful grouping variables.
+
+10. Now let us compute a metric for a binary time series, the mean annual maximum duration of events. If we do this first without a final aggregation function we get the yearly aggregates for every state excluding the years 77 and 78 which contain NAs. Doing this with the final aggregation function mean yields us a value of 39.8 days for the state no-flow. This tells us: in an average year, the river Balder has almost 40 days where the flow falls below 1 l/s.
+
+Computing metrics for binary time series is easy, please just focus on the right side: we provide a input time series, pass on an aggregation function for the major interval and a final one, and we specify how intervals containing NAs should be handled. This  result for example tells us, that the river Balder is dry for almost 40 days a year.
+
+11. I do not want to go too much into detail here. The complexity of this package doesn't lie within the aggregation, this is handled by dplyr, but rather in the flexible specification of minor and major intervals and the assignment of events to intervals.
+
+12. For example, seasonal analysis can be performed by setting the minor interval to the start of the seasons. In Europe's climate it could be appropriate to choose 4 seasons, while in Africa or India one often finds only two seasons: rainy season and not so rainy season.
+
+13. To sum it up, we provide a powerful and flexible framework for metrics derived from univariate time series, either continuous or binary. The user has free choice over both aggregating periods and the aggregation function. The project itself is hosted on github. If you are interested please use the package, fork it or write me an email.
+
+14. Finally I want to acknowledge cost and the European union for enabling me to work on this package. Furthermore I want to thank you for your endurance in listening to my 20 seconds per slide madness. Thank you.
+

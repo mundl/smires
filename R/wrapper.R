@@ -3,7 +3,8 @@ smires <- function(x, major = min(minor), minor = intervals$month,
                    fun_group = NULL, fun_minor = NULL, fun_major = NULL,
                    fun_total = NULL,
                    state = c("no-flow", "flow", NA),
-                   invar = "duration", outvar = "variable",
+                   ...,
+                   varname = "variable",
                    simplify = FALSE, complete = FALSE, plot = FALSE) {
 
   state <- match.arg(state, several.ok = TRUE)
@@ -29,9 +30,16 @@ smires <- function(x, major = min(minor), minor = intervals$month,
     find_spells(rule = rule, threshold = threshold, complete = "none") %>%
     arrange(group)
 
-  spells[, "var"] <- spells[, invar]
-
   if(plot) print(plot_groups(spells))
+
+  # computing new variables
+  variables <- quos(...)
+  if(length(variables)) {
+    spells <- mutate(spells, !!!variables) %>%
+      rename(var :=!!names(variables)[[1]])
+  } else {
+    spells[, "var"] <- spells[, "duration"]
+  }
 
   y <- spells %>%
     drop_na_periods(period = drop_na) %>%
@@ -62,12 +70,15 @@ smires <- function(x, major = min(minor), minor = intervals$month,
   }
 
   y <- y %>%
-    rename(!!outvar := var) %>%
+    rename(!!varname := var) %>%
     filter(state %in% !!state) %>%
     ungroup()
 
-
-  if(simplify) y <- unlist(y[, outvar], use.names = nrow(y)==1)
+  if(simplify){
+    y <- y[[varname]]
+    if(is.difftime(y)) y <- as.double(y)
+    if(length(y) == 1 & varname != "variable") names(y) <- varname
+  }
 
   return(y)
 }
@@ -77,7 +88,7 @@ metric <- function(x, major = min(minor), minor = intervals$month,
                    drop_na = "group", threshold = 0.001,
                    fun_group = NULL, fun_minor = NULL, fun_major = NULL,
                    fun_total = NULL,
-                   invar = "discharge", outvar = "variable",
+                   invar = "discharge", varname = "variable",
                    simplify = FALSE, plot = FALSE) {
 
   grouped <- x %>%
@@ -119,10 +130,10 @@ metric <- function(x, major = min(minor), minor = intervals$month,
   }
 
   y <- y %>%
-    rename(!!outvar := var)%>%
+    rename(!!varname := var)%>%
     ungroup()
 
-  if(simplify) y <- unlist(y[, outvar], use.names = nrow(y)==1)
+  if(simplify) y <- unlist(y[, varname], use.names = nrow(y)==1)
 
   return(y)
 }

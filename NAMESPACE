@@ -10,7 +10,7 @@ importFrom(plyr, ".")
 importFrom(lubridate, as.period, is.interval, interval, int_overlaps,
            "int_start<-", "int_end<-", int_start, int_end,  month, quarter,
            floor_date, period, is.instant, "yday<-", years, as.interval, year,
-           duration, days, mday, yday)
+           duration, days, mday, yday, is.difftime)
 importFrom(ggplot2, ggplot, geom_segment, aes, geom_vline, geom_hline, labs,
            scale_x_continuous, scale_y_discrete, theme, element_blank, geom_text,
            geom_density, facet_wrap, geom_rug, geom_point, geom_line,

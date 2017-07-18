@@ -5,7 +5,7 @@ test_that("Mean annual maximum Duration for Balder", {
                     drop_na = "major", rule = "onset",
                     state = "no-flow", simplify = TRUE)
 
-  expected <- c("variable" = 39.8)
+  expected <- 39.8
   expect_equal(current, expected)
 
   # not yet implemented

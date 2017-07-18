@@ -50,7 +50,7 @@
 {
   bad <- setdiff(value, colnames(x))
   if(length(bad)) {
-    stop("The following variables are not present: ", paste(bad, collapse = ", "))
+    stop("The follwring variables are not present: ", paste(bad, collapse = ", "))
   }
   x <- .set_attr_smires(x, key = "var", value = value)
   return(x)
@@ -145,7 +145,7 @@
 }
 
 
-.date2julian <- function(x)
+julian_day <- function(x)
 {
   if (is.instant(x)) {
     x <- as.numeric(format(as.Date(x), "%j"))
@@ -197,5 +197,41 @@
   return(day)
 }
 
+.circular_stats <- function(x, lwr = 0, upr = 365) {
+  if(any(x < lwr | x > upr))
+    stop("input data not in range [", lwr, ", ", upr, "]")
 
+  ang <- (x - lwr)/upr * 2 *pi
+
+
+  m <- mean(exp(1i * ang))  # mean vector
+  a <- Mod(m)               # absolute value
+
+  phi <- Arg(m)
+  if (phi < 0) phi <- Arg(m) + 2*pi
+  cm <- phi * (upr - lwr)/2/pi + lwr
+
+
+  cv <- ((upr - lwr)/2/pi)^2 * 2 * log(1/a)
+
+  csd <- ((upr - lwr)/2/pi) * sqrt(-2* log(a))
+
+  return(c(mean = cm, var = cv, sd = csd, abs = a))
+}
+
+circular_mean <- function(x, lwr = 0, upr = 365)
+  .circular_stats(x = x, lwr = lwr, upr = upr)["mean"]
+
+circular_sd <- function(x, lwr = 0, upr = 365)
+  .circular_stats(x = x, lwr = lwr, upr = upr)["sd"]
+
+# circular_cv <- function(x, lwr = 0, upr = 365){
+#   y <- .circular_stats(x = x, lwr = lwr, upr = upr)
+#   return(y["sd"]/y["mean"])
+# }
+
+mean_day <- function(x, lwr = 0, upr = 365)
+  {
+  .format_jday(circular_mean(x = x, lwr = lwr, upr = upr))
+}
 
