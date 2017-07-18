@@ -207,7 +207,6 @@ julian_day <- function(x)
 
   ang <- (x - lwr)/upr * 2 *pi
 
-
   m <- mean(exp(1i * ang))  # mean vector
   a <- Mod(m)               # absolute value
 
