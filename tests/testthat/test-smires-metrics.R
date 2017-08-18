@@ -13,7 +13,5 @@ test_that("quick & dirty check if metrics run", {
   expect_equal(MAMD(balder), c(MAMD = 39.8))
   expect_equal(round(CVAMD(balder), 4), c(CVAMD = 0.6332))
   expect_equal(FAMD(balder), c(46, 45, 76, 0, 0, 20, 12))
-
-
 })
 

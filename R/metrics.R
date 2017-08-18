@@ -177,7 +177,7 @@ tbl_metric(name = "Mean seasonality",
            fun = "Tau")
 
 Tau <- function(x) {
-  .detect_noflow_spells(x) %>%
+  .append_flow_state %>%
     mutate(jday = julian_day(time)) %>%
     filter(state == "no-flow") %>%
     summarize(variable = mean_day(jday)) %>%
@@ -191,7 +191,7 @@ tbl_metric(name = "Strength of seasonality",
            fun = "Taur")
 
 Taur <- function(x) {
-  .detect_noflow_spells(x) %>%
+  .append_flow_state(x) %>%
     mutate(jday = julian_day(time)) %>%
     filter(state == "no-flow") %>%
     summarize(variable = circular_r(jday)) %>%

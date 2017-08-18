@@ -1,16 +1,25 @@
-find_spells <- function(x, threshold = 0.001,
-                        rule = c("cut", "duplicate", "onset", "termination"),
-                        na.rm = TRUE, warn = TRUE, complete = "none")
+find_spells <- function(x, threshold = 0.001, rule = "cut", na.rm = TRUE,
+                        warn = TRUE, complete = "none")
+{
+  x %>%
+    .append_flow_state(threshold = threshold) %>%
+    summarize_spell(rule = rule, na.rm = nr.rm, warn = warn,
+                    complete = complete)
+}
+
+summarize_spell <- function(x,
+                            rule = c("cut", "duplicate", "onset", "termination"),
+                            na.rm = TRUE, warn = TRUE, complete = "none")
 {
   rule <- match.arg(rule)
 
   x %>%
-    .detect_noflow_spells(threshold = threshold) %>%
     .add_spellvars(warn = warn, duplicate = rule != "cut") %>%
     .assign_spell(rule = rule) %>%
     .complete_spell(complete = complete) %>%
     arrange(spell) # sort by spell
 }
+
 
 
 .assign_spell <- function(x,
@@ -61,7 +70,8 @@ find_spells <- function(x, threshold = 0.001,
   return(y)
 }
 
-.detect_noflow_spells <- function(x, threshold = 0.001)
+
+.append_flow_state <- function(x, threshold = 0.001)
 {
   if(is.null(threshold))
   {
@@ -69,6 +79,8 @@ find_spells <- function(x, threshold = 0.001,
   } else {
     att <- .get_attr_smires(x)
 
+    # todo, better use cut?
+    # cut(, breaks = c(0, threshold, Inf), labels = c("no-flow", "flow"))
     x$state <- ifelse(x$discharge <= threshold, "no-flow", "flow")
     x$state <- factor(x$state, levels = c("no-flow", "flow"))
     x <- mutate(x, spell = .spell(x$state))
