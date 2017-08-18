@@ -48,12 +48,22 @@ smires <- function(x, major = min(minor), minor = intervals$month,
 
   if(is.function(fun_group)) {
     y <- y %>% group_by(group, minor, major, state) %>%
-      summarize(var = fun_group(var))
+      do(var = fun_group(.$var)) %>%
+      # only needed until unnest() can handle lists
+      # https://github.com/tidyverse/tidyr/issues/278
+      ungroup() %>%
+      mutate_if(is.list, simplify_all) %>%
+      unnest()
   }
 
   if(is.function(fun_minor)) {
     y <- y %>% group_by(minor, state) %>%
-      summarize(var = fun_minor(var))
+      do(var = fun_minor(.$var)) %>%
+      # only needed until unnest() can handle lists
+      # https://github.com/tidyverse/tidyr/issues/278
+      ungroup() %>%
+      mutate_if(is.list, simplify_all) %>%
+      unnest()
   }
 
   if(is.function(fun_major)) {
@@ -61,7 +71,12 @@ smires <- function(x, major = min(minor), minor = intervals$month,
       stop("You can eihter aggregate by minor interval or major interval, not both.")
     }
     y <- y %>% group_by(major, state) %>%
-      summarize(var = fun_major(var))
+      do(var = fun_major(.$var)) %>%
+      # only needed until unnest() can handle lists
+      # https://github.com/tidyverse/tidyr/issues/278
+      ungroup() %>%
+      mutate_if(is.list, simplify_all) %>%
+      unnest()
   }
 
   if(is.function(fun_total)) {
@@ -82,8 +97,6 @@ smires <- function(x, major = min(minor), minor = intervals$month,
 
   return(y)
 }
-
-
 metric <- function(x, major = min(minor), minor = intervals$month,
                    drop_na = "group", threshold = 0.001,
                    fun_group = NULL, fun_minor = NULL, fun_major = NULL,
@@ -117,12 +130,21 @@ metric <- function(x, major = min(minor), minor = intervals$month,
 
   if(is.function(fun_group)) {
     y <- y %>% group_by(group, minor, major) %>%
-      summarize(var = fun_group(var))
+      do(var = fun_group(.$var)) %>%
+      # only needed until unnest() can handle lists
+      # https://github.com/tidyverse/tidyr/issues/278
+      ungroup() %>%
+      mutate_if(is.list, simplify_all) %>%
+      unnest()
   }
 
   if(is.function(fun_minor)) {
     y <- y %>% group_by(minor) %>%
-      summarize(var = fun_minor(var))
+      do(var = fun_minor(.$var)) %>%
+      # only needed until unnest() can handle lists
+      ungroup() %>%
+      mutate_if(is.list, simplify_all) %>%
+      unnest()
   }
 
   if(is.function(fun_major)) {
@@ -130,7 +152,11 @@ metric <- function(x, major = min(minor), minor = intervals$month,
       stop("You can eihter aggregate by minor interval or major interval, not both.")
     }
     y <- y %>% group_by(major) %>%
-      summarize(var = fun_major(var))
+     do(var = fun_major(.$var)) %>%
+      # only needed until unnest() can handle lists
+      ungroup() %>%
+      mutate_if(is.list, simplify_all) %>%
+      unnest()
   }
 
   if(is.function(fun_total)) {
@@ -142,21 +168,12 @@ metric <- function(x, major = min(minor), minor = intervals$month,
     rename(!!varname := var)%>%
     ungroup()
 
-  if(simplify) y <- unlist(y[, varname], use.names = nrow(y)==1)
+  if(simplify){
+    y <- y[[varname]]
+    if(is.difftime(y)) y <- as.double(y)
+    if(length(y) == 1 & varname != "variable") names(y) <- varname
+  }
 
   return(y)
 }
 
-## metrics suggested in smires project ----
-
-# mean_annual_max_duration_dry <- function(x)
-# {
-#   y <- metric(x, period = "year", agg1  = "max", agg2 = "mean")
-#   y$duration[y$state == "no-flow"]
-# }
-#
-# mean_annual_number_dry_days <- function(x)
-# {
-#   y <- metric(x, period = "year", agg1  = "sum", agg2 = "mean")
-#   y$duration[y$state == "no-flow"]
-# }
