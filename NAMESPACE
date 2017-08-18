@@ -1,4 +1,5 @@
 exportPattern("^[[:alpha:]]+")
+export(.metrics)
 
 importFrom(tidyr, full_seq, complete, nesting, unnest)
 importFrom(tibble, as_data_frame, tibble)

@@ -1,0 +1,108 @@
+---
+title: "smires -- Calculating Hydrological Metrics for Univariate Time Series"
+author: "Tobias Gauster"
+date: "2017-08-18"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(smires)
+library(knitr)
+```
+
+## General definitions	
+
+All indices are derived based on daily discharge hydrographs Q
+
+No-flow spell:  period of time (at least one day) when discharge is less or equal some no-flow threshold (= detection limit): Q≤Q0 (default 1 l/s) 
+
+No-flow event: a contiguous period of days with no-flow occurrence, terminated by rewetting period. Some pooling is usually applied to successive, dependent events in order to define an independent sequence of events.
+
+Events are pooled unless the catchemnt has completely recovered from drought. 
+
+All annual characteristic may be calculated based on calendar years or hydrological years (e.g. for European climates usually staring with Apr)
+
+All annual characteristics can be calculated from the whole time series (all-season characteristics), or alternatively stratified by seasons (seasonal characteristics)
+
+
+
+
+# Flow/No-flow spell characteristics
+
+A characteristic (metric) that can be calculated for **no-flow** spells can also be calculated for **flow** spells. The following sections demonstrate just the calculation of no-flow spell characteristics. 
+
+
+##  General characteristics
+```{r, echo = FALSE, results = "asis"}
+tbl <- metrics() %>% 
+  filter(section == "General characteristics") %>%
+  select(name, acronym, fun, description)
+kable(tbl)
+```
+
+
+```{r}
+no_flow_years(ampneyBrook)
+```
+
+
+
+##  Number of no-flow days
+```{r, echo = FALSE, results = "asis"}
+tbl <- metrics() %>% 
+  filter(section == "Number of no-flow days") %>%
+  select(name, acronym, fun, description)
+kable(tbl)
+```
+
+
+```{r}
+MAN(ampneyBrook)
+```
+
+
+
+## Duration
+```{r, echo = FALSE, results = "asis"}
+tbl <- metrics() %>% 
+  filter(section == "Duration") %>%
+  select(name, acronym, fun, description)
+kable(tbl)
+```
+
+
+```{r}
+MAMD(ampneyBrook)
+```
+
+
+## Timing and seasonality
+```{r, echo = FALSE, results = "asis"}
+tbl <- metrics() %>% 
+  filter(section == "Timing and seasonality") %>%
+  select(name, acronym, fun, description)
+kable(tbl)
+```
+
+
+```{r}
+Tau0(ampneyBrook)
+```
+
+
+
+# Rate of change before/after no-flow event
+```{r, echo = FALSE, results = "asis"}
+tbl <- metrics() %>% 
+  filter(section == "Rate of change before/after no-flow event") %>%
+  select(name, acronym, fun, description)
+kable(tbl)
+```
+
+
+```{r}
+k(ampneyBrook)
+```
+
