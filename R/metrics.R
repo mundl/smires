@@ -197,3 +197,86 @@ Taur <- function(x) {
     summarize(variable = circular_r(jday)) %>%
     unlist(use.names = FALSE)
 }
+
+
+# Rate of change ----
+tbl_metric(name = "Mean recession rate",
+           description = "Mean rate of decay of the hydrograph during flow recession periods",
+           section = "Rate of change",
+           acronym = "k",
+           fun = "k")
+
+
+k <- function(...) {
+  metric(..., fun_major = recession, fun_total = mean, drop_na = "major",
+         simplify = TRUE)
+}
+
+
+tbl_metric(name = "Standard deviation of recession rate",
+           description = "Standard deviation of rate of decay of the hydrograph during flow recession periods",
+           section = "Rate of change",
+           acronym = "ksd",
+           fun = "ksd")
+
+ksd <- function(...) {
+  metric(..., fun_major = recession, fun_total = sd, drop_na = "major",
+         simplify = TRUE)
+}
+
+
+
+is_turning_point <- function(x)
+{
+  delta <- sign(c(0, diff(x)))
+
+  # fill zeros with last observation
+  nonzero <- delta != 0
+  d1 <- c(NA, delta[nonzero])[cumsum(nonzero)+1]
+
+  pairs <- embed(d1, 2)[, 2:1]
+  isTP <- (pairs[, 1] != pairs[, 2])
+
+  tp <- logical(length(x))
+  tp[isTP] <- TRUE
+
+  return(tp)
+}
+
+is_reversal <- function(x)
+{
+  tp <- is_turning_point(x)
+
+  # mask every second turning point
+  mask <- which(tp)[c(TRUE, FALSE)]
+  tp[mask] <- FALSE
+
+  return(tp)
+}
+
+
+# this is equivalent to: number of flood peaks or number of low flows periods
+tbl_metric(name = "Number of reversals in flow magnitude",
+           description = "Number of reversals in flow magnitude",
+           section = "Rate of change",
+           acronym = "nrv",
+           fun = "nrv")
+
+nrv <- function(...) {
+  metric(..., fun_major = sum, drop_na = "major", fun_total = mean,
+         tp = is_reversal(discharge), simplify = TRUE)
+}
+
+
+# number of turning points
+# this is equivalent to: number of flood peaks or number of low flows periods
+# see
+# .detect_increase(balder) %>%
+  #   .add_spellvars()
+
+# ntp <- function(...) {
+#   metric(..., fun_major = sum, drop_na = "major", fun_total = mean,
+#          tp = is_turning_point(discharge), simplify = TRUE)
+# }
+
+

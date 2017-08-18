@@ -95,6 +95,28 @@ summarize_spell <- function(x,
 
 
 
+
+# .detect_increase(balder) %>%
+#   .add_spellvars()
+
+.detect_increase <- function(x)
+{
+  att <- .get_attr_smires(x)
+
+  d <- diff(x$discharge)
+  # as we are only interested in counting the state changes and not in
+  # the duration of a state, we can assign zeros to either increase or decrease
+  state <- cut(d, breaks = c(-Inf, 0, Inf), labels = c("decrease", "increase"))
+
+  x <- data_frame(time = head(x$time, n = -1),
+                  state = state,
+                  spell = .spell(state))
+
+  x <- .set_attr_smires(x, value = att)
+
+  return(x)
+}
+
 .add_spellvars <- function(x, warn = TRUE, duplicate = FALSE)
 {
   grouped <- "group" %in% colnames(x)
