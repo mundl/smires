@@ -4,7 +4,7 @@ require(bindrcpp)
 
 test_that("quick & dirty check if metrics run", {
   expect_equal(no_flow_years(balder), c(f0 = 1))
-  expect_equal(round(no_flow_years(ampneyBrook), 4), c(f0 = 0.2857))
+  expect_equal(round(no_flow_years(ampneyBrook), 4), c(f0 = 0.1818))
 
   expect_equal(MAN(balder), c(MAN = 113.2))
   expect_equal(round(CVAN(balder), 4), c(CVAN = 0.6602))
@@ -15,3 +15,9 @@ test_that("quick & dirty check if metrics run", {
   expect_equal(FAMD(balder), c(46, 45, 76, 0, 0, 20, 12))
 })
 
+
+test_that("all registered metrics exist", {
+  for(i in metrics(markup = FALSE)$Function) {
+    expect_true(exists(x = i, mode = "function", where = "package:smires"))
+  }
+})

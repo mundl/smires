@@ -11,6 +11,15 @@
   return(suffix)
 }
 
+.written_suffix <- function(x)
+{
+  if(x > 4) return(paste0(x, .ordinal_suffix(x)))
+  switch(x,
+         "1" = "first",
+         "2" = "second",
+         "3" = "third")
+}
+
 
 .rescale <- function(x, na.rm = TRUE)
 {

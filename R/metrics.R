@@ -1,21 +1,39 @@
 .metrics <- new.env()
+.metrics$list <- list()
 
-metrics <- function()
+metrics <- function(markup = TRUE)
 {
-  do.call(rbind, .metrics$list)
+  x <- do.call(rbind, .metrics$list)
+
+  if(markup) x$Function <- paste0("`", x$Function, "(x)`")
+
+  return(x)
 }
 
-register_metric <- function(name, description, section, acronym, fun, args = "")
+register_metric <- function(name, description, section, acronym, fun,
+                            measure, args = "")
   {
+
+  meas <- c("Location", "Variability", "Distribution")
 
   sec  <- c("General characteristics", "Number of no-flow days",
           "Duration", "Timing and seasonality", "Flow spell characteristics",
             "Rate of change before/after no-flow event")
 
-  current <- data_frame(name = name,
-                        acronym = acronym,
-                        fun = fun,
-                        description = description,
+  # check if functions exists
+  if(!exists(x = fun, mode = "function"))
+    stop("Function '", fun, "' does not exist in package 'smires'.")
+
+  # check if functions exists
+  if(acronym %in% metrics()$Acronym)
+    stop("Acronym ", acronym, " does is already in use.")
+
+
+  current <- data_frame(Name = name,
+                        Acronym = acronym,
+                        Function = fun,
+                        Description = description,
+                        Measure = factor(measure, levels = meas),
                         section = factor(section, levels = sec),
                         args = args)
 
@@ -24,15 +42,8 @@ register_metric <- function(name, description, section, acronym, fun, args = "")
 
 
 # General characteristics ----
-register_metric(
-  name = "Proportion of no-flow years",
-  description = "Number of years with no-flow occurrence (when flow is at least for one day below the no-flow threshold) divided by the study period in years",
-  section = "General characteristics",
-  acronym = "f_0",
-  fun = "no_flow_years")
-
 no_flow_years <- function(...) {
-  smires(...) %>%
+  smires(..., rule = "cut") %>%
     mutate(year = as.numeric(major)) %>%
     select(state, year) %>%
     distinct() %>%
@@ -40,32 +51,32 @@ no_flow_years <- function(...) {
     unlist()
 }
 
+register_metric(
+  name = "Proportion of no-flow years",
+  description = "Number of years with no-flow occurrence (when flow is at least for one day below the no-flow threshold) divided by the study period in years",
+  measure = NA,
+  section = "General characteristics",
+  acronym = "$f_0$",
+  fun = "no_flow_years")
+
 
 # Nuber of flow days ----
-register_metric(
-  name = "Mean annual number of no-flow days",
-  description = "Mean annual number of days with no-flow occurrence (when flow is below the no-flow threshold)",
-  section = "Number of no-flow days",
-  acronym = "MAN",
-  fun = "MAN",
-  args = "fun_major = sum, fun_total = mean, drop_na = 'major', rule = 'cut'")
-
 MAN <- function(...) {
   smires(..., fun_major = sum, fun_total = mean, drop_na = "major",
          rule = "cut", state = "no-flow", varname = "MAN", simplify = TRUE)
 }
 
+register_metric(
+  name = "Mean annual number of no-flow days",
+  description = "Mean annual number of days with no-flow occurrence (when flow is below the no-flow threshold)",
+  measure = "Location",
+  section = "Number of no-flow days",
+  acronym = "$MAN$",
+  fun = "MAN",
+  args = "fun_major = sum, fun_total = mean, drop_na = 'major', rule = 'cut'")
 
 
 #
-register_metric(
-  name = "CV of the annual number of no-flow days",
-  description = "Coefficient of variation of the annual number of days with no-flow occurrence (when flow is below the no-flow threshold)",
-  section = "Number of no-flow days",
-  acronym = "CVAN",
-  fun = "CVAN",
-  args = "fun_major = sum, fun_total = cv, drop_na = 'major', rule = 'cut'")
-
 cv <- function(x) {
   x <- as.double(x)
   sd(x) / mean(x)
@@ -76,127 +87,143 @@ CVAN <- function(...) {
          rule = "cut", state = "no-flow", varname = "CVAN", simplify = TRUE)
 }
 
+register_metric(
+  name = "CV of the annual number of no-flow days",
+  description = "Coefficient of variation of the annual number of days with no-flow occurrence (when flow is below the no-flow threshold)",
+  measure = "Variability",
+  section = "Number of no-flow days",
+  acronym = "$CVAN$",
+  fun = "CVAN",
+  args = "fun_major = sum, fun_total = cv, drop_na = 'major', rule = 'cut'")
+
 
 #
-register_metric(
-  name = "Distribution of the annual number of no-flow days",
-  description = "Statistical distribution (cdf) of the annual number of days with no-flow occurrence (when flow is below the no-flow threshold)",
-  section = "Number of no-flow days",
-  acronym = "FAN",
-  fun = "FAN",
-  args = "fun_major = sum, drop_na = 'major', rule = 'cut', complete = TRUE")
-
 FAN <- function(...) {
   smires(..., fun_major = sum, drop_na = "major", rule = "cut",
          complete = TRUE, state = "no-flow", varname = "FAN", simplify = TRUE)
 }
 
+register_metric(
+  name = "Distribution of the annual number of no-flow days",
+  description = "Statistical distribution (cdf) of the annual number of days with no-flow occurrence (when flow is below the no-flow threshold)",
+  measure = "Distribution",
+  section = "Number of no-flow days",
+  acronym = "$FAN$",
+  fun = "FAN",
+  args = "fun_major = sum, drop_na = 'major', rule = 'cut', complete = TRUE")
+
+
 
 # Duration -----
-register_metric(
-  name = "Mean annual maximum duration",
-  description = "Mean duration of the longest annual no-flow event (during which flow remains below the no-flow threshold)",
-  section = "Duration",
-  acronym = "MAMD",
-  fun = "MAMD",
-  args = "fun_major = max, fun_total = mean, drop_na = 'major', rule = 'onset'")
-
 MAMD <- function(...) {
   smires(..., fun_major = max, fun_total = mean, drop_na = "major",
          state = "no-flow", varname = "MAMD", simplify = TRUE)
 }
 
-#
 register_metric(
-  name = "CV of annual maximum duration",
-  description = "Coefficient of variation of the duration of the longest annual no-flow event (during which flow remains below the no-flow threshold)",
+  name = "Mean annual maximum duration",
+  description = "Mean duration of the longest annual no-flow event (during which flow remains below the no-flow threshold)",
+  measure = "Location",
   section = "Duration",
-  acronym = "CVAMD",
-  fun = "CVAMD",
+  acronym = "$MAMD$",
+  fun = "MAMD",
   args = "fun_major = max, fun_total = mean, drop_na = 'major', rule = 'onset'")
 
+
+#
 CVAMD <- function(...) {
   smires(..., fun_major = max, fun_total = cv, drop_na = "major",
          state = "no-flow", varname = "CVAMD", simplify = TRUE)
 }
 
-#
 register_metric(
-  name = "Distribution of annual maximum duration",
-  description = "Statistical distribution (cdf) of the duration of the longest annual no-flow event (during which flow remains below the no-flow threshold)",
+  name = "CV of annual maximum duration",
+  description = "Coefficient of variation of the duration of the longest annual no-flow event (during which flow remains below the no-flow threshold)",
+  measure = "Variability",
   section = "Duration",
-  acronym = "FAMD",
-  fun = "FAMD",
-  args = "fun_major = max, drop_na = 'major', rule = 'onset'")
+  acronym = "$CVAMD$",
+  fun = "CVAMD",
+  args = "fun_major = max, fun_total = mean, drop_na = 'major', rule = 'onset'")
 
+#
 FAMD <- function(...) {
   smires(..., fun_major = max, drop_na = "major", complete = TRUE,
          state = "no-flow", varname = "FAMD", simplify = TRUE)
 }
 
+register_metric(
+  name = "Distribution of annual maximum duration",
+  description = "Statistical distribution (cdf) of the duration of the longest annual no-flow event (during which flow remains below the no-flow threshold)",
+  measure = "Distribution",
+  section = "Duration",
+  acronym = "$FAMD$",
+  fun = "FAMD",
+  args = "fun_major = max, drop_na = 'major', rule = 'onset'")
 
 # Timing and Seasonality ----
+
+tau0 <- function(...) {
+  smires(..., fun_major = min, fun_total = mean_day, drop_na = "major",
+         jday = julian_day(onset), state = "no-flow", simplify = TRUE)
+}
+
 register_metric(
   name = "Mean onset",
   description = "Mean Julian date (day-of-year) of the first annual no-flow day (using circular statistics)",
+  measure = "Location",
   section = "Timing and seasonality",
-  acronym = "tau0",
-  fun = "Tau0",
+  acronym = "$\\tau_0$",
+  fun = "tau0",
   args = "fun_major = min, fun_total = mean_day, drop_na = 'major', jday = julian_day(onset)")
 
-Tau0 <- function(...) {
-  smires(..., fun_major = min, fun_total = mean_day, drop_na = "major",
+#
+tau0r <- function(...) {
+  smires(..., fun_major = min, fun_total = circular_r, drop_na = "major",
          jday = julian_day(onset), state = "no-flow", simplify = TRUE)
 }
 
 register_metric(
   name = "Variability of onset",
   description = "Circular variability index r (between 0 and 1) of the onset",
+  measure = "Variability",
   section = "Timing and seasonality",
-  acronym = "tau0r",
-  fun = "Tau0r",
+  acronym = "$\\tau_{0r}$",
+  fun = "tau0r",
   args = "fun_major = min, fun_total = circular_r, drop_na = 'major', jday = julian_day(onset)")
 
-Tau0r <- function(...) {
-  smires(..., fun_major = min, fun_total = circular_r, drop_na = "major",
-         jday = julian_day(onset), state = "no-flow", simplify = TRUE)
+#
+tauE <- function(...) {
+  smires(..., fun_major = min, fun_total = mean_day, drop_na = "major",
+         jday = julian_day(termination), state = "no-flow", simplify = TRUE)
 }
 
 register_metric(
   name = "Mean termination",
   description = "Mean Julian date (day-of-year) of the first annual no-flow day (using circular statistics)",
+  measure = "Location",
   section = "Timing and seasonality",
-  acronym = "tau0",
-  fun = "Tau0",
+  acronym = "$\\tau_E$",
+  fun = "tauE",
   args = "fun_major = min, fun_total = mean_day, drop_na = 'major', jday = julian_day(termination)")
 
-TauE <- function(...) {
-  smires(..., fun_major = min, fun_total = mean_day, drop_na = "major",
+#
+tauEr <- function(...) {
+  smires(..., fun_major = min, fun_total = circular_r, drop_na = "major",
          jday = julian_day(termination), state = "no-flow", simplify = TRUE)
 }
 
 register_metric(
   name = "Variability of termination",
   description = "Circular variability index r (between 0 and 1) of the termination",
+  measure = "Variability",
   section = "Timing and seasonality",
-  acronym = "tau0r",
-  fun = "Tau0r",
+  acronym = "$\\tau_{Er}$",
+  fun = "tauEr",
   args = "fun_major = min, fun_total = circular_r, drop_na = 'major', jday = julian_day(termination)")
 
-TauEr <- function(...) {
-  smires(..., fun_major = min, fun_total = circular_r, drop_na = "major",
-         jday = julian_day(termination), state = "no-flow", simplify = TRUE)
-}
 
-
-register_metric(
-  name = "Mean seasonality",
-  description = "Mean Julian date of all no-flow days (using circular statistics)",
-  section = "Timing and seasonality",
-  acronym = "tau",
-  fun = "Tau")
-
-Tau <- function(x) {
+#
+tau <- function(x) {
   .append_flow_state %>%
     mutate(jday = julian_day(time)) %>%
     filter(state == "no-flow") %>%
@@ -205,13 +232,15 @@ Tau <- function(x) {
 }
 
 register_metric(
-  name = "Strength of seasonality",
-  description = "Circular variability index r (between 0 and 1) of all no-flow days",
+  name = "Mean seasonality",
+  description = "Mean Julian date of all no-flow days (using circular statistics)",
+  measure = "Location",
   section = "Timing and seasonality",
-  acronym = "taur",
-  fun = "Taur")
+  acronym = "$\\tau$",
+  fun = "tau")
 
-Taur <- function(x) {
+#
+taur <- function(x) {
   .append_flow_state(x) %>%
     mutate(jday = julian_day(time)) %>%
     filter(state == "no-flow") %>%
@@ -219,33 +248,42 @@ Taur <- function(x) {
     unlist(use.names = FALSE)
 }
 
+register_metric(
+  name = "Strength of seasonality",
+  description = "Circular variability index r (between 0 and 1) of all no-flow days",
+  measure = "Variability",
+  section = "Timing and seasonality",
+  acronym = "$\\tau_r$",
+  fun = "taur")
+
 
 # Rate of change ----
-register_metric(
-  name = "Mean recession rate",
-  description = "Mean rate of decay of the hydrograph during flow recession periods",
-  section = "Rate of change before/after no-flow event",
-  acronym = "k",
-  fun = "k")
-
-
 k <- function(...) {
   metric(..., fun_major = recession, fun_total = mean, drop_na = "major",
          simplify = TRUE)
 }
 
-
 register_metric(
-  name = "Standard deviation of recession rate",
-  description = "Standard deviation of rate of decay of the hydrograph during flow recession periods",
+  name = "Mean recession rate",
+  description = "Mean rate of decay of the hydrograph during flow recession periods",
+  measure = "Location",
   section = "Rate of change before/after no-flow event",
-  acronym = "ksd",
-  fun = "ksd")
+  acronym = "$k$",
+  fun = "k")
 
+#
 ksd <- function(...) {
   metric(..., fun_major = recession, fun_total = sd, drop_na = "major",
          simplify = TRUE)
 }
+
+register_metric(
+  name = "Standard deviation of recession rate",
+  description = "Standard deviation of rate of decay of the hydrograph during flow recession periods",
+  measure = "Variability",
+  section = "Rate of change before/after no-flow event",
+  acronym = "$k_{sd}$",
+  fun = "ksd")
 
 
 
@@ -279,17 +317,18 @@ is_reversal <- function(x)
 
 
 # this is equivalent to: number of flood peaks or number of low flows periods
-register_metric(
-  name = "Number of reversals in flow magnitude",
-  description = "Number of reversals in flow magnitude",
-  section = "Rate of change before/after no-flow event",
-  acronym = "nrv",
-  fun = "nrv")
-
 nrv <- function(...) {
   metric(..., fun_major = sum, drop_na = "major", fun_total = mean,
          tp = is_reversal(discharge), simplify = TRUE)
 }
+
+register_metric(
+  name = "Mean annual number of reversals in flow magnitude",
+  description = "Mean annual number of reversals in flow magnitude",
+  measure = "Location",
+  section = "Rate of change before/after no-flow event",
+  acronym = "$n_{rv}$",
+  fun = "nrv")
 
 
 # number of turning points
