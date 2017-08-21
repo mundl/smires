@@ -64,11 +64,24 @@ drop_na_periods <- function(x, period = group_vars(x))
 group_by_interval <- function(.data, minor_interval = intervals$month,
                               major_interval = min(minor_interval))
 {
-  if(length(minor_interval) == 1 & is.character(minor_interval)) {
+  if(length(minor_interval) == 1 && is.character(minor_interval)) {
     mi <- c("week", "month")[pmatch(minor_interval, c("weeks", "months"))]
     if(!is.na(mi)) {
       minor_interval <- intervals[[mi]]
     }
+  }
+
+  if(length(major_interval) == 1 && is.na(major_interval)) {
+    major_interval <- 1
+  }
+
+  if(length(minor_interval) == 1 && is.na(minor_interval)) {
+    minor_interval <- c("--" = major_interval)
+  }
+
+
+  if(length(minor_interval) == 1 && is.numeric(minor_interval)) {
+      names(minor_interval) <- "--"
   }
 
   if (!is.numeric(major_interval) || length(major_interval) != 1) {

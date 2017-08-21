@@ -1,5 +1,5 @@
-smires <- function(x, major = min(minor), minor = intervals$month,
-                   drop_na = "none", rule = "onset", threshold = 0.001,
+smires <- function(x, major = min(minor), minor = NA,
+                   drop_na = "none", rule = "cut", threshold = 0.001,
                    fun_group = NULL, fun_minor = NULL, fun_major = NULL,
                    fun_total = NULL,
                    state = c("no-flow", "flow", NA),
@@ -100,7 +100,8 @@ smires <- function(x, major = min(minor), minor = intervals$month,
 
   return(y)
 }
-metric <- function(x, major = min(minor), minor = intervals$month,
+
+metric <- function(x, major = min(minor), minor = NA,
                    drop_na = "group", threshold = 0.001,
                    fun_group = NULL, fun_minor = NULL, fun_major = NULL,
                    fun_total = NULL,
