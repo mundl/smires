@@ -43,7 +43,7 @@ register_metric <- function(name, description, section, acronym, fun,
 
 # General characteristics ----
 no_flow_years <- function(...) {
-  smires(..., rule = "cut") %>%
+  smires(..., rule = "cut", complete = FALSE) %>%
     mutate(year = as.numeric(major)) %>%
     select(state, year) %>%
     distinct() %>%

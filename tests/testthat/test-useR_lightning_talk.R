@@ -32,8 +32,9 @@ test_that("Results are identical to the ones in rnw/pdf", {
   expect_equal(current, expected)
 
 
-
-  u <- smires(balder, fun_major = max, fun_total = mean, drop_na = "major")
+  # This was computed for complete = FALSE, which is incorrect.
+  u <- smires(balder, fun_major = max, fun_total = mean, drop_na = "major",
+              complete = FALSE)
   current <- as_tibble(u[,seq_len(ncol(u))])
 
   expected <- structure(list(

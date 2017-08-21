@@ -1,9 +1,12 @@
 context("Internal Presentation CEH")
 
 test_that("Mean annual maximum Duration for Balder", {
+
+  # This was computed for complete = FALSE, which is incorrect.
   current <- smires(balder, fun_major = max, fun_total = mean,
                     drop_na = "major", rule = "onset",
-                    state = "no-flow", simplify = TRUE)
+                    state = "no-flow", simplify = TRUE,
+                    complete = FALSE)
 
   expected <- 39.8
   expect_equal(current, expected)

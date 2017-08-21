@@ -5,7 +5,7 @@ smires <- function(x, major = min(minor), minor = intervals$month,
                    state = c("no-flow", "flow", NA),
                    ...,
                    varname = "variable",
-                   simplify = FALSE, complete = FALSE, plot = FALSE) {
+                   simplify = FALSE, complete = TRUE, plot = FALSE) {
 
   state <- match.arg(state, several.ok = TRUE)
 
@@ -17,6 +17,9 @@ smires <- function(x, major = min(minor), minor = intervals$month,
       "minor"
     } else if(is.function(fun_major)) {
       "major"
+    } else {
+       # No aggregation function specified, setting 'complete = FALSE'.
+      FALSE
     }
   }
 
