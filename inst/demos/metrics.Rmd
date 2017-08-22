@@ -33,7 +33,7 @@ The minor interval allows a furhter partition of the year into eihter seasons, m
 
 Here, the function `smires` is used to demonstrate the meaning of major and minor intervals. The argument `major = 91` specifies that the major interval -- the hydrological year -- starts on the 91^st^ day of the year, which is April 1^st^. The default for minor intervals is to use months. The functions returns at table of spells, which we can ignore for the time being. The function is just used for the side effect of plotting the stream-flow permanence of the river 'Ampney Brook' at station 'Ampney St Peter' based on a threshold of 1 l/s.
 ```{r ampneyPerm, fig.width=10, fig.height=10}
-ampney <- smires(ampneyBrook, major = 91, plot = TRUE)
+ampney <- smires(ampneyBrook, major = 91, minor = intervals$month, rule = "onset", plot = TRUE)
 ```
 
 
@@ -46,7 +46,7 @@ A characteristic  that can be calculated for **no-flow** spells can also be calc
 
 
 ##  General characteristics
-Each of the following sections start with a table, showing all metrics attriubted to this certain section. This section 'General characteristics' comprises just one characteristic, the proportion of no-flow years  `r tbl$Acronym[1]`.
+Each of the following sections start with a table, showing all metrics attriubted to this certain section. This section 'General characteristics' comprises just one characteristic, the proportion of no-flow years  $f_0$ .
 ```{r, echo = FALSE, results = "asis"}
 tbl <- metrics() %>% 
   filter(section == "General characteristics") %>%
@@ -75,7 +75,29 @@ tbl <- metrics() %>%
 kable(tbl)
 ```
 
-Most IRES metrics are constructed in a similar way. 
+Most IRES metrics are constructed in a similar way. To compute the mean annual number of no-flow days we have to do the following:
+
+1. Given our daily discharge time series $Q$ we derive a **binary time series** of `flow` and `no-flow` states with respect to a theshold $Q_0$. This transforms our initial time series with `r nrow(ampneyBrook)` days of observations (rows) of a single variable (column `discharge`)  
+```{r}
+ampneyBrook
+```
+into a binary time series with `r nrow(ampney)` spells/events (rows) and `r ncol(ampney) -1` variables (columns). 
+```{r}
+ampney
+```
+Most of these newly created variables like `major`, `minor` and `group` are used for grouping. To compute mean annual number of no-flow days our main variable of interest is of course `duration`. 
+
+2. As there can be easily several spells/events per year, for every year we need to aggregate the durations. To do so, in general we have to supply three arguments to the function `smires()`:
+    + the variable we want to aggregate (in this case `duration` is implicitly used),
+    + the interval we want to aggregate over (here hydrological years, `major = 91`)
+    + and the function used to summarize all the durations (`fun_major = sum`).  
+```{r}
+smires(ampneyBrook, major = 91, fun_major = sum, complete = TRUE)
+```
+This yields us 
+
+
+3. 
 
 
 ```{r}

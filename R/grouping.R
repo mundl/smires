@@ -71,21 +71,25 @@ group_by_interval <- function(.data, minor_interval = intervals$month,
     }
   }
 
+  if(length(minor_interval) == 1 && is.numeric(minor_interval)) {
+    names(minor_interval) <- NA
+  }
+
   if(length(major_interval) == 1 && is.na(major_interval)) {
     major_interval <- 1
   }
 
   if(length(minor_interval) == 1 && is.na(minor_interval)) {
-    minor_interval <- c("--" = major_interval)
-  }
-
-
-  if(length(minor_interval) == 1 && is.numeric(minor_interval)) {
-      names(minor_interval) <- "--"
+    minor_interval <- major_interval
+    names(minor_interval) <- NA
   }
 
   if (!is.numeric(major_interval) || length(major_interval) != 1) {
     stop("Currently, only years are supported for major intervals.")
+  }
+
+  if(is.null(names(minor_interval))) {
+    names(minor_interval) <- seq_along(minor_interval)
   }
 
   if (is.numeric(major_interval) && is.numeric(minor_interval)) {
@@ -106,14 +110,21 @@ group_by_interval <- function(.data, minor_interval = intervals$month,
 
 
   # assign minor period
-  day <- yday(.data$time)
-  pos <- rowSums(outer(day, as.numeric(minor_interval), FUN = ">="))
-  pos[pos == 0] <- length(minor_interval)
-  n <- length(minor_interval)
-  lvls <- names(minor_interval)[(seq(idx-1, length.out = n) %% n) + 1]
-  .data$minor <- factor(names(minor_interval)[pos], levels = lvls, ordered = TRUE)
+  if(length(minor_interval) == 1) {
+    .data$minor <- factor(rep(NA, nrow(.data)), levels = NA,
+                          ordered = TRUE, exclude = NULL)
+  } else {
+    day <- yday(.data$time)
+    pos <- rowSums(outer(day, as.numeric(minor_interval), FUN = ">="))
+    pos[pos == 0] <- length(minor_interval)
+    n <- length(minor_interval)
+    lvls <- names(minor_interval)[(seq(idx-1, length.out = n) %% n) + 1]
+    .data$minor <- factor(names(minor_interval)[pos], levels = lvls,
+                          ordered = TRUE, exclude = NULL)
 
-  int$minor <- int$minor[lvls]
+    int$minor <- int$minor[lvls]
+  }
+
   int[["minor_hday"]] <- .date2hday(int$minor, start = major_interval)
 
   # update minor interval with correct order

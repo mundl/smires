@@ -1,23 +1,24 @@
 context("Results from useR!2017 lightning talk")
 
 test_that("Results are identical to the ones in rnw/pdf", {
-  current <- metric(balder,
+  current <- metric(balder, drop_na = "major",
                     fun_major = max, fun_total = mean,
                     simplify = TRUE, varname = "mean.annual.max")
 
-  expected <- c(mean.annual.max = 5.438429)
-  expect_equal(round(current, 6), expected)
+  expected <- c(mean.annual.max = 5.222)
+  expect_equal(round(current, 3), expected)
 
 
-  current <- metric(balder, major = 244,
+  current <- metric(balder, major = 244, drop_na = "major",
                     fun_major = max, fun_total = mean,
                     simplify = TRUE, varname = "mean.annual.max")
 
-  expected <- c(mean.annual.max = 5.696429)
+  expected <- c(mean.annual.max = 5.814)
   expect_equal(round(current, 6), expected)
 
 
-  u <- metric(balder, major = 244, fun_major = max)
+  u <- metric(balder, major = 244,
+              fun_major = function(x) max(x, na.rm = TRUE))
   current <- as_tibble(u[,seq_len(ncol(u))])
 
   expected <- structure(list(
@@ -33,15 +34,16 @@ test_that("Results are identical to the ones in rnw/pdf", {
 
 
   # This was computed for complete = FALSE, which is incorrect.
-  u <- smires(balder, fun_major = max, fun_total = mean, drop_na = "major",
+  u <- smires(balder, fun_major = max,
+              fun_total = function(x) round(mean(x, na.rm = TRUE), 4),
               complete = FALSE)
   current <- as_tibble(u[,seq_len(ncol(u))])
 
   expected <- structure(list(
-    state = structure(1:2, .Label = c("no-flow", "flow"), class = "factor"),
-    variable = structure(c(39.8, 91.8), units = "days", class = "difftime")),
+    state = structure(c(1L, 2L, NA), .Label = c("no-flow", "flow"), class = "factor"),
+    variable = structure(c(37, 84.4286, 122.5), units = "days", class = "difftime")),
     .Names = c("state", "variable"),
-    row.names = c(NA, -2L),
+    row.names = c("1", "2", "3"),
     class = c("tbl_df", "tbl", "data.frame"))
 
   expect_equal(current, expected)
@@ -61,7 +63,7 @@ test_that("Results are identical to the ones in rnw/pdf", {
     state = structure(c(1L, 2L, 1L, 2L, 1L, 2L, 1L, 2L),
                       .Label = c("no-flow", "flow"),
                       class = "factor"),
-    variable = structure(c(70, 96, 45, 49, 76, 214, 20, 96),
+    variable = structure(c(70, 92, 45, 47, 46, 44, 56, 90),
                          units = "days",
                          class = "difftime")),
     .Names = c("minor",  "state", "variable"),

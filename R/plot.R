@@ -82,7 +82,7 @@ plot_groups <- function(x)
                           threshold, ")"))
   }
 
-  if(all(levels(x$minor) == "--")) {
+  if(all(is.na(levels(x$minor)))) {
     # no minor interval specified
     p <- p + theme(axis.title.x = element_blank(),
                    axis.text.x = element_blank())

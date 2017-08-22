@@ -1,3 +1,7 @@
+# complete = TRUE and drop_na = "group" interfere.
+# maybe issue a warning, that dropped years will be completed with zeros
+# todo: consider setting drop_na = "group"
+
 smires <- function(x, major = min(minor), minor = NA,
                    drop_na = "none", rule = "cut", threshold = 0.001,
                    fun_group = NULL, fun_minor = NULL, fun_major = NULL,
@@ -102,7 +106,7 @@ smires <- function(x, major = min(minor), minor = NA,
 }
 
 metric <- function(x, major = min(minor), minor = NA,
-                   drop_na = "group", threshold = 0.001,
+                   drop_na = "none", threshold = 0.001,
                    fun_group = NULL, fun_minor = NULL, fun_major = NULL,
                    fun_total = NULL,
                    ...,
