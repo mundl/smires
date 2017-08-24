@@ -43,6 +43,12 @@
   return(txt)
 }
 
+.itemize_text <- function(x, collapse = ", ", final = " and ")
+{
+  paste(paste(head(x, -1), collapse = ", "),
+        tail(x, 1), sep = " and ")
+}
+
 # .factor_fullseq <- function(x, prefix = "", ordered = TRUE)
 # {
 #   fseq <- full_seq(x, 1)
@@ -243,7 +249,7 @@ circular_r <- function(x, lwr = 0, upr = 365)
 # }
 
 mean_day <- function(x, lwr = 0, upr = 365)
-  {
+{
   .format_jday(circular_mean(x = x, lwr = lwr, upr = upr))
 }
 
