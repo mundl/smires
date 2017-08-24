@@ -1,0 +1,46 @@
+---
+title: "The R package smires -- Importing data"
+author: "Tobias Gauster"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Most IRES metrics are constructed in a similar way.
+
+1. Derive a binary time series from (daily) discharge observations.
+2. Aggregate on an annual basis.
+3. Aggreate every year to obtain a single metric per `state`.
+
+This steps are explained in detail for the mean annual number of no-flow days. First of all we need to load the R-package **smires**, assuming it is already installed on your machine.
+
+
+```{r, message=FALSE}
+library(smires)
+```
+
+This page was generated with `r R.version.string` and **smires** version `r packageVersion("smires")`.
+
+Suppose we have an spreadsheet like the following named `goryczkowy.xlsx` with two columns. The first column contains the date (preferably in the following format 'year-month-day', which is Rs default `format = '%Y-%m-%d'`) and the second column contains the discharges. 
+
+![spreadsheet](../inst/demos/goryczkowy.png)
+
+It is best to save the spreadsheet in text format, eihter as txt or csv (comma separated values). Depending on your language settings, the resulting file (`goryczkowy.csv`) might look like the following. Here the semicolon `';'` is used as a field separator and the comma `','` is the decimal separator. 
+
+
+```{r, echo=FALSE, comment=""}
+filename <- "../ts/pl/goryczkowy.csv"
+cat(readLines(filename, n = 10), sep = "\n")
+```
+
+This file can be imported into R with the following command
+
+```{r}
+filename <- "../ts/pl/goryczkowy.csv"
+read.csv2(filename, colClasses = c("Date", "numeric")) %>%
+    validate(approx.missing = 0)
+```
+
