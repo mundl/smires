@@ -26,7 +26,7 @@ summarize_spell <- function(x,
                           rule = c("cut", "duplicate", "onset", "termination"))
 {
   rule <- match.arg(rule)
-  x <- .set_attr_smires(x, "rule", rule)
+  attr_smires(x) <- list("rule" = rule)
 
   # todo: rules for "majority" and "center"
   # todo: cut = cut_group = cut_minor, cut_major
@@ -77,7 +77,7 @@ summarize_spell <- function(x,
   {
     x$spell <- seq_len(nrow(x))
   } else {
-    att <- .get_attr_smires(x)
+    att <- attr_smires(x)
 
     # todo, better use cut?
     # cut(, breaks = c(0, threshold, Inf), labels = c("no-flow", "flow"))
@@ -86,7 +86,7 @@ summarize_spell <- function(x,
     x <- mutate(x, spell = .spell(x$state))
 
     att[["threshold"]] <- threshold
-    x <- .set_attr_smires(x, value = att)
+    attr_smires(x) <- att
   }
 
 
@@ -101,7 +101,7 @@ summarize_spell <- function(x,
 
 .detect_increase <- function(x)
 {
-  att <- .get_attr_smires(x)
+  att <- attr_smires(x)
 
   d <- diff(x$discharge)
   # as we are only interested in counting the state changes and not in
@@ -112,7 +112,7 @@ summarize_spell <- function(x,
                   state = state,
                   spell = .spell(state))
 
-  x <- .set_attr_smires(x, value = att)
+  attr_smires(x) <- att
 
   return(x)
 }
@@ -127,7 +127,7 @@ summarize_spell <- function(x,
     group_by(x, spell, state)
   }
 
-  att <- .get_attr_smires(x)
+  att <- attr_smires(x)
 
   # always store cutted spells in attributes,  needed for plotting
   if(grouped) {
@@ -160,7 +160,7 @@ summarize_spell <- function(x,
   att[["spell_cut"]] <- cut[, seq_along(cut)]
 
   #if(grouped | duplicate)
-  res <- .set_attr_smires(res, value = att)
+  attr_smires(res) <- att
 
 
   return(res)

@@ -128,7 +128,7 @@ group_by_interval <- function(.data, minor_interval = intervals$month,
   int[["minor_hday"]] <- .date2hday(int$minor, start = major_interval)
 
   # update minor interval with correct order
-  .data <- .set_attr_smires(.data, "interval", int)
+  attr_smires(.data) <- list("interval" = int)
 
   # use integer arithmetic to get unique group numbers
   # todo: test if group_indices() is faster
@@ -142,7 +142,7 @@ group_by_interval <- function(.data, minor_interval = intervals$month,
   tbl <- ungroup(.data) %>%
     select(major, minor, group) %>%
     distinct()
-  .data <- .set_attr_smires(.data, "group_interval", tbl)
+  attr_smires(.data) <- list("group_interval" = tbl)
 
   return(.data)
 }

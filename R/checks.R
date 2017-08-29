@@ -95,7 +95,8 @@
   }
 }
 
-validate <- function(x, minyear = 10, approx.missing = 5, accuracy = 0)
+validate <- function(x, minyear = 10, approx.missing = 5, accuracy = 0,
+                     warn = TRUE)
 {
   # we agreed on keeping the accuracy argument but
   # checking for negative values explicitly
@@ -128,41 +129,47 @@ validate <- function(x, minyear = 10, approx.missing = 5, accuracy = 0)
   total <- nrow(x)
   x$discharge <- .fill_na(x$discharge, max.len = approx.missing)
 
-  if (accuracy > 0)
-  {
-    nthres <- sum(abs(x$discharge - accuracy) < sqrt(.Machine$double.eps),
-                  na.rm = TRUE)
-    txt <- paste0("observations equal to the measurement accuracy of '",
-                  accuracy, "'")
-    .msg_ratio(nthres, total, txt)
 
-    txt <- paste0("observations below the measurement accuracy of '",
-                  accuracy, "'")
-    .msg_ratio(sum(x$discharge < accuracy, na.rm = TRUE), total, txt)
-  }
+  if(warn){
 
-  nzero <- sum(abs(x$discharge) < sqrt(.Machine$double.eps), na.rm = TRUE)
-  txt <- paste0("observations numerically equal to zero")
-  .msg_ratio(nzero, total, txt)
+    if (accuracy > 0)
+    {
+      nthres <- sum(abs(x$discharge - accuracy) < sqrt(.Machine$double.eps),
+                    na.rm = TRUE)
+      txt <- paste0("observations equal to the measurement accuracy of '",
+                    accuracy, "'")
+      .msg_ratio(nthres, total, txt)
 
-  txt <- paste0("observations with a negative discharge. Setting them to NA.")
-  negative <- which(x$discharge < 0)
-  .msg_ratio(length(negative), total, txt)
-  x$discharge[negative] <- NA
+      txt <- paste0("observations below the measurement accuracy of '",
+                    accuracy, "'")
+      .msg_ratio(sum(x$discharge < accuracy, na.rm = TRUE), total, txt)
+    }
 
-  # todo: allow a certain fraction of  missing observations eg na.ratio = 0.2
-  .msg_ratio(sum(is.na(x$discharge)), total, text = "missing observations")
 
-  # todo: requirements regarding length of record?
-  len <- round(as.numeric(diff(range(x$time)), unit = "days") / 365, 1)
-  if(len < minyear)
-  {
-    message("Time series covers only ", len, " years. A minimum length of ",
-            minyear, " years is advised.")
+    nzero <- sum(abs(x$discharge) < sqrt(.Machine$double.eps), na.rm = TRUE)
+    txt <- paste0("observations numerically equal to zero")
+    .msg_ratio(nzero, total, txt)
+
+    txt <- paste0("observations with a negative discharge. Setting them to NA.")
+    negative <- which(x$discharge < 0)
+    .msg_ratio(length(negative), total, txt)
+    x$discharge[negative] <- NA
+
+    # todo: allow a certain fraction of  missing observations eg na.ratio = 0.2
+    .msg_ratio(sum(is.na(x$discharge)), total, text = "missing observations")
+
+    # todo: requirements regarding length of record?
+    len <- round(as.numeric(diff(range(x$time)), unit = "days") / 365, 1)
+    if(len < minyear)
+    {
+      message("Time series covers only ", len, " years. A minimum length of ",
+              minyear, " years is advised.")
+    }
+
   }
 
   x <- as_data_frame(x)
-  x <- .set_attr_smires(x, key = "dt", value = as.period(1, dt))
+  attr_smires(x) <- list("dt" = as.period(1, dt))
   return(x)
 }
 

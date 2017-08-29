@@ -108,7 +108,7 @@ filecontent <- function(file, nrow = 6, skip = 0,
   if(length(bad)) {
     stop("The follwring variables are not present: ", paste(bad, collapse = ", "))
   }
-  x <- .set_attr_smires(x, key = "var", value = value)
+  attr_smires(x) <- list("var" = value)
   return(x)
 }
 
@@ -122,11 +122,41 @@ filecontent <- function(file, nrow = 6, skip = 0,
   return(.get_attr_smires(x, "var"))
 }
 
+attr_smires <- function(x)
+{
+  att <- attr(x, "smires")
+  if(is.null(att)) {
+    if(inherits(x, what = "list")) {
+      # if its is a list, check if all elements have attributes
+      l <- lapply(x, function(x) select(as_data_frame(attr_smires(x)), -dt))
+      return(bind_rows(l))
+    } else {
+      return(NULL)
+      #stop("Object '", deparse(substitute(x)), "' has no smires attributes.")
+    }
+  }
+  return(att)
+}
+
+`attr_smires<-` <- function(x, value)
+{
+  if(!is.list(value) || any(is.na(names(value)) | names(value) == "")) {
+    stop("Argument 'value' must be a named list.")
+  }
+
+  att <- attr_smires(x)
+  att[names(value)] <- value
+
+  attr(x, "smires") <- att
+  return(x)
+}
+
+
 
 # setting and retaining all smires attributes
 .get_attr_smires <- function(x, key = NULL)
 {
-  att <- as.list(attr(x, "smires"))
+  att <- attr_smires(x)
   if(is.null(key)) return(att)
 
   y <- att[[key]]
@@ -134,23 +164,6 @@ filecontent <- function(file, nrow = 6, skip = 0,
 
   return(y)
 }
-
-.set_attr_smires <- function(x, key = NULL, value)
-{
-  att <- .get_attr_smires(x)
-  if(is.null(key)) {
-    # todo: remove comment, is.intermittent()
-    # if (length(att)) warning("Overwriting existing attributes.")
-    attr(x, "smires") <- value
-  } else {
-    att[[key]] <- value
-    attr(x, "smires") <- att
-  }
-
-  return(x)
-}
-
-
 
 # `[.smires`  <- function (x, i, j, ...) {
 #   y <- NextMethod()
