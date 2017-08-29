@@ -49,6 +49,47 @@
         tail(x, 1), sep = " and ")
 }
 
+.insert_at_pos <- function(x, after, values) {
+  x <- strsplit(x, split = "", fixed = TRUE)[[1]]
+  for(pos in sort(after, decreasing = T)){
+    x <- append(x = x, values = values, after = pos)
+  }
+
+  return(paste(x, collapse = ""))
+}
+
+filecontent <- function(file, nrow = 6, skip = 0,
+                        ndigits = ceiling(log10(nrow+skip+1)), linenumber = TRUE,
+                        width = options()$width, sep = "|  ")
+{
+  con <- file(file)
+  open(con)
+
+  if(skip > 0) x <- readLines(con, n = skip)
+  x <- readLines(con, n = 10)
+
+  close(con)
+
+  # make it 1 smaller than necessary
+  nmax <- width - nchar(sep) - ndigits - 10
+
+  longline <- which(nchar(x) > nmax)
+  for(i in longline) {
+    pos <- seq(from = nmax, to = nchar(x[i]), by = nmax)
+    x[i] <- .insert_at_pos(x[i], after = pos,
+                           values = paste0(rep("\n  ", ndigits), sep))
+  }
+
+  linenumber <- format(seq_along(x)+skip, justify = "right")
+
+
+  x <- paste(linenumber, x, sep = sep)
+  x <- gsub("\t", " -> ", x) #"\u2B7E"
+  cat(x, sep = "\n")
+  return(invisible(x))
+}
+
+
 # .factor_fullseq <- function(x, prefix = "", ordered = TRUE)
 # {
 #   fseq <- full_seq(x, 1)
