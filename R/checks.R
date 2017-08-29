@@ -73,9 +73,9 @@
   missing <- fullseq[!fullseq %in% x$time]
 
   if(length(missing)) {
-    varname <- colnames(x)[2]
-    gaps <- data.frame(time = missing, value = NA_real_)
-    colnames(gaps)[2] <- varname
+    l <- c(list(time = missing), list(NA_real_)[rep(1, ncol(x) - 1)])
+    names(l) <- colnames(x)
+    gaps <- as.data.frame(l)
     x <- rbind(x, gaps, make.row.names = FALSE)
     x <- x[order(x$time), ]
     rownames(x) <- NULL
