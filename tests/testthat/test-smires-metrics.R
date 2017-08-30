@@ -21,3 +21,10 @@ test_that("all registered metrics exist", {
     expect_true(exists(x = i, mode = "function", where = "package:smires"))
   }
 })
+
+test_that("all registered metrics run", {
+  for(i in metrics(markup = FALSE)$Function) {
+    fun <- get(i, mode = "function")
+    expect_silent(x <- fun(balder))
+  }
+})
