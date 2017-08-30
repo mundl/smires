@@ -153,7 +153,7 @@ metric(balder, major = 244, fun_major = max)
 <<echo=FALSE>>=
 # silently deleting a few years to shorten output
 library(lubridate)
-balder <- check_ts(balder[year(balder$time) < 1979, ])
+balder <- validate(balder[year(balder$time) < 1979, ])
 @
 
 	\footnotesize
