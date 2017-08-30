@@ -1,16 +1,24 @@
 ---
 title: "Concept of the package"
 author: "Tobias Gauster, Cath Sefton"
-date: "February 10, 2017"
-output: html_document
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    highlight: pygments
+    number_sections: true
+    toc: true
+    toc_float: true
 ---
+
+generated with `r R.version.string` and **smires** version `r packageVersion("smires")`
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
 ```
 
-This document was created with package version ``r packageVersion("smires")``.  Currently the following datasets are already included in the package:
+This document was created with package version ``r packageVersion("smires")``.  Currently the following data sets are already included in the package:
 ```{r initialisation, warning=FALSE, message=FALSE}
 library(smires)
 data(package = "smires")$results[, "Item"]
@@ -21,7 +29,7 @@ Let's print the first observations of the river Balder at station Balderhead Res
 head(balder)
 ```
 
-For the time being, each time series of discharges is a `data.frame` with the first column being the time index (of class `Date`) and the second column being the discharge. In this particular dataset the unit of discharge is m³/s.
+For the time being, each time series of discharges is a `data.frame` with the first column being the time index (of class `Date`) and the second column being the discharge. In this particular data set the unit of discharge is m³/s.
 ```{r}
 library(ggplot2)
 ggplot(balder, aes(time, discharge)) + geom_line() +
@@ -34,10 +42,10 @@ A few checks are performed prior to the computation of indices.
 * time indices are unique
 * time series is regular (daily, weekly or monthly)
 * proportion of missing values
-* proportion of values below or equal the measurement accurancy
+* proportion of values below or equal the measurement accuracy
 
 ```{r}
-balder <- check_ts(balder, accuracy = 0.005)
+balder <- validate(balder, accuracy = 0.005)
 ```
 
 
@@ -49,7 +57,7 @@ A day is attributed to `no-flow` if the observed discharge is **smaller or equal
 
 # Time intervals
 ```{r, message=FALSE, echo=FALSE}
-head(find_events(balder), 2)
+head(find_spells(balder), 2)
 ```
 
-A time interval like in the example above is contructed in a way that $duration = end - start$  implying that the end date is **not** part of the interval, it is a right opened interval: $[start,\ end)$. 
+A time interval like in the example above is constructed in a way that $duration = end - start$  implying that the end date is **not** part of the interval, it is a right opened interval: $[start,\ end)$. 

@@ -1,9 +1,15 @@
 ---
 title: "The R package smires -- Implemented Metrics"
 author: "Tobias Gauster"
-date: "`r Sys.Date()`" 
-output: html_document
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    highlight: pygments
+    number_sections: true
+    toc: true
+    toc_float: true
 ---
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -20,24 +26,24 @@ In our working group we agreed on the following definitions, most of them are al
 
 * The terms characteristics, metrics and indices are used synonymously. 
 
-* All indices are derived based on daily discharge hydrographs $Q$.  <span style="background-color: #D0D0FF;">The package itself just requires the times series to be regular (daily, weekly or monhtly). </span>
+* All indices are derived based on daily discharge hydrographs $Q$.  <span style="background-color: #D0D0FF;">The package itself just requires the times series to be regular (daily, weekly or monthly). </span>
 
 * No-flow *spell*:  period of time (at least one day) when discharge $Q$ is less or equal some no-flow threshold $Q_0$ (default 1 l/s, the detection limit): $Q ≤ Q_0$  
 
-* No-flow *event*: a contiguous period of days with no-flow occurrence, terminated by rewetting period. Some pooling is usually applied to successive, dependent events in order to define an independent sequence of events. Events are pooled unless the catchemnt has completely recovered from drought. So events are pooled spells and events are independent of each other. <span style="background-color: #D0D0FF;">Pooling is not yet supported by the package. </span>
+* No-flow *event*: a contiguous period of days with no-flow occurrence, terminated by rewetting period. Some pooling is usually applied to successive, dependent events in order to define an independent sequence of events. Events are pooled unless the catchment has completely recovered from drought. So events are pooled spells and events are independent of each other. <span style="background-color: #D0D0FF;">Pooling is not yet supported by the package. </span>
 
 * As shown in the following figure, every characteristic can involve two aggregation levels the  *major* interval and the *minor* interval.  
-In natural catchments most processes and quantities of the water cycle show an annual periodic behavior. The major interval is given by the hydrological understanding of a year. E.g. for European climates the hydrological year usually starts with April 1^st^. Alternatively calendar years starting on January 1^st^  can be used. A rule of thumb is that the major interval should be choosen such that events/spells are terminated before the end of a year.  
-The minor interval allows a furhter partition of the year into eihter seasons, months or weeks. This is useful for calculating seasonal characteristics. If the minor interval is omitted, all-season characteristics are returned. 
+In natural catchments most processes and quantities of the water cycle show an annual periodic behavior. The major interval is given by the hydrological understanding of a year. E.g. for European climates the hydrological year usually starts with April 1^st^. Alternatively, calendar years starting on January 1^st^  can be used. A rule of thumb is that the major interval should be chosen such that events/spells are terminated before the end of a year.  
+The minor interval allows a further partition of the year into either seasons, months or weeks. This is useful for calculating seasonal characteristics. If the minor interval is omitted or set to `minor = NA`, all-season characteristics are returned. 
 
 
-Here, the function `smires` is used to demonstrate the meaning of major and minor intervals. The argument `major = 91` specifies that the major interval (the hydrological year) starts on the 91^st^ day of the year, which is April 1^st^. Per default no minor interval is used. The argument  `minor = intervals$month` makes use of the list `intervals` containing frequently used minor intervals like `r smires:::.itemize_text(sQuote(names(intervals)))`. The functions returns at table of spells, which we can ignore for the time being. The function is just used for the side effect of plotting the stream-flow permanence of the river 'Ampney Brook' at station 'Ampney St Peter' based on a threshold of 1 l/s.
+Here, the function `smires()` is used to demonstrate the meaning of major and minor intervals. The argument `major = 91` specifies that the major interval (the hydrological year) starts on the 91^st^ day of the year, which is April 1^st^. Per default no minor interval is used. The argument  `minor = intervals$month` makes use of the list `intervals` containing frequently used minor intervals like `r smires:::.itemize_text(sQuote(names(intervals)))`. The functions returns at table of spells, which we can ignore for the time being. The function is just used for the side effect of plotting the stream-flow permanence of the river 'Ampney Brook' at station 'Ampney St Peter' based on a threshold of 1 l/s.
 ```{r ampneyPerm, fig.width=10, fig.height=10}
 ampney <- smires(ampneyBrook, major = 91, minor = intervals$month, rule = "onset", plot = TRUE)
 ```
 
 
-The first record of the dataset exists for the date `r ampneyBrook$time[1]` which starts the `r smires:::.written_suffix(as.numeric(ampney$minor[1]))` month of our hydrological year `r ampney$major[1]`. The dataset covers in total `r (tot <- nlevels(ampney$major))` years, of which  `r (no <-  length(unique(ampney$major[ampney$state=="no-flow"])))` show a ``no-flow`` event. 
+The first record of the data set exists for the date `r ampneyBrook$time[1]` which starts the `r smires:::.written_suffix(as.numeric(ampney$minor[1]))` month of our hydrological year `r ampney$major[1]`. The data set covers in total `r (tot <- nlevels(ampney$major))` years, of which  `r (no <-  length(unique(ampney$major[ampney$state=="no-flow"])))` show a ``no-flow`` event. 
 
 
 # Flow/No-flow spell characteristics
@@ -46,7 +52,7 @@ A characteristic  that can be calculated for **no-flow** spells can also be calc
 
 
 ##  General characteristics
-Each of the following sections start with a table, showing all metrics attriubted to this certain section. This section 'General characteristics' comprises just one characteristic, the proportion of no-flow years  $f_0$ .
+Each of the following sections start with a table, showing all metrics attributed to this certain section. This section 'General characteristics' comprises just one characteristic, the proportion of no-flow years  $f_0$ .
 ```{r, echo = FALSE, results = "asis"}
 tbl <- metrics() %>% 
   filter(section == "General characteristics") %>%

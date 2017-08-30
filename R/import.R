@@ -31,6 +31,8 @@ read.smires <- function(file,
                         metadata = NA, ...)
 {
 
+  if(!"time" %in% col.names) stop("There has to be a column named 'time'.")
+
   if(length(file) > 1) {
     l <- lapply(file, FUN = read.smires, sep = sep, dec = dec, col.names = col.names,
                 colClasses = colClasses, format = format,

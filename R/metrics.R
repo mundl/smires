@@ -224,7 +224,7 @@ register_metric(
 
 #
 tau <- function(x) {
-  .append_flow_state %>%
+  .append_flow_state(x) %>%
     mutate(jday = julian_day(time)) %>%
     filter(state == "no-flow") %>%
     summarize(variable = mean_day(jday)) %>%

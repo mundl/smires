@@ -147,7 +147,7 @@ validate <- function(x, minyear = 10, approx.missing = 5, accuracy = 0,
 
 
     nzero <- sum(abs(x$discharge) < sqrt(.Machine$double.eps), na.rm = TRUE)
-    txt <- paste0("observations numerically equal to zero")
+    txt <- paste0("observations equal to zero")
     .msg_ratio(nzero, total, txt)
 
     txt <- paste0("observations with a negative discharge. Setting them to NA.")
