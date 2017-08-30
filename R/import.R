@@ -51,14 +51,14 @@ read.smires <- function(file,
 
   if(is.data.frame(metadata)) {
     # look for current file in table of meta data
-    idx <- match(basename(file), basename(meta$filename))
+    idx <- match(basename(file), basename(metadata$filename))
 
     if(is.finite(idx)){
-      att[names(meta[idx, ])] <- meta[idx, ]
+      att[names(metadata[idx, ])] <- metadata[idx, ]
 
     } else {
       warning("No entry for discharge file '", basename(file),
-              "' in the table of meta data '", basename(metadat), "' found.",
+              "' in the table of meta data '", basename(metadata), "' found.",
               "\nTrying to fetch meta data information from header of '",
               basename(file), "'")
       metadata <- NA

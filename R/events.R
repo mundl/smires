@@ -3,7 +3,7 @@ find_spells <- function(x, threshold = 0.001, rule = "cut", na.rm = TRUE,
 {
   x %>%
     .append_flow_state(threshold = threshold) %>%
-    summarize_spell(rule = rule, na.rm = nr.rm, warn = warn,
+    summarize_spell(rule = rule, na.rm = na.rm, warn = warn,
                     complete = complete)
 }
 
