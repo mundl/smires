@@ -24,11 +24,11 @@ library(smires)
 ```
 
 
-Suppose we have a discharge time series of the Goryczkowy Stream in Poland stored in a spreadsheet, for example named `goryczkowy.xlsx`. It has two columns, the first column containing the date and the second column containing the discharges. 
+Suppose we have a discharge time series of the Goryczkowy Stream in Poland stored in a spreadsheet, for example named `goryczkowy.xlsx`. It has two columns, the first column containing the date of the observation and the second column containing the discharges in m^3^/s. 
 
 ![Screenshot of the spreadsheet containing the discharge time series of the Goryczkowy River (Poland, Tatra Mountain, Goryczkowa Valley).](./goryczkowy.png)
 
-It is best to save the spreadsheet in text format, eihter as txt or csv (comma separated values). Depending on your language settings, the resulting file (`goryczkowy.csv`) might look like the following. Here the semicolon `';'` is used as a field separator and the comma `','` is the decimal separator. To simplify the import, it's recommended to keep the date in 'year-month-day' format.
+It is best to save the spreadsheet in text format, either as txt or csv (comma separated values). Depending on your language settings, the resulting file (`goryczkowy.csv`) might look like the following. Here the semicolon `';'` is used as a field separator and the comma `','` is the decimal separator. To simplify the import, it's recommended to keep the date in 'year-month-day' format as shown above.
 
 Let us have a look at the first 10 lines of the text file `goryczkowy.csv`. We can see that the first row is used for column names, followed by the actual discharge observations. 
 
@@ -46,7 +46,7 @@ infile
 
 The result is an object of class `tibble` which is very similar to a `data.frame` but behaves more conveniently in certain circumstances. An introduction to tibbles can be found in this [vignette](https://cran.r-project.org/web/packages/tibble/vignettes/tibble.html).  
 
-The package **smires** aims to provide simple support of station meta data. Available meta data is stored as an attribute, accessible eihter via `attr(infile, "smires")` or `attr_smires(infile)`. If no additional meta data was provided, the attribute has just three elements: 
+The package **smires** aims to provide simple support of station meta data. Available meta data is stored as an attribute, accessible either via `attr(infile, "smires")` or `attr_smires(infile)`. If no additional meta data was provided, the attribute has just three elements: 
 
 * `dt`: the time step $\Delta t$ of the time series
 * `filename`: the file name of the imported file 
@@ -57,15 +57,14 @@ The package **smires** aims to provide simple support of station meta data. Avai
 attr_smires(infile)
 ```
 
-The following section demonstrates how additional meta data like station coordinates, catchment size, etc. can be imported. 
 
 # Importing meta data
 
-There are three ways of importing metadata alongside the discharge data:
+This section demonstrates how additional meta data like station coordinates, catchment size, etc. can be imported. There are three ways of importing metadata alongside the discharge data:
 
-1. The meta data of discharge times series is stored as a comment in the file header of the discharge time series. This is recommended only if you have to handle a very small number of stations, e.g. less than three. 
-2. The meta data of **several stations** is passed on to the `metadata` argument of the importing function as a **data frame**. This is probably the most convenient solution when importing large numbers of stations. 
-3. Meta data can also be passed on to the `metadata` argument as a **list**. For example `smires(..., metadata = list(country = "uk", river = "Thames"))`. You will have to adapt the code for each time series that is going to be imported. This is error-prone and therefore not recommended. 
+1. The meta data is stored as a comment in the file **header** of the discharge time series. This is recommended only if you have to handle a very small number of stations, e.g. less than three. 
+2. The meta data of *several stations* is passed on to the `metadata` argument of the importing function as a **data frame**. This is probably the most convenient solution when importing large numbers of stations. 
+3. Meta data can also be passed on to the `metadata` argument as a **named list**, e.g. `smires(..., metadata = list(country = "uk", river = "Thames"))`. You will have to adapt the code for each time series that is going to be imported. This is error-prone and therefore not recommended. 
 
 
 ## Meta data is stored in the header
@@ -75,8 +74,8 @@ filename <- "../../ts/it/celone.csv"
 filecontent(filename)
 ```
 
-The hash is the default comment character of `read.smires()`. Diverging comment characters can be specified by e.g. `comment.char = "'"`. Everything between the comment character and the first field separator (excluding surrounding whitespace) is interpreted as the key and is subsequently used as name in the list of attributes. 
-The first line in this file means that national identifier (`id`) for this station is the character string `celone`. The key is called `id` and its value is `celone`. You are free to add as many key-value pairs as you like. If two values are assigned to the same key, the latter one wins. 
+The hash is the default comment character of `read.smires()`. Diverging comment characters can be specified by e.g. `comment.char = "'"`. Everything between the comment character and the first field separator (excluding surrounding white-space) is interpreted as the key and is subsequently used as name in the list of attributes. 
+The first line in this file means that national identifier (`id`) for this station is the character string `"celone"`. The key is called `id` and its value is `"celone"`. You are free to add as many key-value pairs as you like. If two values are assigned to the same key, the latter one wins. 
 
 ```{r}
 infile <- read.smires(file = filename, sep = ";", dec = ",", na.strings = "NAV")
@@ -94,7 +93,7 @@ attr_smires(infile)
 
 
 ## Meta data is supplied as a data frame
-When importing several files at once or if the meta data is in separate table, we can provide this table to the `metadata` argument of `read.smires()`. The function `read.metadata()` imports the table of meta data and ensures that there is a properly formated column called `filename` containing the filenames of the corresponding discharge time series. Rows containing invalid filenames (empty strings) are dropped. This for example, is the complete table of station meta data for Portugal:
+When importing several files at once or if the meta data is in separate table (called `meta`), we can provide this table to the `metadata` argument of `read.smires(..., metadata = meta)`. The function `read.metadata()` imports the table of meta data and ensures that there is a properly formatted column called `filename` containing the file names of the corresponding discharge time series. Rows containing invalid file names (empty strings) are dropped. This for example, is the complete table of station meta data for Portugal:
 ```{r}
 metaFile <-  "../../ts/pt/meta.csv"
 meta <- read.metadata(file = metaFile, sep = "\t", dec = ".")
@@ -102,12 +101,12 @@ meta
 ```
 
 
-This example from Portugal has a more complicated file format. It contains 4 leading header lines and a total of 8 columns which are separated by tabs:
+This example from Portugal has a more complicated file format. It contains 4 leading header lines and a total of 8 columns which are separated by tabs.
 
-* timestamp 
-* annual discharge + data quality flag (no data)
-* daily discharge + data quality flag (data starting in Oct 1961)
-* monthly discharge + data quality flag (data starting in Oct 1955)
+* row 1: time stamp 
+* rows 2, 3: annual discharge + data quality flag (no data)
+* rows 4, 5: daily discharge + data quality flag (data starting in Oct 1961)
+* rows 6, 7: monthly discharge + data quality flag (data starting in Oct 1955)
 * and a totally empty last column. 
 
 ```{r, echo=FALSE, comment=""}
@@ -121,28 +120,29 @@ Let us construct the call to `read.smires()` step by step:
 * `file = dischargeFile`:  The name of the file to import.
 * `skip = 4`: There are 3 header lines and one line for the column names. As we are going to choose shorter names we can skip the first four lines. 
 * `sep = "\t"`: Tabs are used as field delimiters.
-* `colClasses = ...`: We can use the `colClasses` argument to control which columns we want to keep. Use `"NULL"` for columns which get skipped, `"character"` for the timestamp and `"numeric"` for the discharge column.
-* `col.names = ...`: A vector of column names used. Has to be as long as `colClasses`. 
-* `format = "%d/%m/%Y"`: The format specifier to `strptime()`, see `?strptime()` for details. 
+* `colClasses = ...`: We can use the `colClasses` argument to control which columns we want to keep. Use `"NULL"` for columns which get skipped, `"character"` for the time stamp and `"numeric"` for the discharge column.
+* `col.names = ...`: A vector of column names used. Has to be as long as `colClasses`. Make sure to call the column containing the time stamp `time`.
+* `format = "%d/%m/%Y"`: The format specifier for the time column, see `?strptime()`.
 * `metadata = meta`: If the argument `metadata` is of class list, the line matching the `file` argument is appended to the attributes. 
 
 
 ```{r}
 dischargeFile <- "../../ts/pt/runoff/serie_monforte.txt"
-infile <- read.smires(file = dischargeFile, 
-                      skip = 4, sep = "\t", 
-                      colClasses = c("character", rep("NULL", 2), "numeric", rep("NULL", 4)),
-                      col.names = c("time", "yearly", "flag.y", "discharge", "flag.d", 
-                                    "monthly", "flag.m", "empty"),
-                      format = "%d/%m/%Y", 
-                      metadata = meta)
+infile <- read.smires(
+  file = dischargeFile, 
+  skip = 4, sep = "\t", 
+  colClasses = c("character", rep("NULL", 2), "numeric", rep("NULL", 4)),
+  col.names = c("time", "yearly", "flag.y", "discharge", "flag.d", 
+                "monthly", "flag.m", "empty"),
+  format = "%d/%m/%Y", 
+  metadata = meta)
 
 attr_smires(infile)
 ```
 
 ## Meta data is supplied as a list
 
-One can also pass a names list to the `metadata` argument of `read.smires()`. Explicitly specified meta data via the `metadata` argument always has precedence over meta data in the file header. Taking the italian example from before and providing the meta data ass a list ingores the meta data header written in the file header of `celone.csv`.  
+One can also pass a named list to the `metadata` argument of `read.smires()`. Explicitly specified meta data via the `metadata` argument always has precedence over meta data in the file header. Taking the Italian example from before and providing the meta data as a list ignores the meta data header written in the file header of `celone.csv`.  
 
 ```{r}
 filename <- "../../ts/it/celone.csv"
@@ -163,8 +163,7 @@ attr_smires(infile)
 
 ```{r}
 files <- c("../../ts/it/celone.csv", "../../ts/it/salsola.csv")
-allfiles <- read.smires(file = files, 
-                        sep = ";", dec = ",", na.strings = "NAV")
+allfiles <- read.smires(file = files, sep = ";", dec = ",", na.strings = "NAV")
 
 allfiles
 attr_smires(allfiles)
@@ -173,18 +172,18 @@ attr_smires(allfiles)
 
 # Validating a time series 
 
-The function `validate()` performs a few checks regarding the suitability of the data for SMIRES anaylsis, including:
+The function `validate()` performs a few checks regarding the suitability of the data for SMIRES analysis, including:
   
   * Length of record. We advise a minimum length of 10 years to compute reliable SMIRES metrics. 
   * Invalid time indices. There must be no `NA` values in the time index.
   * It removes complete duplicates, rows where `time` and `discharge` are duplicated.
-  * It sorts the time series. 
-  * It checks if the time series is regular. If not a warning is risen and `NA` values are inserted to obtain an evenly spaced time series.
-  * It checks for measurements which are equal or below a given detections limit/accuracy. These are reported. 
-  * It checks for discharge values which are numerically equal to zero. It is unlikely/impossible that one can actually observe a flow of 0 l/s. 
-  * It checks for discharge values which are negative. These values are replaced with `NA`s.
+  * It sorts the time series on the time index. 
+  * It checks if the time series is regular. If not, a warning is risen and `NA` values are inserted to obtain an evenly spaced time series.
+  * It checks for measurements which are equal or below a given detection limit/accuracy. These are reported. 
+  * It checks for discharge values which are equal to zero. It is unlikely/impossible that one can actually observe a flow of 0 l/s. 
+  * It checks for discharge values which are negative. These values are replaced with `NA` values.
   * The total number and the fraction of `NA` values is reported. 
-  * Optionally, the use can choose to fill short gaps using linear interpolation. The argument `approx.missing = 3` for example allows to fill gaps up to a length of 3 days. 
+  * Optionally, the user can choose to fill short gaps using linear interpolation. The argument `approx.missing = 3` for example allows to fill gaps up to a length of 3 days. 
   
 The validated (and possibly modified) time series is returned.   
   
