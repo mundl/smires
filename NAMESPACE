@@ -1,7 +1,7 @@
 exportPattern("^[[:alpha:]]+")
 export(.metrics)
 
-importFrom(tidyr, full_seq, complete, nesting, unnest)
+importFrom(tidyr, full_seq, complete, nesting, unnest, unite)
 importFrom(tibble, as_data_frame, data_frame, tibble)
 importFrom(dplyr, summarize, group_by, "%>%", select, right_join, do, mutate,
            arrange, ungroup, filter, desc, distinct, anti_join, group_vars,
