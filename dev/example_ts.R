@@ -1,314 +1,133 @@
 # todo:
 # - assign ids eg: at-01
 # - convert coordinates
-# - keep track of filenames
-
 
 library(devtools)
 library(smires)
-cnames <- c("country", "station", "id", "river", "x", "y", "z", "catchment")
-station <- list()
-smiresData <- list()
+require(tidyr)
 
 
-# France -----
-# Data from Eric ----
+
+# France, Eric -----
 # files <- list.files("ts/fr/SMIRES/France/", full.names = T)
 id <- c("H1503910", "H1513210", "H1603010", "H1713010")
 files <- paste0("ts/fr/SMIRES/France/", id, "_qj_hydro2.txt")
 
-.read_txt_france <- function(file, parse.header = FALSE,
-                             fileEncoding = "ISO8859-14",
-                             nlines = -1)
-{
-  fh <- file(file, open = "rt")#, encoding = fileEncoding)
-  header <- readLines(con = fh, n = 3)
-  body <- read.csv(file = fh, dec = ".", sep = ";", header = FALSE,
-                   as.is = TRUE)
-  close(fh)
 
-  body <- body[body[, 1] == "QJO", ]
+fr1 <- lapply(files, smires:::.read_txt_france)
+attr_smires(fr1) <- list(source = "Eric")
 
-  x <- data.frame(time = as.Date.character(body[, 3], format = "%Y%m%d"),
-                  discharge = as.numeric(body[, 4]),
-                  stringsAsFactors = FALSE)
-
-  meta <- strsplit(header[3], ";")[[1]]
-  name <- strsplit(meta[3], split = " à | au ")[[1]]
-
-  x <- validate(x, approx.missing = 0)
-  attr(x, "meta") <- data.frame(filename = basename(file), id = meta[[2]],
-                                river = name[1], station = name[2],
-                                stringsAsFactors = FALSE)
-
-  return(x)
-}
-
-
-values <- lapply(files, .read_txt_france)
-smiresData$fr1 <- values
-
-im <- sapply(values, is.intermittent)
-if(any(!im)) stop("Not all intermittent.")
-
-meta <- lapply(values, function(x) attr(x, "meta"))
-meta <- do.call(rbind, meta)
-meta$country <- "fr"
-meta[, setdiff(cnames, colnames(meta))] <- NA
-
-
-station$fr1 <- as_data_frame(meta) %>%
-  select(one_of(cnames)) %>%
-  arrange(desc(y))
-
-
-
-
-
-# Data from Yves ----
-# only these stations are intermittent
+# France, Yves -----
 id <- c(1039, 1046, 1092, 1099, 1101, 1104, 1128, 1140, 1159, 1160, 1162, 1166)
 files <- paste0("ts/fr/q_france/EXTRA_QJ_", id, ".txt")
 
-read_france_yves <- function(file, ...)
-{
-  require(tidyr)
-  cnames <- c("year", "month", "day", "discharge", "flag")
-  infile <- read.table(file,  col.names = cnames, header = FALSE, skip = 1,
-                       colClasses = c(rep("numeric", 4), "NULL"))
-  x <- unite(infile, time, year, month, day, sep = "-") %>%
-    mutate(time = as.Date(time)) %>%
-    validate()
+# station meta data
+meta <- read.metadata("ts/fr/q_france/stations.csv", dec = ",", sep = ";")
+meta <- separate(meta, name, into = c("river", "station"),
+                 sep = " \u00e0 | au ") %>%
+  mutate(country = "fr", source = "Yves")
 
-  return(x)
-}
-
-values <- lapply(files, read_france_yves)
-smiresData$fr2 <- values
-
-im <- sapply(values, is.intermittent)
-if(any(!im)) stop("Not all intermittent.")
-
-meta <- read.csv2("ts/fr/q_france/stations.csv", as.is = TRUE)
-name <- do.call(rbind, strsplit(meta$name, split = " à | au "))
-colnames(name) <- c("river", "station")
-
-meta <- cbind(meta, name)
-meta <- meta[match(basename(files), meta$filename), ]
-meta$country <- "fr"
-meta[, setdiff(cnames, colnames(meta))] <- NA
-
-station$fr2 <- as_data_frame(meta) %>%
-  select(one_of(cnames)) %>%
-  arrange(desc(y))
-
+fr2 <- read.smires(files,
+                   col.names = c("year", "month", "day", "discharge", "flag"),
+                   header = FALSE, skip = 1,
+                   sep = "",
+                   colClasses = c(rep("numeric", 4), "NULL"),
+                   timecols = c("year", "month", "day"),
+                   metadata = meta)
 
 
 # United Kingdom ----
 id <- c(39099, 25022)
 files <- paste0("ts/uk/nrfa_public_", id, "_gdf.csv")
+uk <- lapply(files, smires:::.read_uk)
 
-read_uk <- function(file, ...)
-{
-  require(readhyd)
-  x <- read.nrfa(file = file)
-
-  y <- as_tibble(x) %>%
-    rename(discharge = value) %>%
-    validate(approx.missing = 0)
-
-  meta <- attr(x, "meta")
-  attr(y, "meta") <- data.frame(filename = basename(file), id = meta$eid,
-                                river = meta$river, station = meta$station,
-                                country = meta$country,
-                                stringsAsFactors = FALSE)
-
-  return(y)
-}
-
-values <- lapply(files, read_uk)
-smiresData$gb <- values
-
-meta <- lapply(values, function(x) attr(x, "meta"))
-meta <- do.call(rbind, meta)
-meta[, setdiff(cnames, colnames(meta))] <- NA
-
-station$gb <- as_data_frame(meta) %>%
-  select(one_of(cnames)) %>%
-  arrange(desc(y))
-
-balder <- values[[which(station$gb$river == "Balder")]]
-ampneyBrook <- values[[which(station$gb$river == "Ampney Brook")]]
-use_data(balder, ampneyBrook, overwrite = TRUE)
 
 
 # Cypress ----
-infile <- read.csv2("ts/cy/converted.csv",
+file <- "ts/cy/converted.csv"
+infile <- read.csv2(file =  file,
                     colClasses = c("factor", "Date", "numeric")) %>%
   rename(station = "Location.ID",
          time = "Measurement.Date",
          discharge = "Qmean_m3_s")
 
-levels(infile$station) <- paste0("cy", seq_len(nlevels(infile$station)))
+infile <- split(infile[, c("time", "discharge")], f = infile$station)
+station <- names(infile)
 
-cy1 <- filter(infile, station == "cy1") %>%
-  select(time, discharge) %>% validate()
+cy <- lapply(infile, validate, approx.missing = 0, warn = FALSE)
+attr_smires(cy) <- list(filename = basename(file),
+                        dirname = dirname(file),
+                        country = "cy")
 
-cy2 <- filter(infile, station == "cy2") %>%
-  select(time, discharge) %>% validate()
+for(i in names(cy)) attr_smires(cy[[i]]) <- list(id = i)
 
-cy3 <- filter(infile, station == "cy3") %>%
-  select(time, discharge) %>% validate()
 
-smiresData$cy <- list(cy1, cy2, cy3)
-
-im <- sapply(smiresData$cy, is.intermittent)
-if(any(!im)) stop("Not all intermittent.")
-
-# todo: metadata missing
-
-use_data(cy1, cy2, cy3, overwrite = TRUE)
-
-# Spain ----
-# Data from Luis ----
+# Spain, Luis ----
 id <- c(8060, 9052)
 files <- paste0("ts/es/", id, "_Q.txt")
 
-read.es <- function(file, ...)
-{
-  require(tidyr)
-  cnames <- c("station", "day", "month", "year", "discharge")
-  infile <- read.table(file,  col.names = cnames, header = FALSE,
-                       colClasses = c("NULL", rep("numeric", 4)))
-  x <- unite(infile, time, year, month, day, sep = "-") %>%
-    mutate(time = as.Date(time)) %>%
-    validate()
+meta <- read.metadata("ts/es/metadata.csv", sep = ";", dec = ".")
+meta <- mutate(meta, country = "es", source = "Luis")
 
-  return(x)
-}
+es1 <- read.smires(files, header = FALSE, sep = "\t",
+                   col.names = c("station", "day", "month", "year", "discharge"),
+                   colClasses = c("NULL", rep("numeric", 4)),
+                   timecols = c("year", "month", "day"),
+                   metadata = meta)
 
 
-values <- lapply(files, read.es)
-smiresData$es1 <- values
-
-
-meta <- read.csv2("ts/es/metadata.csv")
-meta$country <- "es"
-meta[, setdiff(cnames, colnames(meta))] <- NA
-
-station$es1 <- as_data_frame(meta) %>%
-  select(one_of(cnames)) %>%
-  arrange(desc(y))
-
-
-
-# monthly Data from Fracesc ----
+# :-( Spain, Fracesc (monthly data) ----
 # we do not have permission yet, no response
-read.es2 <- function(file, ...)
-{
-  infile <- read.csv2(file = file)
-  year <- infile[, 1]
-  month <- as.numeric(substr(colnames(infile)[-1], start = 2L, 10L))
 
-  values <- unname(as.matrix(infile[, -1]))
-
-  months <- matrix(month, nrow = length(year), ncol = 12, byrow = TRUE)
-  years <- row(values) + (months < month[1])
-  year <- c(year, max(year) + 1)
-
-  data_frame(time = as.Date(paste(year[years], months, 01, sep = "-")),
-             discharge = as.vector(values)) %>%
-    arrange(time) %>%
-    validate(approx.missing = 0)
-}
-
-values <- read.es2("ts/es/manol.csv")
-# smiresData$es2 <- values
-#
-# station$es2 <- data_frame(country = "es",
-#                           station = "Llogaia d'Àlguema",
-#                           id = NA,
-#                           river = "Riu Manol",
-#                           x = NA, y = NA, z = NA,
-#                           catchment = NA) %>%
-#   select(one_of(cnames)) %>%
-#   arrange(desc(y))
-
-
+es2 <- smires:::.read.es("ts/es/manol.csv")
+attr_smires(es2) <- list(country = "es",
+                         station = "Llogaia d'Àlguema",
+                         river = "Riu Manol")
 
 
 # Greece ----
 # "ts/gr/all-data.csv" is completely irregular
-values <- read.csv2("ts/gr/daily.csv", colClasses = c("Date", "numeric")) %>%
-  validate(approx.missing = 0)
-smiresData$gr <- values
 
 # GIS system: EGSA (whatever this is...)
+meta <- list(country = "gr", station = "Vrontamas", id = "GR33",
+             river = "Evrotas",
+             x = 5451347, y = 1636692, z = 140, catchment = 1500)
 
-station$gr <- data_frame(country = "gr",
-                          station = "Vrontamas",
-                          id = "GR33",
-                          river = "Evrotas",
-                          x = 5451347, y = 1636692, z = 140,
-                          catchment = 1500) %>%
-  select(one_of(cnames)) %>%
-  arrange(desc(y))
+gr <- read.smires("ts/gr/daily.csv", sep = ";", dec = ".",
+                  metadata = meta)
 
 
-
-# Italy Puglia -----
+# Italy, Puglia -----
+meta <- read.metadata("ts/it/metadata-it1.csv", sep = ";", dec = ".")
 files <- paste0("ts/it/", c("salsola", "celone"), ".csv")
 
-read.it <- function(file)
-{
-  read.csv2(file, colClasses = c("Date", "numeric"), na.strings = "NAV") %>%
-    validate(approx.missing = 0)
-}
+it1  <- read.smires(files, sep = ";", dec = ",", na.strings = "NAV",
+                    metadata = meta)
 
-values <- lapply(files, read.it)
-smiresData$it1 <- values
-
-
-meta <- read.csv2("ts/it/metadata-it1.csv")
-meta$country <- "it"
-
-meta[, setdiff(cnames, colnames(meta))] <- NA
-
-station$it1 <- as_data_frame(meta) %>%
-  select(one_of(cnames)) %>%
-  arrange(desc(y))
 
 # Italy 2 -----
 files <- "ts/it/carapelle-torrent.csv"
 
+# this file is in wide format
 infile <- read.csv2(files, as.is = TRUE, check.names = FALSE)
 infile$month <- match(infile$month, month.name)
 
-library(tidyr)
-values <- gather(infile, key = year, value = discharge, -month, -day) %>%
+it2 <- gather(infile, key = year, value = discharge, -month, -day) %>%
   mutate(time = as.Date(paste(year, month, day, sep = "-"))) %>%
   select(time, discharge) %>%
   # every year has a cell for Feb 29th
   filter(!is.na(time)) %>%
-  validate(approx.missing = 0)
+  validate(approx.missing = 0, warn = FALSE)
 
-smiresData$it2 <- values
-
-meta <- data.frame(country = "it", "river" = "Carapelle Torrent")
-meta[, setdiff(cnames, colnames(meta))] <- NA
-
-station$it2 <- as_data_frame(meta) %>%
-  select(one_of(cnames)) %>%
-  arrange(desc(y))
-
+attr_smires(it2) <- list(country = "it", "river" = "Carapelle Torrent")
 
 
 # Poland ----
-smiresData$pl1 <- read.csv2("ts/pl/goryczkowy.csv") %>%
-  validate(approx.missing = 0)
+pl1 <- read.smires("ts/pl/goryczkowy.csv", sep = ";", dec = ",",
+                   metadata = list(country = "pl", source = "1"))
 
 
-# Poland Kazimierz ----
+# Poland, Kazimierz ----
 infile <- read.table("ts/pl/QPS15.777",
                      col.names = c("hyear", "hmonth", "day", "discharge"))
 infile$month <- ((infile$hmonth - 1 + 10) %% 12) + 1
@@ -316,50 +135,80 @@ infile$year <- infile$hyear
 mask <- infile$hmonth %in% 1:2
 infile$year[mask] <- infile$year[mask] - 1
 
-values <- infile%>%
+pl2 <- infile%>%
   mutate(time = as.Date(paste(year, month, day, sep = "-"))) %>%
   select(time, discharge) %>%
   validate(approx.missing = 0)
 
+attr_smires(pl2) <- list(country = "pl", source = "Kazimierz")
+
+
+
 # Portugal ----
 files <- paste0("ts/pt/", c("alentejo", "gamitinha"), ".csv")
 
-read.pt <- function(file)
-{
-  read.csv2(file, colClasses = c("Date", "numeric")) %>%
-    validate(approx.missing = 0)
-}
-
-values <- lapply(files, read.pt)
-smiresData$pt1 <- values
-
-# Portugal Teresa ----
-files <- list.files("ts/pt/runoff/", full.names = TRUE)
-name <- gsub("^serie_|\\.txt", "", basename(files))
+pt1 <- read.smires(files, sep = ";", dec = ".",
+                   metadata = list(country = "pt", source = "1"))
 
 
-read.snirh <- function(file)
-{
-  infile <- read.table(file, skip = 4, sep = "\t",
-                       colClasses = c("character", "NULL", "NULL", "numeric",
-                                      rep("NULL", 4)),
-                       col.names = c("time", "?", "flag", "discharge",
-                                     rep("?", 4)))  %>%
-    mutate(time = as.Date(time, format = "%d/%m/%Y")) %>%
-    validate(approx.missing = 0)
-}
+# Portugal, Teresa ----
+meta <- read.metadata(file = "ts/pt/meta.csv", sep = "\t", dec = ".",
+                      warn = FALSE) %>%
+  mutate(country = "pt", source = "Teresa")
 
-values <- lapply(files, read.snirh)
-smiresData$pt2 <- values
+files <- file.path("ts/pt/runoff/", meta$filename)
+
+pt2 <- read.smires(
+  file = files,
+  skip = 4, sep = "\t",
+  colClasses = c("character", rep("NULL", 2), "numeric", rep("NULL", 4)),
+  col.names = c("time", "yearly", "flag.y", "discharge", "flag.d",
+                "monthly", "flag.m", "empty"),
+  format = "%d/%m/%Y",
+  metadata = meta)
 
 
-meta <- read.csv("ts/pt/meta.csv", sep = ";", as.is = TRUE)
-meta <- meta[pmatch(name, tolower(meta$station)), ]
-meta$country <- "pt"
 
-meta[, setdiff(cnames, colnames(meta))] <- NA
+# Concatenation ----
+l <- c(fr1, fr2, uk, cy, es1, list(gr), it1, list(it2),
+                list(pl1), list(pl2), pt1, pt2)
 
-station$pt2 <- as_data_frame(meta) %>%
-  select(one_of(cnames)) %>%
-  arrange(desc(y))
+noTibble <- which(!sapply(l, tibble::is.tibble))
+if(length(noTibble)) stop("Not all elements are already lists.")
+
+
+smiresData <- l
+secret <- c(list(es2))
+
+
+im <- sapply(smiresData, is.intermittent)
+if(any(!im)) stop("Not all intermittent.")
+
+smiresData <- smiresData[im]
+
+station <- attr_smires(smiresData)
+
+
+# Extract special data sets ----
+balder <- smiresData[[which(station$river == "Balder")]]
+ampneyBrook <- smiresData[[which(station$river == "Ampney Brook")]]
+use_data(balder, ampneyBrook, overwrite = TRUE)
+
+
+cy1 <- cy[["r3-7-1-50"]]
+cy2 <- cy[["r7-2-3-50"]]
+cy3 <- cy[["r8-5-1-60"]]
+
+
+use_data(cy1, cy2, cy3, overwrite = TRUE)
+
+
+
+
+
+
+
+
+
+
 
