@@ -129,7 +129,11 @@ attr_smires <- function(x)
     if(inherits(x, what = "list")) {
       # if its is a list, check if all elements have attributes
       l <- lapply(x, function(x) select(as_data_frame(attr_smires(x)), -dt))
-      return(bind_rows(l))
+
+      # bind_rows() cannot handle mixed types, convert to character first
+      ll <- bind_rows(lapply(l, function(x) mutate_all(x, as.character)))
+      ll <- mutate_all(ll, type.convert, as.is = TRUE)
+      return(bind_rows(ll))
     } else {
       return(NULL)
       #stop("Object '", deparse(substitute(x)), "' has no smires attributes.")
@@ -142,6 +146,12 @@ attr_smires <- function(x)
 {
   if(!is.list(value) || any(is.na(names(value)) | names(value) == "")) {
     stop("Argument 'value' must be a named list.")
+  }
+
+  if(inherits(x, what = "list")) {
+    # if its is a list, set the attributes for all elements
+    l <- lapply(x, `attr_smires<-`, value = value)
+    return(l)
   }
 
   att <- attr_smires(x)
