@@ -34,6 +34,13 @@ library(smires)
 packageVersion("smires")
 ```
 
+# Vignettes
+
+The usage of the package is demonstrated in these four preliminary vignettes. They are currently under development.
+ 
+ * The [concept](./inst/demos/concept.html) of the R package **smires**.
+ * How to compute smires [metrics](./inst/demos/metrics.html).
+
 # Examples
 
 Each participating country was asked to suggest metrics and to submit a few time series with intermittent streamflow. As we plan to integrate the provided time series in the R package, we need permission of the copyright holder to make the data available. The column **include** of the following table indicates if the data can be published. 
@@ -55,10 +62,6 @@ series <- list(
   contrib_ts(country = "ch",
              contact = "ilja.vanmeerveld@geo.uzh.ch",
              ts = "Altlandenberg"),
-  
-   contrib_ts(country = "si",
-             contact = "simon.rusjan@fgg.uni-lj.si",
-             ts = "11 stations"),
   
   contrib_ts(country = "lt",
              contact = "hydro@mail.lei.lt"),

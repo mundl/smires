@@ -32,6 +32,13 @@ library(smires)
 packageVersion("smires")
 ```
 
+Vignettes
+=========
+
+The usage of the package is demonstrated in these four preliminary vignettes. They are currently under development.
+
+-   The [concept](inst/demos/concept.html) of the R package **smires**
+
 Examples
 ========
 
@@ -45,11 +52,11 @@ Currently `12` countries have submitted time series of which `10` countries agre
 
 <table>
 <colgroup>
-<col width="3%" />
-<col width="12%" />
-<col width="55%" />
-<col width="3%" />
-<col width="25%" />
+<col width="2%" />
+<col width="10%" />
+<col width="48%" />
+<col width="2%" />
+<col width="35%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -115,7 +122,7 @@ Currently `12` countries have submitted time series of which `10` countries agre
 <td align="left"><a href="mailto:annamaria.degirolam*@ba.irsa.cnr.it">annamaria.degirolam*@ba.irsa.cnr.it</a></td>
 <td align="left">Celone, Salsola</td>
 <td align="left">TRUE</td>
-<td align="left"></td>
+<td align="left"><a href="http://www.protezionecivile.puglia.it/centro-funzionale/analisielaborazione-dati/annali-idrologici-parte-ii">source</a></td>
 </tr>
 <tr class="odd">
 <td align="left">pl</td>
@@ -136,7 +143,7 @@ Currently `12` countries have submitted time series of which `10` countries agre
 <td align="left"><a href="mailto:helena.alve*@apambiente.pt">helena.alve*@apambiente.pt</a></td>
 <td align="left">Moinho da Gamitinha, Torrão do Alentejo</td>
 <td align="left">TRUE</td>
-<td align="left"></td>
+<td align="left"><a href="http://snirh.pt/">source</a></td>
 </tr>
 <tr class="even">
 <td align="left">uk</td>
@@ -148,7 +155,7 @@ Currently `12` countries have submitted time series of which `10` countries agre
 <tr class="odd">
 <td align="left">sk</td>
 <td align="left"><a href="mailto:kohnov*@stuba.sk">kohnov*@stuba.sk</a></td>
-<td align="left">Cierna voda, Bodva, Chlmec</td>
+<td align="left">Cierna voda, Bodva, Chlmec, +4 stations</td>
 <td align="left">FALSE</td>
 <td align="left"></td>
 </tr>
@@ -183,7 +190,7 @@ Currently `12` countries have submitted time series of which `10` countries agre
 <tr class="even">
 <td align="left">si</td>
 <td align="left"><a href="mailto:simon.rusja*@fgg.uni-lj.si">simon.rusja*@fgg.uni-lj.si</a></td>
-<td align="left">11 stations</td>
+<td align="left">13 station of which 7 are intermittent</td>
 <td align="left"></td>
 <td align="left"></td>
 </tr>
