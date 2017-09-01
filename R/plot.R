@@ -1,7 +1,8 @@
 plot_groups <- function(x)
 {
-  frame <- .get_attr_smires(x, key = "group_interval")
-  int <- .get_attr_smires(x, "interval")
+  att <- attr_smires(x)
+  frame <- att[["group_interval"]]
+  int <- att[["interval"]]
   int$minor_hday <- c(int$minor_hday, 366)
 
   frame <- frame %>% mutate(x = as.numeric(minor),
@@ -22,7 +23,10 @@ plot_groups <- function(x)
                        breaks = seq_len(nlevels(frame$major)),
                        labels = levels(frame$major),
                        expand = c(0, 0)) +
-    # labs(subtitle = "Boxes are groups, segments are spells.") +
+    labs(subtitle = paste0("Country: ", att$country,
+                           ", river: ", att$river,
+                           ", station: ", att$station,
+                           " (id: ", att$id, ")")) +
     geom_text(data = frame,
               aes(x = xmax - 2,  y = ymin + 0.1, label = group),
               size = 3, hjust = 1, vjust = 0, col = "darkgrey") +
@@ -40,10 +44,10 @@ plot_groups <- function(x)
 
   if("spell" %in% colnames(x)) {
     # todo: only works if spells are cutted
-    threshold <- .get_attr_smires(x, key = "threshold")
-    rule <- .get_attr_smires(x, key = "rule")
+    threshold <- att[["threshold"]]
+    rule <- att[["rule"]]
     dy <- 0.2
-    segment <- .get_attr_smires(x, "spell_cut") %>%
+    segment <- att[["spell_cut"]] %>%
       mutate(xmin = .date2hday(onset, start = int$major),
              # 366 must not overflow to 1
              xmax = .date2hday(termination-1, start = int$major) +1,
