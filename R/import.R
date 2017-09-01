@@ -31,7 +31,7 @@ read.smires <- function(file,
                         timecols = "time",
                         format = "%Y-%m-%d",
                         comment.char = "#", header = TRUE,
-                        metadata = NA, ...)
+                        metadata = NA, encoding = "", ...)
 {
 
   if(length(file) > 1) {
@@ -39,7 +39,7 @@ read.smires <- function(file,
                 col.names = col.names, timecols = timecols,
                 format = format,
                 comment.char = comment.char, header = header,
-                metadata = metadata, ...)
+                metadata = metadata, encoding = encoding, ...)
 
     att <- attr_smires(l)
     names(l) <- att$filename
@@ -52,7 +52,7 @@ read.smires <- function(file,
     #colClasses <- c(time = "character", discharge = "numeric")
   }
 
-  con <- file(file)
+  con <- file(file, encoding = encoding)
   open(con)
 
   att <- list(filename = basename(file),
