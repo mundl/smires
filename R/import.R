@@ -93,9 +93,12 @@ read.smires <- function(file,
 
     if(length(mheader)) {
       mheader <- sapply(mheader, substr, start = 2L, stop = 1000000L)
-      mheader <- read.table(text = mheader, sep = sep,
-                            col.names = c("key", "value"),
-                            colClasses = c("character"))
+
+      # only read first two columns of meta data
+      # be relaxed about malformed header
+      mheader <- read.table(text = mheader, sep = sep, as.is = TRUE,
+                            fill = TRUE)[, 1:2]
+      colnames(mheader) <- c("key", "value")
 
       att[trimws(mheader$key)] <- trimws(mheader$value)
     }
