@@ -95,7 +95,7 @@ attr_smires(infile)
 ## Meta data is supplied as a data frame
 When importing several files at once or if the meta data is in separate table (called `meta`), we can provide this table to the `metadata` argument of `read.smires(..., metadata = meta)`. The function `read.metadata()` imports the table of meta data and ensures that there is a properly formatted column called `filename` containing the file names of the corresponding discharge time series. Rows containing invalid file names (empty strings) are dropped. This for example, is the complete table of station meta data for Portugal:
 ```{r}
-metaFile <-  "../../ts/pt/meta.csv"
+metaFile <-  "../../ts/pt/runoff/meta-teresa.csv"
 meta <- read.metadata(file = metaFile, sep = "\t", dec = ".")
 meta
 ```

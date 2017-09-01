@@ -1,7 +1,7 @@
 smires
 ================
 
-SMIRES is a COST Action addressing the Science and Management of Intermittent Rivers & Ephemeral Streams. SMIRES brings together more than 200 hydrologists, biogeochemists, ecologists, modellers, environmental economists, social researchers and stakeholders from 31 different countries to develop a research network for synthesising the fragmented, recent knowledge on IRES, improving our understanding of IRES and translating this into a science-based, sustainable management of river networks. More information about SMIRES can be found at <http://www.smires.eu/>.
+SMIRES is a COST Action addressing the Science and Management of Intermittent Rivers & Ephemeral Streams. SMIRES brings together more than 200 hydrologists, biogeochemists, ecologists, modelers, environmental economists, social researchers and stakeholders from 31 different countries to develop a research network for synthesising the fragmented, recent knowledge on IRES, improving our understanding of IRES and translating this into a science-based, sustainable management of river networks. More information about SMIRES can be found at <http://www.smires.eu/>.
 
 This git repository hosts the R-package `smires`, one of several outcomes of Working Group 1 (WG1, Prevalence, distribution and trends of IRES). Given time series of daily (weekly, monthly) discharges, its purpose is:
 
@@ -37,8 +37,10 @@ Vignettes
 
 The usage of the package is demonstrated in these four preliminary vignettes. They are currently under development.
 
--   The [concept](./inst/demos/concept.md) of the R package **smires**.
--   How to compute smires [metrics](./inst/demos/metrics.md).
+-   The [concept](https://homepage.boku.ac.at/h0540352/smires/concept.html) of the R package **smires**.
+-   How to compute smires [metrics](https://homepage.boku.ac.at/h0540352/smires/metrics.html).
+-   To compute the metrics mentioned above, we make use of the following [framework](https://homepage.boku.ac.at/h0540352/smires/framework.html).
+-   This [vignette](https://homepage.boku.ac.at/h0540352/import/metrics.html) explains in detail how data and meta data is imported.
 
 Examples
 ========
@@ -47,7 +49,7 @@ Each participating country was asked to suggest metrics and to submit a few time
 
 ### Time Series
 
-Currently `12` countries have submitted time series of which `10` countries agreed on indluding the data into the R-package.
+Currently `12` countries have submitted time series of which `10` countries agreed on including the data into the R-package.
 
 ![](inst/contributors.png)
 
