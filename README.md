@@ -39,7 +39,7 @@ Each participating country was asked to suggest metrics and to submit a few time
 
 ### Time Series
 
-Currently `12` countries have submitted time series of which `9` countries agreed on indluding the data into the R-package.
+Currently `12` countries have submitted time series of which `10` countries agreed on indluding the data into the R-package.
 
 ![](inst/contributors.png)
 
@@ -90,88 +90,60 @@ Currently `12` countries have submitted time series of which `9` countries agree
 <td align="left"></td>
 </tr>
 <tr class="odd">
+<td align="left">fr</td>
+<td align="left"><a href="mailto:eric.sauque*@irstea.fr">eric.sauque*@irstea.fr</a></td>
+<td align="left">H1333010, H1503910, H1513210, H1603010, H1713010, H1932020</td>
+<td align="left">TRUE</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
 <td align="left">gr</td>
 <td align="left"><a href="mailto:rania.tzorak*@aegean.gr">rania.tzorak*@aegean.gr</a></td>
 <td align="left">Vrontamas</td>
 <td align="left">TRUE</td>
 <td align="left"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">it</td>
 <td align="left"><a href="mailto:giuseppe.verdian*@adb.puglia.it">giuseppe.verdian*@adb.puglia.it</a></td>
 <td align="left">Carapelle Torrent</td>
 <td align="left">TRUE</td>
 <td align="left">Region Puglia</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">it</td>
 <td align="left"><a href="mailto:annamaria.degirolam*@ba.irsa.cnr.it">annamaria.degirolam*@ba.irsa.cnr.it</a></td>
 <td align="left">Celone, Salsola</td>
 <td align="left">TRUE</td>
 <td align="left"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">pl</td>
 <td align="left"><a href="mailto:kazimierz_banasi*@sggw.pl">kazimierz_banasi*@sggw.pl</a></td>
 <td align="left">Plachty Stare</td>
 <td align="left">TRUE</td>
 <td align="left">uses hydrological year, starting with November</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">pl</td>
 <td align="left"><a href="mailto:rmrutko*@cyf-kr.edu.pl">rmrutko*@cyf-kr.edu.pl</a></td>
 <td align="left">Goryczkowa</td>
 <td align="left">TRUE</td>
 <td align="left">only 3 years of observation</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">pt</td>
 <td align="left"><a href="mailto:helena.alve*@apambiente.pt">helena.alve*@apambiente.pt</a></td>
-<td align="left">Sado</td>
+<td align="left">Moinho da Gamitinha, Torrão do Alentejo</td>
 <td align="left">TRUE</td>
 <td align="left"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">uk</td>
 <td align="left"><a href="mailto:catse*@ceh.ac.uk">catse*@ceh.ac.uk</a></td>
 <td align="left">Balder at <a href="http://nrfa.ceh.ac.uk/data/station/info/25022">Balderhead Reservoir</a>, Ampney Brook at <a href="http://nrfa.ceh.ac.uk/data/station/info/39099">Ampney St Peter</a></td>
 <td align="left">TRUE</td>
 <td align="left">Balder: human influence, Ampney Brook: chalk stream that dries naturally</td>
-</tr>
-<tr class="even">
-<td align="left">ch</td>
-<td align="left"><a href="mailto:ilja.vanmeervel*@geo.uzh.ch">ilja.vanmeervel*@geo.uzh.ch</a></td>
-<td align="left">Altlandenberg</td>
-<td align="left">FALSE</td>
-<td align="left"></td>
-</tr>
-<tr class="odd">
-<td align="left">es</td>
-<td align="left"><a href="mailto:francesc.gallar*@idaea.csic.es">francesc.gallar*@idaea.csic.es</a></td>
-<td align="left">Riu Manol</td>
-<td align="left">FALSE</td>
-<td align="left"></td>
-</tr>
-<tr class="even">
-<td align="left">fr</td>
-<td align="left"><a href="mailto:eric.sauque*@irstea.fr">eric.sauque*@irstea.fr</a></td>
-<td align="left">H1333010, H1503910, H1513210, H1603010, H1713010, H1932020</td>
-<td align="left">FALSE</td>
-<td align="left"></td>
-</tr>
-<tr class="odd">
-<td align="left">pt</td>
-<td align="left"><a href="mailto:teresa*@ipcb.pt">teresa*@ipcb.pt</a></td>
-<td align="left">Coruche, Monforte, Pavia, Moinho</td>
-<td align="left">FALSE</td>
-<td align="left"></td>
-</tr>
-<tr class="even">
-<td align="left">si</td>
-<td align="left"><a href="mailto:simon.rusja*@fgg.uni-lj.si">simon.rusja*@fgg.uni-lj.si</a></td>
-<td align="left">11 stations</td>
-<td align="left">FALSE</td>
-<td align="left"></td>
 </tr>
 <tr class="odd">
 <td align="left">sk</td>
@@ -181,9 +153,37 @@ Currently `12` countries have submitted time series of which `9` countries agree
 <td align="left"></td>
 </tr>
 <tr class="even">
+<td align="left">ch</td>
+<td align="left"><a href="mailto:ilja.vanmeervel*@geo.uzh.ch">ilja.vanmeervel*@geo.uzh.ch</a></td>
+<td align="left">Altlandenberg</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">es</td>
+<td align="left"><a href="mailto:francesc.gallar*@idaea.csic.es">francesc.gallar*@idaea.csic.es</a></td>
+<td align="left">Riu Manol</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
 <td align="left">lt</td>
 <td align="left"><a href="mailto:hydr*@mail.lei.lt">hydr*@mail.lei.lt</a></td>
 <td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">pt</td>
+<td align="left"><a href="mailto:teresa*@ipcb.pt">teresa*@ipcb.pt</a></td>
+<td align="left">Coruche, Monforte, Pavia, Moinho</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">si</td>
+<td align="left"><a href="mailto:simon.rusja*@fgg.uni-lj.si">simon.rusja*@fgg.uni-lj.si</a></td>
+<td align="left">11 stations</td>
 <td align="left"></td>
 <td align="left"></td>
 </tr>
