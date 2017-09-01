@@ -1,6 +1,8 @@
-read.metadata <- function(file, as.is = TRUE, header = TRUE, warn = TRUE, ...)
+read.metadata <- function(file, as.is = TRUE, header = TRUE, warn = TRUE,
+                          encoding = "", ...)
 {
-  tbl <- read.table(file, as.is = as.is, header = header, ...)
+  tbl <- read.table(file, as.is = as.is, header = header,
+                    fileEncoding = encoding, ...)
 
   if(!"filename" %in% colnames(tbl)) {
     if(warn) warning("There is no column called 'filename' in '",
