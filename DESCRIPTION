@@ -1,7 +1,7 @@
 Package: smires
 Type: Package
 Title: Science and Management of Intermittent Rivers and Ephemeral Streams
-Version: 0.4.1
+Version: 0.5
 Author: Tobias Gauster 
 Maintainer: Tobias Gauster <t.gauster@boku.ac.at>
 BugReports: https://github.com/mundl/smires/issues
