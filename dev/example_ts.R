@@ -44,6 +44,10 @@ uk <- lapply(files, smires:::.read_uk)
 
 
 # Cypress ----
+meta <- read.csv2("ts/cy/meta.csv", as.is = TRUE) %>%
+  mutate(country = "cy", source = "Gerald",
+         provider = "Cyprus Water Development Department")
+
 file <- "ts/cy/converted.csv"
 infile <- read.csv2(file =  file,
                     colClasses = c("factor", "Date", "numeric")) %>%
@@ -59,7 +63,7 @@ attr_smires(cy) <- list(filename = basename(file),
                         dirname = dirname(file),
                         country = "cy")
 
-for(i in names(cy)) attr_smires(cy[[i]]) <- list(id = i)
+for(i in names(cy)) attr_smires(cy[[i]]) <- as.list(meta[meta$id == i, ])
 
 
 # Spain, Luis ----
@@ -97,15 +101,16 @@ gr <- read.smires("ts/gr/daily.csv", sep = ";", dec = ".",
                   metadata = meta)
 
 
-# Italy, Puglia -----
-meta <- read.metadata("ts/it/metadata-it1.csv", sep = ";", dec = ".")
+# Italy, Guiseppe Puglia -----
+meta <- read.metadata("ts/it/metadata-it1.csv", sep = ";", dec = ".") %>%
+  mutate(country = "it", source = "Guiseppe")
 files <- paste0("ts/it/", c("salsola", "celone"), ".csv")
 
 it1  <- read.smires(files, sep = ";", dec = ",", na.strings = "NAV",
                     metadata = meta)
 
 
-# Italy 2 -----
+# Italy, Annamaria  -----
 files <- "ts/it/carapelle-torrent.csv"
 
 # this file is in wide format
@@ -122,9 +127,9 @@ it2 <- gather(infile, key = year, value = discharge, -month, -day) %>%
 attr_smires(it2) <- list(country = "it", "river" = "Carapelle Torrent")
 
 
-# Poland ----
+# Poland, Agnieszka ----
 pl1 <- read.smires("ts/pl/goryczkowy.csv", sep = ";", dec = ",",
-                   metadata = list(country = "pl", source = "1"))
+                   metadata = list(country = "pl", source = "Agnieszka"))
 
 
 # Poland, Kazimierz ----
@@ -140,19 +145,23 @@ pl2 <- infile%>%
   select(time, discharge) %>%
   validate(approx.missing = 0)
 
-attr_smires(pl2) <- list(country = "pl", source = "Kazimierz")
+attr_smires(pl2) <- list(country = "pl", source = "Kazimierz",
+                         hydrological.year = "November")
 
 
 
-# Portugal ----
+# Portugal, Helena ----
+meta <- read.metadata(file = "ts/pt/meta-helena.csv", sep = ";", dec = ".",
+                      header = TRUE, warn = FALSE) %>%
+  mutate(country = "pt", source = "Helena")
+
 files <- paste0("ts/pt/", c("alentejo", "gamitinha"), ".csv")
 
-pt1 <- read.smires(files, sep = ";", dec = ".",
-                   metadata = list(country = "pt", source = "1"))
+pt1 <- read.smires(files, sep = ";", dec = ".", metadata = meta)
 
 
 # Portugal, Teresa ----
-meta <- read.metadata(file = "ts/pt/meta.csv", sep = "\t", dec = ".",
+meta <- read.metadata(file = "ts/pt/runoff/meta-teresa.csv", sep = "\t", dec = ".",
                       warn = FALSE) %>%
   mutate(country = "pt", source = "Teresa")
 
@@ -167,18 +176,53 @@ pt2 <- read.smires(
   format = "%d/%m/%Y",
   metadata = meta)
 
+# Swiss, Ilja ----
+ch <- read.smires("ts/ch/04-Altlandenberg_mod.txt", header = TRUE, sep = "\t",
+                  col.names = c("time", "discharge", "perc",
+                                "MaxWert", "MaxZeit",	"MinWert", "MinZeit"),
+                  colClasses = c("character", "numeric", rep("NULL", 5)),
+                  format = "%d.%m.%Y")
 
 
-# Concatenation ----
-l <- c(fr1, fr2, uk, cy, es1, list(gr), it1, list(it2),
-                list(pl1), list(pl2), pt1, pt2)
+# Slovenia, Simon ----
+meta <- read.metadata(file = "ts/si/meta.csv", sep = ";", dec = ".",
+                      encoding = "UTF-8", warn = FALSE) %>%
+  mutate(country = "si", source = "Simon")
+
+files <- file.path("ts/si/runoff", c("1100.csv", "1300.csv", "1310.csv",
+                                     "3400.csv", "8680.csv", "9280.csv",
+                                     "9300.csv"))
+
+si <- read.smires(file = files, sep = ";", dec = ",", metadata = meta)
+
+# :-( Slovakia, Silvia ----
+files <- list.files(path = "ts/sk/", pattern = "\\.csv", full.names = TRUE)
+sk <- read.smires(files, sep = ";", dec = ",", format = "%d.%m.%Y",
+                  encoding = "UTF-8")
+
+attr_smires(sk) <- list(country = "sk", source = "Silvia")
+
+
+  # Concatenation ----
+l <- c("Eric" = fr1,
+       "Yves" = fr2,
+       "CEH" = uk,
+       "Gerald" = cy,
+       "Luis" = es1,
+       "Rania" = list(gr),
+       "Guiseppe" = it1,
+       "Annamaria" = list(it2),
+       "Agnieszka" = list(pl1),
+       "Kasimierez" = list(pl2),
+       "Helena" = pt1,
+       "Teresa" = pt2)
 
 noTibble <- which(!sapply(l, tibble::is.tibble))
 if(length(noTibble)) stop("Not all elements are already lists.")
 
 
 smiresData <- l
-secret <- c(list(es2))
+secret <- c(list(es2), sk)
 
 
 im <- sapply(smiresData, is.intermittent)
