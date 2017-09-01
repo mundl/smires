@@ -40,7 +40,7 @@ The usage of the package is demonstrated in these four preliminary vignettes. Th
 -   The [concept](https://homepage.boku.ac.at/h0540352/smires/concept.html) of the R package **smires**.
 -   How to compute smires [metrics](https://homepage.boku.ac.at/h0540352/smires/metrics.html).
 -   To compute the metrics mentioned above, we make use of the following [framework](https://homepage.boku.ac.at/h0540352/smires/framework.html).
--   This [vignette](https://homepage.boku.ac.at/h0540352/import/metrics.html) explains in detail how data and meta data is imported.
+-   This [vignette](https://homepage.boku.ac.at/h0540352/smires/import.html) explains in detail how data and meta data is imported.
 
 Examples
 ========
