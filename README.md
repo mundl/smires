@@ -37,7 +37,8 @@ Vignettes
 
 The usage of the package is demonstrated in these four preliminary vignettes. They are currently under development.
 
--   The [concept](inst/demos/concept.html) of the R package **smires**
+-   The [concept](./inst/demos/concept.md) of the R package **smires**.
+-   How to compute smires [metrics](./inst/demos/metrics.md).
 
 Examples
 ========
