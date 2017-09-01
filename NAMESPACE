@@ -2,10 +2,10 @@ exportPattern("^[[:alpha:]]+")
 export(.metrics)
 
 importFrom(tidyr, full_seq, complete, nesting, unnest, unite)
-importFrom(tibble, as_data_frame, data_frame, tibble)
+importFrom(tibble, as_data_frame, data_frame, tibble, as_tibble)
 importFrom(dplyr, summarize, group_by, "%>%", select, right_join, do, mutate,
            arrange, ungroup, filter, desc, distinct, anti_join, group_vars,
-           rename, mutate_if, bind_rows)
+           rename, mutate_if, bind_rows, mutate_all)
 importFrom(purrr, simplify_all)
 importFrom(rlang, ":=", "quos")
 importFrom(plyr, ".")
@@ -20,7 +20,8 @@ importFrom(ggplot2, ggplot, geom_segment, aes, geom_vline, geom_hline, labs,
            scale_fill_discrete)
 
 importFrom("stats", "approx", "median", "na.omit", "coef", "embed", "lm", "sd")
-importFrom("utils", "head", "tail", "read.table")
+importFrom("utils", "head", "tail", "read.table", "type.convert",
+           "read.csv", "read.csv2")
 importFrom("lfstat", "water_year")
 
 
