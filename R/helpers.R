@@ -317,3 +317,10 @@ mean_day <- function(x, lwr = 0, upr = 365)
   .format_jday(circular_mean(x = x, lwr = lwr, upr = upr))
 }
 
+
+
+melt <- function(x) {
+  x %>% enframe(name = "id") %>%
+    mutate(parameter = purrr::map_chr(value, .f = names),
+           value = purrr::map_dbl(value, .f = unlist))
+}
