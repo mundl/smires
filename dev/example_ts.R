@@ -1,7 +1,3 @@
-# todo:
-# - assign ids eg: at-01
-# - convert coordinates
-
 library(devtools)
 library(smires)
 require(tidyr)
@@ -23,6 +19,35 @@ require(tidyr)
                          country = meta$country)
 
   return(y)
+}
+
+
+.read_txt_france <- function(file, parse.header = FALSE,
+                             fileEncoding = "ISO8859-14",
+                             nlines = -1)
+{
+  fh <- file(file, open = "rt")#, encoding = fileEncoding)
+  header <- readLines(con = fh, n = 3)
+  body <- read.csv(file = fh, dec = ".", sep = ";", header = FALSE,
+                   as.is = TRUE)
+  close(fh)
+
+  body <- body[body[, 1] == "QJO", ]
+
+  x <- data_frame(time = as.Date.character(body[, 3], format = "%Y%m%d"),
+                  discharge = as.numeric(body[, 4]))
+
+  meta <- strsplit(header[3], ";")[[1]]
+  name <- strsplit(meta[3], split = " \u00e0 | au ")[[1]]
+
+  x <- validate(x, approx.missing = 0, warn = FALSE)
+  attr_smires(x) <- list(filename = basename(file),
+                         dirname = dirname(file),
+                         country = "fr",
+                         id = meta[[2]],
+                         river = name[1], station = name[2])
+
+  return(x)
 }
 
 
@@ -54,7 +79,7 @@ id <- c("H1503910", "H1513210", "H1603010", "H1713010")
 files <- paste0("ts/fr/SMIRES/France/", id, "_qj_hydro2.txt")
 
 
-fr1 <- lapply(files, smires:::.read_txt_france)
+fr1 <- lapply(files, .read_txt_france)
 attr_smires(fr1) <- list(source = "Eric")
 
 # France, Yves -----
@@ -63,6 +88,7 @@ files <- paste0("ts/fr/q_france/EXTRA_QJ_", id, ".txt")
 
 # station meta data
 meta <- read.metadata("ts/fr/q_france/stations.csv", dec = ",", sep = ";")
+meta$epsg <- 27572
 meta <- separate(meta, name, into = c("river", "station"),
                  sep = " \u00e0 | au ") %>%
   mutate(country = "fr", source = "Yves")
@@ -79,7 +105,7 @@ fr2 <- read.smires(files,
 # United Kingdom ----
 id <- c(39099, 25022)
 files <- paste0("ts/uk/nrfa_public_", id, "_gdf.csv")
-uk <- lapply(files, smires:::.read_uk)
+uk <- lapply(files, .read_uk)
 
 
 
@@ -123,7 +149,7 @@ es1 <- read.smires(files, header = FALSE, sep = "\t",
 # :-( Spain, Fracesc (monthly data) ----
 # we do not have permission yet, no response
 
-es2 <- smires:::.read.es("ts/es/manol.csv")
+es2 <- .read.es("ts/es/manol.csv")
 attr_smires(es2) <- list(country = "es",
                          station = "Llogaia d'Àlguema",
                          river = "Riu Manol")

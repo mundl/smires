@@ -122,37 +122,77 @@ read.smires <- function(file,
   x <- unite(x, col = time, make.names(timecols), sep = "-")
   x$time <- as.Date(x$time, format = format)
   x <- validate(x, warn = FALSE, approx.missing = 0)
+
   attr_smires(x) <- att
+  x <- .check_coordinates(x)
+
+  return(x)
+}
+
+
+.check_coordinates <- function(x) {
+  m <- attr_smires(x)
+
+  # eliminate empty attributes
+  m <- m[lengths(m) > 0]
+  m <- m[!(sapply(m, is.na) | sapply(m, is.null))]
+  att <- names(m)
+
+  # convert to lon/lat, if not already present
+  if(!all(c("lon", "lat") %in% att)) {
+
+    attr_smires(x) <- list(lon = NA, lat = NA)
+
+    # xy coordiantes present and epsg code
+    if(all(c("x", "y") %in% att)) {
+      if("epsg" %in% att) {
+        lonlat <- transform_crs(x = m$x, y = m$y, from = m$epsg, to = 4326)
+        attr_smires(x) <- list(lon = lonlat[1, 1], lat = lonlat[1, 2])
+      } else {
+        warning(shQuote(m$filename), " has xy coordinates but no epsg code.",
+                call. = FALSE)
+      }
+    }
+  }
+
+
+  # check range of lon lat
+  m <- attr_smires(x)
+  if(is.finite(m$lat) && (m$lat < -90 || m$lat > 90))
+    warning(shQuote(m$filename),
+            " Latitude must be between -90 and 90. Wrong epsg code?",
+            call. = FALSE)
+
+  if(is.finite(m$lon) && (m$lon < -180 || m$lon > 180))
+    warning(shQuote(m$filename),
+            " Longitude must be between -180 and 180. Wrong epsg code?",
+            call. = FALSE)
+
+  return(x)
+}
+
+
+assign_ids <- function(x) {
+  if(!is.list(x) || length(x) == 1)
+    warning("Assigning unique IDs only makes sense for more than one element")
+
+  att <- attr_smires(x)
+  id <- att %>%
+    group_by(country) %>%
+    mutate(id = sprintf(paste0("%0", nchar(n()), "d"), row_number())) %>%
+    unite(col = "id", country, id, sep = "-") %>%
+    select(id)
+
+  # store the id in the attribute
+  for(i in seq_along(x))
+    attr_smires(x[[i]]) <- list(id = id$id[i])
+
+  # name the element of the list with id
+  names(x) <- id$id
 
   return(x)
 }
 
 
 
-.read_txt_france <- function(file, parse.header = FALSE,
-                             fileEncoding = "ISO8859-14",
-                             nlines = -1)
-{
-  fh <- file(file, open = "rt")#, encoding = fileEncoding)
-  header <- readLines(con = fh, n = 3)
-  body <- read.csv(file = fh, dec = ".", sep = ";", header = FALSE,
-                   as.is = TRUE)
-  close(fh)
 
-  body <- body[body[, 1] == "QJO", ]
-
-  x <- data_frame(time = as.Date.character(body[, 3], format = "%Y%m%d"),
-                  discharge = as.numeric(body[, 4]))
-
-  meta <- strsplit(header[3], ";")[[1]]
-  name <- strsplit(meta[3], split = " \u00e0 | au ")[[1]]
-
-  x <- validate(x, approx.missing = 0, warn = FALSE)
-  attr_smires(x) <- list(filename = basename(file),
-                         dirname = dirname(file),
-                         country = "fr",
-                         id = meta[[2]],
-                         river = name[1], station = name[2])
-
-  return(x)
-}
