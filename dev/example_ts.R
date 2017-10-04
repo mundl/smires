@@ -2,26 +2,6 @@ library(devtools)
 library(smires)
 require(tidyr)
 
-.read_uk <- function(file, ...)
-{
-  require(readhyd)
-  x <- read.nrfa(file = file)
-
-  y <- as_tibble(x) %>%
-    rename(discharge = "value") %>%
-    validate(approx.missing = 0, warn = FALSE)
-
-  meta <- attr(x, "meta")
-  attr_smires(y) <- list(filename = basename(file),
-                         dirname = dirname(file),
-                         id = meta$eid,
-                         river = meta$river, station = meta$station,
-                         country = meta$country)
-
-  return(y)
-}
-
-
 .read_txt_france <- function(file, parse.header = FALSE,
                              fileEncoding = "ISO8859-14",
                              nlines = -1)
@@ -105,7 +85,7 @@ fr2 <- read.smires(files,
 # United Kingdom ----
 id <- c(39099, 25022)
 files <- paste0("ts/uk/nrfa_public_", id, "_gdf.csv")
-uk <- lapply(files, .read_uk)
+uk <- lapply(files, read_uk)
 
 
 
