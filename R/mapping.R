@@ -1,4 +1,4 @@
-map <- function(x, extendsEurope = FALSE, minExtend = 1e5, f = 0.2,
+basemap <- function(x, extendsEurope = FALSE, minExtend = 1e5, f = 0.2,
                 col.land = "white", col.border = "lightgrey",
                 col.water = "#C5DAE3")
 {

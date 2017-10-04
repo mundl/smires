@@ -319,8 +319,26 @@ mean_day <- function(x, lwr = 0, upr = 365)
 
 
 
-melt <- function(x) {
-  x %>% enframe(name = "id") %>%
-    mutate(parameter = purrr::map_chr(value, .f = names),
-           value = purrr::map_dbl(value, .f = unlist))
+melt <- function(x, name = NA) {
+
+  x <- enframe(x, name = "id")
+  cname <- names(x$value[[1]])
+  name <- if(is.na(name) | length(name) == 0) {
+    if(!is.null(cname)) cname else "value"
+  } else {
+    name
+  }
+
+  if(!is.null(cname)) {
+    x %>%
+      mutate(parameter = purrr::map_chr(value, .f = names),
+             value = purrr::map(value, .f = unlist))
+  }
+
+  y <- rename(x, !!name := value) %>%
+    unnest
+
+  return(y)
+
+  c
 }
