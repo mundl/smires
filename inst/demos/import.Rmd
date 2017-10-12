@@ -111,8 +111,8 @@ This example from Portugal has a more complicated file format. It contains 4 lea
 
 ```{r, echo=FALSE, comment=""}
 filename <- "../../ts/pt/runoff/serie_monforte.txt"
-filecontent(filename)
-filecontent(filename, skip = 73)
+filecontent(filename, encoding = "cp1252")
+filecontent(filename, skip = 73, encoding = "cp1252")
 ```
 
 Let us construct the call to `read.smires()` step by step:
@@ -189,5 +189,5 @@ The validated (and possibly modified) time series is returned.
   
 
 ```{r, }
-ts <- validate(allfiles[["salsola.csv"]])
+ts <- validate(allfiles[[2]])
 ```

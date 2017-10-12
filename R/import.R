@@ -42,7 +42,7 @@ read.smires <- function(file,
                 metadata = metadata, encoding = encoding, ...)
 
     att <- attr_smires(l)
-    names(l) <- att$filename
+    l <- assign_ids(l)
 
     return(l)
   }
@@ -177,6 +177,8 @@ assign_ids <- function(x) {
     warning("Assigning unique IDs only makes sense for more than one element")
 
   att <- attr_smires(x)
+  if(!"country" %in% colnames(att)) att$country <- "station"
+
   id <- att %>%
     group_by(country) %>%
     mutate(id = sprintf(paste0("%0", nchar(n()), "d"), row_number())) %>%
