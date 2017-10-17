@@ -6,7 +6,7 @@ require(tidyr)
                              fileEncoding = "ISO8859-14",
                              nlines = -1)
 {
-  fh <- file(file, open = "rt")#, encoding = fileEncoding)
+  fh <- file(file, open = "rt", encoding = fileEncoding)
   header <- readLines(con = fh, n = 3)
   body <- read.csv(file = fh, dec = ".", sep = ";", header = FALSE,
                    as.is = TRUE)
@@ -58,7 +58,6 @@ require(tidyr)
 id <- c("H1503910", "H1513210", "H1603010", "H1713010")
 files <- paste0("ts/fr/SMIRES/France/", id, "_qj_hydro2.txt")
 
-
 fr1 <- lapply(files, .read_txt_france)
 attr_smires(fr1) <- list(source = "Eric")
 
@@ -67,7 +66,8 @@ id <- c(1039, 1046, 1092, 1099, 1101, 1104, 1128, 1140, 1159, 1160, 1162, 1166)
 files <- paste0("ts/fr/q_france/EXTRA_QJ_", id, ".txt")
 
 # station meta data
-meta <- read.metadata("ts/fr/q_france/stations.csv", dec = ",", sep = ";")
+meta <- read.metadata("ts/fr/q_france/stations.csv", dec = ",", sep = ";",
+                      encoding = "ISO8859-14")
 meta$epsg <- 27572
 meta <- separate(meta, name, into = c("river", "station"),
                  sep = " \u00e0 | au ") %>%

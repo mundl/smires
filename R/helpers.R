@@ -60,9 +60,9 @@
 
 filecontent <- function(file, nrow = 6, skip = 0,
                         ndigits = ceiling(log10(nrow+skip+1)), linenumber = TRUE,
-                        width = options()$width, sep = "|  ")
+                        width = options()$width, sep = "|  ", ...)
 {
-  con <- file(file)
+  con <- file(file, ...)
   open(con)
 
   if(skip > 0) x <- readLines(con, n = skip)
