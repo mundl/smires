@@ -184,6 +184,36 @@ attr_smires <- function(x)
 #   return(y)
 # }
 
+.attr_as_sf <- function(x)
+{
+  if(!all(c("lon", "lat") %in% colnames(x))) {
+    warning("Object '", deparse(substitute(x)), "' does not contain coordinates.")
+    return(x)
+  }
+
+  require(sf)
+  y <- st_as_sf(x, coords = c("lon", "lat"), crs = 4326)
+  y$lon <- x$lon
+  y$lat <- x$lat
+  return(y)
+}
+
+enframe_smires <- function(x, as.sf = FALSE)
+{
+  x <- assign_ids(x)
+  att <- attr_smires(x, as.sf = as.sf)
+  data <- enframe(x, name = "sid", value = "data")
+
+
+  # print important colnames first
+  cnames <- c("sid", "data",
+              setdiff(colnames(att), c("sid", "filename", "dirname")),
+              "filename", "dirname")
+
+  y <- right_join(att, data, by = "sid")[, cnames]
+  return(y)
+}
+
 
 # date/time related functions ----
 
