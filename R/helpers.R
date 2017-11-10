@@ -384,6 +384,22 @@ melt <- function(x, name = NA) {
     unnest
 
   return(y)
+}
 
-  c
+
+.compute_new_vars <- function(x, ..., default = "discharge")
+{
+  att <- attr_smires(x)
+  variables <- quos(...)
+  if(length(variables)) {
+    x <- mutate(x, !!!variables) %>%
+      rename(var :=!!names(variables)[[1]])
+  } else {
+    x[, "var"] <- x[, default]
+  }
+
+  # mutate drops attributes
+  attr_smires(x) <- att
+
+  return(x)
 }
