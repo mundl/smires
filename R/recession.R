@@ -2,6 +2,7 @@
 .peaks <- function (series, span = 3) {
   if ((span = as.integer(span))%%2 != 1) stop("'span' must be odd")
 
+  if(span >= length(series)) return(series == max(series))
   s1 = 1:1 + (s = span%/%2)
   z = embed(series, span)
   v = apply(z[, s1] > z[, -s1, drop = FALSE], 1, all)
@@ -29,6 +30,7 @@
 .monotonic <- function(x, falling = TRUE, strict = TRUE, smooth = 0)
 {
   if(smooth != 0) warning("Argument 'smooth' is currently ignored.")
+  if(length(x) == 1) return(x)
 
   # NAs are assumed to not change the monotonicity, approximate them
   y <- approx(x = seq_along(x), y = x, xout = seq_along(x))$y
