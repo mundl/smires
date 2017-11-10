@@ -3,13 +3,18 @@ basemap <- function(x, extendsEurope = FALSE, minExtend = 1e5, f = 0.2,
                 col.water = "#C5DAE3")
 {
 
+  if(inherits(x, "sf")){
+    x <- st_transform(x = x, crs = 3034)
+    coord <- do.call(rbind, st_geometry(x))
+  } else {
+    lonlat <- x[, c("lon", "lat")]
+    coord <- transform_crs(x = lonlat$lon, y = lonlat$lat, from = 4326, to = 3034)
 
-  lonlat <- x[, c("lon", "lat")]
-  coord <- transform_crs(x = lonlat$lon, y = lonlat$lat, from = 4326, to = 3034)
-  colnames(coord) <- c("x", "y")
+  }
 
-  x$x <- coord[, "x"]
-  x$y <- coord[, "y"]
+  x$x <- coord[, 1]
+  x$y <- coord[, 2]
+
 
   limit <- if(extendsEurope) {
     matrix(c(2923408, 5309418, 1576769, 4855870), nrow = 2,
