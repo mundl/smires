@@ -181,16 +181,16 @@ assign_ids <- function(x) {
 
   id <- att %>%
     group_by(country) %>%
-    mutate(id = sprintf(paste0("%0", nchar(n()), "d"), row_number())) %>%
-    unite(col = "id", country, id, sep = "-") %>%
-    select(id)
+    mutate(sid = sprintf(paste0("%0", nchar(n()), "d"), row_number())) %>%
+    unite(col = "sid", country, sid, sep = "-") %>%
+    select(sid)
 
   # store the id in the attribute
   for(i in seq_along(x))
-    attr_smires(x[[i]]) <- list(id = id$id[i])
+    attr_smires(x[[i]]) <- list(sid = id$sid[i])
 
   # name the element of the list with id
-  names(x) <- id$id
+  names(x) <- id$sid
 
   return(x)
 }
