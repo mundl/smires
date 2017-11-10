@@ -3,5 +3,6 @@ if (getRversion() >= "2.15.1"){
                          "termination", "eend", "estart" ,"gstart", "hday",
                          "major", "minor", "xmax", "xmin", "y", "ymax", "ymin",
                          "ystart", "rescaled", "var", "dt", "discharge",
-                         "meta", "metadat", "jday"))
+                         "meta", "metadat", "jday", "coastlines", "x2", "y2",
+                         "country", "sid"))
 }

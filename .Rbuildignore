@@ -3,3 +3,4 @@
 README.Rmd
 dev/
 ts/
+^inst/demos/.*\.html$

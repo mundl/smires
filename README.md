@@ -178,7 +178,7 @@ Currently `12` countries have submitted time series of which `11` countries agre
 <tr class="odd">
 <td align="left">sk</td>
 <td align="left"><a href="mailto:kohnov*@stuba.sk">kohnov*@stuba.sk</a></td>
-<td align="left">Cierna voda, Bodva, Chlmec, +4 stations</td>
+<td align="left">Čierna voda, Bodva, Chlmec, +4 stations</td>
 <td align="left">FALSE</td>
 <td align="left"></td>
 </tr>

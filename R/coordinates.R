@@ -18,7 +18,6 @@ transform_crs <- function(x, y, from, to)
     z <- as.matrix(z[order(z$id), 1:2])
     return(unname(z))
   } else {
-    require(sf)
     xy <- data.frame(x, y)
 
     # we cannot transform NA values

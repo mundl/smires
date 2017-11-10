@@ -206,7 +206,6 @@ attr_smires <- function(x, as.sf = FALSE)
     return(x)
   }
 
-  require(sf)
   y <- st_as_sf(x, coords = c("lon", "lat"), crs = 4326)
   y$lon <- x$lon
   y$lat <- x$lat
@@ -378,27 +377,27 @@ print.jday <- function(x, ...)
   print(y)
 }
 
-melt <- function(x, name = NA) {
-
-  x <- enframe(x, name = "id")
-  cname <- names(x$value[[1]])
-  name <- if(is.na(name) | length(name) == 0) {
-    if(!is.null(cname)) cname else "value"
-  } else {
-    name
-  }
-
-  if(!is.null(cname)) {
-    x %>%
-      mutate(parameter = purrr::map_chr(value, .f = names),
-             value = purrr::map(value, .f = unlist))
-  }
-
-  y <- rename(x, !!name := value) %>%
-    unnest
-
-  return(y)
-}
+# melt <- function(x, name = NA) {
+#
+#   x <- enframe(x, name = "id")
+#   cname <- names(x$value[[1]])
+#   name <- if(is.na(name) | length(name) == 0) {
+#     if(!is.null(cname)) cname else "value"
+#   } else {
+#     name
+#   }
+#
+#   if(!is.null(cname)) {
+#     x %>%
+#       mutate(parameter = purrr::map_chr(value, .f = names),
+#              value = purrr::map(value, .f = unlist))
+#   }
+#
+#   y <- rename(x, !!name := value) %>%
+#     unnest
+#
+#   return(y)
+# }
 
 
 .compute_new_vars <- function(x, ..., default = "discharge")
