@@ -219,7 +219,7 @@ read.nrfa <- function(file, nlines = -1, ...) {
     station = sub("^.+ at ", "", meta$station$name),
     unit = sub("3", "^3", meta$dataType$units, fixed = TRUE),
     institution = meta$database$name,
-    country = "gb",
+    country = "uk",
     lon = coord[1, "lon"],
     lat = coord[1, "lat"],
     epsg = 4326,
