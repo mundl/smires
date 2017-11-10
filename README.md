@@ -3,10 +3,16 @@ smires
 
 SMIRES is a COST Action addressing the Science and Management of Intermittent Rivers & Ephemeral Streams. SMIRES brings together more than 200 hydrologists, biogeochemists, ecologists, modelers, environmental economists, social researchers and stakeholders from 31 different countries to develop a research network for synthesising the fragmented, recent knowledge on IRES, improving our understanding of IRES and translating this into a science-based, sustainable management of river networks. More information about SMIRES can be found at <http://www.smires.eu/>.
 
-This git repository hosts the R-package `smires`, one of several outcomes of Working Group 1 (WG1, Prevalence, distribution and trends of IRES). Given time series of daily (weekly, monthly) discharges, its purpose is:
+This git repository hosts the R-package `smires`, one of several outcomes of Working Group 1 (WG1, Prevalence, distribution and trends of IRES). Given time series of daily (weekly, monthly) discharges, its purpose is to:
 
--   to identify gauging stations that have an IRES flow regime;
--   to calculate relevant flow and intermittency metrics.
+-   identify gauging stations that have an IRES flow regime;
+-   enable inexperienced R users to easily calculate most flow and intermittency metrics;
+-   offer advanced R users a flexible framework for computing hydro-/ecological metrics;
+-   have only as few requirements on input data as possible;
+-   work with binary data (flow, no-flow);
+-   give the user free choice over the aggregation period (calendar years, hydrological years, months, seasons, ...);
+-   give the user free choice over the aggregation function;
+-   provide sample datasets of every participating European country;
 
 Installation of the R-package
 =============================
@@ -40,7 +46,7 @@ The usage of the package is demonstrated in these four preliminary vignettes. Th
 -   The [concept](https://homepage.boku.ac.at/h0540352/smires/concept.html) of the R package **smires**.
 -   How to compute smires [metrics](https://homepage.boku.ac.at/h0540352/smires/metrics.html).
 -   To compute the metrics mentioned above, we make use of the following [framework](https://homepage.boku.ac.at/h0540352/smires/framework.html).
--   This [vignette](https://homepage.boku.ac.at/h0540352/smires/import.html) explains in detail how data and meta data is imported.
+-   This vignette explains in detail how data and meta data is [imported](https://homepage.boku.ac.at/h0540352/smires/import.html).
 
 Examples
 ========
@@ -49,7 +55,7 @@ Each participating country was asked to suggest metrics and to submit a few time
 
 ### Time Series
 
-Currently `12` countries have submitted time series of which `10` countries agreed on including the data into the R-package.
+Currently `12` countries have submitted time series of which `11` countries agreed on including the data into the R-package.
 
 ![](inst/contributors.png)
 
@@ -74,7 +80,7 @@ Currently `12` countries have submitted time series of which `10` countries agre
 <tr class="odd">
 <td align="left">at</td>
 <td align="left"><a href="mailto:t.gauste*@boku.ac.at">t.gauste*@boku.ac.at</a></td>
-<td align="left">...</td>
+<td align="left">22 mostly human influenced catchments</td>
 <td align="left">TRUE</td>
 <td align="left"></td>
 </tr>
@@ -143,10 +149,24 @@ Currently `12` countries have submitted time series of which `10` countries agre
 </tr>
 <tr class="odd">
 <td align="left">pt</td>
+<td align="left"><a href="mailto:teresa*@ipcb.pt">teresa*@ipcb.pt</a></td>
+<td align="left">Coruche, Monforte, Pavia, Moinho</td>
+<td align="left">TRUE</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">pt</td>
 <td align="left"><a href="mailto:helena.alve*@apambiente.pt">helena.alve*@apambiente.pt</a></td>
 <td align="left">Moinho da Gamitinha, Torrão do Alentejo</td>
 <td align="left">TRUE</td>
 <td align="left"><a href="http://snirh.pt/">source</a></td>
+</tr>
+<tr class="odd">
+<td align="left">si</td>
+<td align="left"><a href="mailto:simon.rusja*@fgg.uni-lj.si">simon.rusja*@fgg.uni-lj.si</a></td>
+<td align="left">13 station of which 7 are intermittent</td>
+<td align="left">TRUE</td>
+<td align="left"></td>
 </tr>
 <tr class="even">
 <td align="left">uk</td>
@@ -180,20 +200,6 @@ Currently `12` countries have submitted time series of which `10` countries agre
 <td align="left">lt</td>
 <td align="left"><a href="mailto:hydr*@mail.lei.lt">hydr*@mail.lei.lt</a></td>
 <td align="left"></td>
-<td align="left"></td>
-<td align="left"></td>
-</tr>
-<tr class="odd">
-<td align="left">pt</td>
-<td align="left"><a href="mailto:teresa*@ipcb.pt">teresa*@ipcb.pt</a></td>
-<td align="left">Coruche, Monforte, Pavia, Moinho</td>
-<td align="left"></td>
-<td align="left"></td>
-</tr>
-<tr class="even">
-<td align="left">si</td>
-<td align="left"><a href="mailto:simon.rusja*@fgg.uni-lj.si">simon.rusja*@fgg.uni-lj.si</a></td>
-<td align="left">13 station of which 7 are intermittent</td>
 <td align="left"></td>
 <td align="left"></td>
 </tr>

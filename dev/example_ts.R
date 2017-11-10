@@ -2,6 +2,61 @@ library(devtools)
 library(smires)
 require(tidyr)
 
+.remove_na_dups <- function(x)
+{
+  dups <- duplicated(x$time) | duplicated(x$time, fromLast=TRUE)
+  x[!(dups & is.na(x$discharge)), ]
+}
+
+.remove_dup_index <- function(x)
+{
+  x[!duplicated(x$time, fromLast = TRUE), ]
+}
+
+.trim_eclosing_na <- function(x)
+{
+  na <- !is.na(x$discharge)
+  mask <- cumsum(na) > 0 & rev(cumsum(rev(na)) > 0)
+  x[mask, ]
+}
+
+.read_at <- function(file, ...)
+{
+  require(readhyd)
+  require(lubridate)
+  x <- read.hzb(file = file)
+
+  y <- as_tibble(x) %>%
+    rename(discharge = "value") %>%
+    mutate(time = as.Date(floor_date(time, unit = "day"), tz = "GMT")) %>%
+    distinct() %>%
+    .remove_na_dups() %>%
+    .remove_dup_index() %>%
+    .trim_eclosing_na() %>%
+    validate(approx.missing = 0, warn = FALSE)
+
+  metaL <- attr(x, "list")
+  meta <- attr(x, "keyval")
+  id <- meta[meta[, 1] == "HZB-Nummer", 2]
+
+  attr_smires(y) <- list(filename = basename(file),
+                         dirname = dirname(file),
+                         id = id,
+                         river = meta[meta[, 1] == "Gewässer", 2],
+                         station = meta[meta[, 1] == "Messstelle", 2],
+                         country = "at",
+                         catchment = as.numeric(meta[meta[, 1] == "orogr.Einzugsgebiet", 2]),
+                         altitude = as.numeric(tail(metaL$`Pegelnullpunkt`[, "Höhe"], 1)),
+                         lon = dms2dec(tail(metaL$`Geographische Koordinaten`[, "Länge"], 1)),
+                         lat = dms2dec(tail(metaL$`Geographische Koordinaten`[, "Breite"], 1)),
+                         epsg = 4326,
+                         provider = "http://ehyd.gv.at/",
+                         link = paste0("http://ehyd.gv.at/eHYD/MessstellenExtraData/owf?id=", id, "&file=4"))
+
+  return(y)
+}
+
+
 .read_txt_france <- function(file, parse.header = FALSE,
                              fileEncoding = "ISO8859-14",
                              nlines = -1)
@@ -58,7 +113,7 @@ require(tidyr)
 id <- c("H1503910", "H1513210", "H1603010", "H1713010")
 files <- paste0("ts/fr/SMIRES/France/", id, "_qj_hydro2.txt")
 
-fr1 <- lapply(files, .read_txt_france)
+fr1 <- lapply(files, .read_txt_france, fileEncoding = "")
 attr_smires(fr1) <- list(source = "Eric")
 
 # France, Yves -----
@@ -66,8 +121,8 @@ id <- c(1039, 1046, 1092, 1099, 1101, 1104, 1128, 1140, 1159, 1160, 1162, 1166)
 files <- paste0("ts/fr/q_france/EXTRA_QJ_", id, ".txt")
 
 # station meta data
-meta <- read.metadata("ts/fr/q_france/stations.csv", dec = ",", sep = ";",
-                      encoding = "ISO8859-14")
+meta <- read.metadata("ts/fr/q_france/stations.csv", dec = ",", sep = ";")#,
+                      #encoding = "ISO8859-14")
 meta$epsg <- 27572
 meta <- separate(meta, name, into = c("river", "station"),
                  sep = " \u00e0 | au ") %>%
@@ -86,7 +141,7 @@ fr2 <- read.smires(files,
 id <- c(39099, 25022)
 files <- paste0("ts/uk/nrfa_public_", id, "_gdf.csv")
 uk <- lapply(files, read_uk)
-
+attr_smires(uk) <- list(source = "Cath")
 
 
 # Cypress ----
@@ -124,6 +179,7 @@ es1 <- read.smires(files, header = FALSE, sep = "\t",
                    colClasses = c("NULL", rep("numeric", 4)),
                    timecols = c("year", "month", "day"),
                    metadata = meta)
+attr_smires(es1) <- list(lon = NA, lat = NA)
 
 
 # :-( Spain, Fracesc (monthly data) ----
@@ -141,10 +197,12 @@ attr_smires(es2) <- list(country = "es",
 # GIS system: EGSA (whatever this is...)
 meta <- list(country = "gr", station = "Vrontamas", id = "GR33",
              river = "Evrotas",
-             x = 5451347, y = 1636692, z = 140, catchment = 1500)
+             x = 5451347, y = 1636692, z = 140, catchment = 1500,
+             source = "Rania")
 
 gr <- read.smires("ts/gr/daily.csv", sep = ";", dec = ".",
                   metadata = meta)
+gr$discharge <- gr$discharge / 1000
 
 
 # Italy, Guiseppe Puglia -----
@@ -170,7 +228,10 @@ it2 <- gather(infile, key = year, value = discharge, -month, -day) %>%
   filter(!is.na(time)) %>%
   validate(approx.missing = 0, warn = FALSE)
 
-attr_smires(it2) <- list(country = "it", "river" = "Carapelle Torrent")
+attr_smires(it2) <- list(country = "it", "river" = "Carapelle Torrent",
+                         filename = basename(files),
+                         dirname = dirname(files),
+                         source = "Annamaria")
 
 
 # Poland, Agnieszka ----
@@ -179,7 +240,8 @@ pl1 <- read.smires("ts/pl/goryczkowy.csv", sep = ";", dec = ",",
 
 
 # Poland, Kazimierz ----
-infile <- read.table("ts/pl/QPS15.777",
+files <- "ts/pl/QPS15.777"
+infile <- read.table(files,
                      col.names = c("hyear", "hmonth", "day", "discharge"))
 infile$month <- ((infile$hmonth - 1 + 10) %% 12) + 1
 infile$year <- infile$hyear
@@ -192,7 +254,9 @@ pl2 <- infile%>%
   validate(approx.missing = 0)
 
 attr_smires(pl2) <- list(country = "pl", source = "Kazimierz",
-                         hydrological.year = "November")
+                         hydrological.year = "November",
+                         filename = basename(files),
+                         dirname = dirname(files))
 
 
 
@@ -204,6 +268,7 @@ meta <- read.metadata(file = "ts/pt/meta-helena.csv", sep = ";", dec = ".",
 files <- paste0("ts/pt/", c("alentejo", "gamitinha"), ".csv")
 
 pt1 <- read.smires(files, sep = ";", dec = ".", metadata = meta)
+for (i in names(pt1)) pt1[[i]]$discharge <- pt1[[i]]$discharge / 1000
 
 
 # Portugal, Teresa ----
@@ -231,7 +296,7 @@ ch <- read.smires("ts/ch/04-Altlandenberg_mod.txt", header = TRUE, sep = "\t",
 
 
 # Slovenia, Simon ----
-meta <- read.metadata(file = "ts/si/meta.csv", sep = ";", dec = ".",
+meta <- read.metadata(file = "ts/si/meta.csv", sep = ";", dec = ",",
                       encoding = "UTF-8", warn = FALSE) %>%
   mutate(country = "si", source = "Simon")
 
@@ -249,7 +314,13 @@ sk <- read.smires(files, sep = ";", dec = ",", format = "%d.%m.%Y",
 attr_smires(sk) <- list(country = "sk", source = "Silvia")
 
 
-  # Concatenation ----
+# Austria ----
+files <- list.files(path = "ts/at/", pattern = "\\.csv", full.names = TRUE)
+at <- lapply(files, .read_at)
+attr_smires(at) <- list(country = "at", source = "Tobias")
+
+
+# Concatenation ----
 l <- c("Eric" = fr1,
        "Yves" = fr2,
        "CEH" = uk,
@@ -261,44 +332,37 @@ l <- c("Eric" = fr1,
        "Agnieszka" = list(pl1),
        "Kasimierez" = list(pl2),
        "Helena" = pt1,
-       "Teresa" = pt2)
+       "Teresa" = pt2,
+       "Simon" = si,
+       "Tobias" = at)
 
 noTibble <- which(!sapply(l, tibble::is.tibble))
 if(length(noTibble)) stop("Not all elements are already lists.")
 
 
-smiresData <- l
+smires <- enframe_smires(l)
 secret <- c(list(es2), sk)
 
 
-im <- sapply(smiresData, is.intermittent)
-if(any(!im)) stop("Not all intermittent.")
+im <- sapply(smires$data, is.intermittent)
+if(any(!im)) warning("Found ", sum(!im), " non-intermittent rivers: ",
+                     paste(smires$sid[!im], collapse = ", "))
 
-smiresData <- smiresData[im]
+smires$intermittent <- im
 
-station <- attr_smires(smiresData)
+mask <- is.na(smires$z)
+smires$z[mask] <- smires$elevation[mask]
 
+mask <- is.na(smires$altitude)
+smires$altitude[mask] <- smires$z[mask]
+
+cols <- c("sid", "data", "country", "id", "river", "station",
+          "lon", "lat", "altitude", "intermittent", "x", "y","epsg", "provider", "link")
+
+smires <- smires[, cols]
+use_data(smires, overwrite = TRUE)
 
 # Extract special data sets ----
-balder <- smiresData[[which(station$river == "Balder")]]
-ampneyBrook <- smiresData[[which(station$river == "Ampney Brook")]]
+balder <- smires$data[[which(smires$river == "Balder")]]
+ampneyBrook <- smires$data[[which(smires$river == "Ampney Brook")]]
 use_data(balder, ampneyBrook, overwrite = TRUE)
-
-
-cy1 <- cy[["r3-7-1-50"]]
-cy2 <- cy[["r7-2-3-50"]]
-cy3 <- cy[["r8-5-1-60"]]
-
-
-use_data(cy1, cy2, cy3, overwrite = TRUE)
-
-
-
-
-
-
-
-
-
-
-

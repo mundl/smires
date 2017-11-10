@@ -6,11 +6,19 @@ output: github_document
 
 SMIRES is a COST Action addressing the Science and Management of Intermittent Rivers & Ephemeral Streams. SMIRES brings together more than 200 hydrologists, biogeochemists, ecologists, modelers, environmental economists, social researchers and stakeholders from 31 different countries to develop a research network for synthesising the fragmented, recent knowledge on IRES, improving our understanding of IRES and translating this into a science-based, sustainable management of river networks. More information about SMIRES can be found at <http://www.smires.eu/>. 
 
-This git repository hosts the R-package `smires`, one of several outcomes of Working Group 1 (WG1, Prevalence, distribution and trends of IRES). Given time series of daily (weekly, monthly) discharges, its purpose is:
+This git repository hosts the R-package `smires`, one of several outcomes of Working Group 1 (WG1, Prevalence, distribution and trends of IRES). Given time series of daily (weekly, monthly) discharges, its purpose is to:
 
 
-* to identify gauging stations that have an IRES flow regime;
-* to calculate relevant flow and intermittency metrics.
+* identify gauging stations that have an IRES flow regime;
+* enable inexperienced R users to easily calculate most flow and intermittency metrics;
+* offer advanced R users a flexible framework for computing hydro-/ecological metrics;
+* have only as few requirements on input data as possible;
+* work with binary data (flow, no-flow);
+* give the user free choice over the aggregation period (calendar years, hydrological years, months, seasons, ...);
+* give the user free choice over the aggregation function;
+* provide sample datasets of every participating European country;
+
+
 
 # Installation of the R-package
 
@@ -41,7 +49,7 @@ The usage of the package is demonstrated in these four preliminary vignettes. Th
  * The [concept](https://homepage.boku.ac.at/h0540352/smires/concept.html) of the R package **smires**.
  * How to compute smires [metrics](https://homepage.boku.ac.at/h0540352/smires/metrics.html).
  * To compute the metrics mentioned above, we make use of the following [framework](https://homepage.boku.ac.at/h0540352/smires/framework.html).
- * This [vignette](https://homepage.boku.ac.at/h0540352/smires/import.html) explains in detail how data and meta data is imported. 
+ * This vignette explains in detail how data and meta data is [imported](https://homepage.boku.ac.at/h0540352/smires/import.html). 
 
 
 # Examples
@@ -121,7 +129,8 @@ series <- list(
   
   contrib_ts(country = "pt", 
              contact = "teresal@ipcb.pt",
-             ts = "Coruche, Monforte, Pavia, Moinho"),  
+             ts = "Coruche, Monforte, Pavia, Moinho",
+             publish = TRUE),  
   
   contrib_ts(country = "pt", 
              contact = "helena.alves@apambiente.pt",
@@ -147,13 +156,13 @@ series <- list(
   
   contrib_ts(country = "at", 
              contact = "t.gauster@boku.ac.at",
-             ts = "...",
+             ts = "22 mostly human influenced catchments",
              publish = TRUE),
   
   contrib_ts(country = "si", 
              contact = "simon.rusjan@fgg.uni-lj.si",
              ts = "13 station of which 7 are intermittent",
-             publish = NA))
+             publish = TRUE))
 
 series <- do.call(rbind, series)
 series <- series[order(!series$include, series$country), ]
@@ -207,7 +216,7 @@ metrics <- list(
   contrib_metric(name = "Number of days with zero flow",
                  description = "Total number of days with zero flow", 
                  type = "duration",
-                 country = c("ch", "at", "gb")),
+                 country = c("ch", "at", "uk")),
   contrib_metric(name = "Recession constant",
                  description = "Recession constant during the period with the lowest flow or slope of the flow duration curve", 
                  type = "magnitude",
