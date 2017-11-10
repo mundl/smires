@@ -122,18 +122,33 @@ filecontent <- function(file, nrow = 6, skip = 0,
   return(.get_attr_smires(x, "var"))
 }
 
-attr_smires <- function(x)
+.drop_dt <- function(x)
+{
+  x[setdiff(names(x), "dt")]
+}
+
+attr_smires <- function(x, as.sf = FALSE)
 {
   att <- attr(x, "smires")
   if(is.null(att)) {
     if(inherits(x, what = "list")) {
       # if its is a list, check if all elements have attributes
-      l <- lapply(x, function(x) select(as_data_frame(attr_smires(x)), -dt))
+      l <- lapply(x, function(x) .drop_dt(attr_smires(x)))
 
       # bind_rows() cannot handle mixed types, convert to character first
-      ll <- bind_rows(lapply(l, function(x) mutate_all(x, as.character)))
+      char <- lapply(l, function(x) as_data_frame(lapply(x, as.character)))
+
+      # bind_rows() cannot handle element with length == 0
+      char <- lapply(char, function(x) {x[, lengths(x) == 0] <- NA; x})
+
+      ll <- bind_rows(char)
       ll <- mutate_all(ll, type.convert, as.is = TRUE)
-      return(bind_rows(ll))
+
+      station <- bind_rows(ll)
+      if(as.sf) station <- .attr_as_sf(station)
+
+      return(station)
+
     } else {
       return(NULL)
       #stop("Object '", deparse(substitute(x)), "' has no smires attributes.")
