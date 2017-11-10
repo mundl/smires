@@ -39,7 +39,7 @@ The minor interval allows a further partition of the year into either seasons, m
 
 Here, the function `smires()` is used to demonstrate the meaning of major and minor intervals. The argument `major = 91` specifies that the major interval (the hydrological year) starts on the 91^st^ day of the year, which is April 1^st^. Per default no minor interval is used. The argument  `minor = intervals$month` makes use of the list `intervals` containing frequently used minor intervals like `r smires:::.itemize_text(sQuote(names(intervals)))`. The functions returns at table of spells, which we can ignore for the time being. The function is just used for the side effect of plotting the stream-flow permanence of the river 'Ampney Brook' at station 'Ampney St Peter' based on a threshold of 1 l/s.
 ```{r ampneyPerm, fig.width=10, fig.height=10}
-ampney <- smires(ampneyBrook, major = 91, minor = intervals$month, rule = "onset", plot = TRUE)
+ampney <- char_binary(ampneyBrook, major = 91, minor = intervals$month, rule = "onset", plot = TRUE)
 ```
 
 

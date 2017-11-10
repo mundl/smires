@@ -25,8 +25,8 @@ test_that("quick & dirty check if functions run", {
   expect_silent(suppressMessages(s <- drop_na_periods(x = p, period = "major")))
 
 
-  expect_silent(binary <- smires(balder))
-  expect_silent(metric(balder))
+  expect_silent(binary <- char_binary(balder))
+  expect_silent(char_cont(balder))
 
   expect_silent(plot_groups(binary))
   expect_silent(plot_intermittency(balder))

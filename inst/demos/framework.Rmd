@@ -19,9 +19,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Most IRES metrics are constructed in a similar way. 
 
- 1. Derive a binary time series from (daily) discharge observations. 
- 2. Aggregate on an annual basis.
- 3. Aggregate every year to obtain a single metric per `state`.
+1. Derive a binary time series from (daily) discharge observations. 
+2. Aggregate on an annual basis.
+3. Aggregate every year to obtain a single metric per `state`.
 
 These steps are explained in detail for the *mean annual number of no-flow days*. First of all we need to load the R-package **smires**, assuming it is already installed on our machine. 
 
@@ -39,7 +39,7 @@ ampneyBrook
 ```
 with `r nrow(ampneyBrook)` days of observations (rows) of a single **continuous** variable (column `discharge` can contain values from 0 to `Inf`) into a **binary** time series (column `state` is a factor with levels `flow` and `no-flow`)
 ```{r}
-binary <- smires(ampneyBrook, major = 91)
+binary<- char_binary(ampneyBrook, major = 91)
 head(binary, 13)
 ```
 with `r nrow(binary)` rows, `r max(binary$spell)` spells/events (rows) and `r ncol(binary) -1` variables (columns). Most of these newly created variables like `major`, `minor` and `group` are used for grouping. To compute the *mean annual number of no-flow days* our main variable of interest is of course `duration`. 
@@ -48,12 +48,12 @@ with `r nrow(binary)` rows, `r max(binary$spell)` spells/events (rows) and `r nc
 
 As there can be spells spanning multiple years (e.g. spell no. 3) or several spells/events per year (e.g. spell no. 4 & 6 in year 1989), we need to **aggregate the durations on an annual basis** for all combinations of year (variable `major`) and `state`. To do so, in general we have to supply three arguments to the function `smires()`:
 
- * the variable we want to aggregate (in this case `duration` is implicitly used),
- * the interval we want to aggregate over (here hydrological years, `major = 91`) and
- * the function used to summarize all the durations (`fun_major = sum`).  
-    
+* the variable we want to aggregate (in this case `duration` is implicitly used),
+* the interval we want to aggregate over (here hydrological years, `major = 91`) and
+* the function used to summarize all the durations (`fun_major = sum`).  
+
 ```{r}
-annual <- smires(ampneyBrook, major = 91, fun_major = sum)
+annual<- char_binary(ampneyBrook, major = 91, fun_major = sum)
 annual
 ```
 We receive the total spell durations for every year and flow state. This table has to be twice as long as there are years in our record, with zeros imputed when the corresponding spell was missing in a given year. 
@@ -64,7 +64,7 @@ We receive the total spell durations for every year and flow state. This table h
 The *mean annual number of flow/no-flow days* is obtained by **aggregating once more**, this time only over the variable `state`. Here the `mean()` is used as the aggregation function and is specified via `fun_total = mean`. 
 
 ```{r}
-totals <- smires(ampneyBrook, major = 91, fun_major = sum, fun_total = mean)
+totals<- char_binary(ampneyBrook, major = 91, fun_major = sum, fun_total = mean)
 totals
 ```
 
@@ -74,9 +74,9 @@ This yields us the approximately `r round(totals$variable[totals$state == "no-fl
 In order to facilitate the computation of every possible metric the aggregation intervals and the aggregation functions can be supplied as arguments to the function `smries()`. 
 
 ```{r, eval=FALSE}
-binary <- smires(ampneyBrook, major = 91)
-annual <- smires(ampneyBrook, major = 91, fun_major = sum)
-totals <- smires(ampneyBrook, major = 91, fun_major = sum, fun_total = mean)
+binary<- char_binary(ampneyBrook, major = 91)
+annual<- char_binary(ampneyBrook, major = 91, fun_major = sum)
+totals<- char_binary(ampneyBrook, major = 91, fun_major = sum, fun_total = mean)
 ```
 
 Measures of locations are computed if we choose summarizing functions like `mean()`, `median()`, `quantile()` or similar. For measures of variability one could choose for example `sd()`, `var()`, `IQR()`, the coefficient of variation `cv()` or the mean absolute deviation `mad()`. In case we are interested in the distribution of our annual statistics, we simply omit the final aggregation function. 

@@ -99,8 +99,8 @@
 	\vfill
 	Computing Metrics\\[6pt]
 	\begin{tabular}{@{}ll}
-		\verb|metric()| & continuous time series \\
-		\verb|smires()| & binary time series, e.g. for intermittent rivers
+		\verb|char_cont()| & continuous time series \\
+		\verb|char_binary()| & binary time series, e.g. for intermittent rivers
 	\end{tabular}
 
 	\vfill
@@ -119,9 +119,9 @@ library(smires)
 @
 
 <<mamax, fig=TRUE, include=FALSE, width=6.375005, height=2.812502>>=
-metric(balder,
-       fun_major = max, fun_total = mean,
-       plot = T, drop = T, outvar = "mean.annual.max")
+char_cont(balder,
+          fun_major = max, fun_total = mean,
+          plot = T, drop = T, outvar = "mean.annual.max")
 @
 
 \vfill
@@ -131,9 +131,9 @@ metric(balder,
 \begin{frame}[fragile]{Metrics for continuous time series}{E.g. mean annual maximum discharge, hydrological year starting in September}
 
 <<mamax-sept, fig=TRUE, include=FALSE, width=6.375005, height=2.812502>>=
-metric(balder, major = 244,
-       fun_major = max, fun_total = mean,
-       plot = T, drop = T, outvar = "mean.annual.max")
+char_cont(balder, major = 244,
+          fun_major = max, fun_total = mean,
+          plot = T, drop = T, outvar = "mean.annual.max")
 @
 
 \vfill
@@ -144,7 +144,7 @@ metric(balder, major = 244,
 \begin{frame}[fragile]{Metrics for continuous time series}{E.g. maximum annual discharge, hydrological year starting in September}
 
 <<ma-discharge>>=
-metric(balder, major = 244, fun_major = max)
+char_cont(balder, major = 244, fun_major = max)
 @
 
 \end{frame}
@@ -158,7 +158,7 @@ balder <- validate(balder[year(balder$time) < 1979, ])
 
 	\footnotesize
 <<binary, fig=TRUE, include=FALSE, width=7.437506, height=2.343752>>=
-smires(balder, plot = T) %>% head(3)
+char_binary(balder, plot = T) %>% head(3)
 @
 
 	\vfill
@@ -168,7 +168,7 @@ smires(balder, plot = T) %>% head(3)
 \begin{frame}[fragile]{Metrics for binary time series}{Threshold is 20 l/s}
   \footnotesize
 <<binary-20, fig=TRUE, include=FALSE, width=7.437506, height=2.343752>>=
-smires(balder, threshold = 0.2, plot = T) %>% head(3)
+char_binary(balder, threshold = 0.2, plot = T) %>% head(3)
 @
 
 
@@ -186,18 +186,18 @@ rm(balder)
 	\begin{minipage}[t]{0.5\textwidth}
 		\footnotesize
 <<>>=
-smires(balder,
-       fun_major = max,
-       drop_na = "major")
+char_binary(balder,
+            fun_major = max,
+            drop_na = "major")
 @
   \end{minipage}%
 	\begin{minipage}[t]{0.5\textwidth}
 		\footnotesize
 <<>>=
-smires(balder,
-       fun_major = max,
-       fun_total = mean,
-       drop_na = "major")
+char_binary(balder,
+            fun_major = max,
+            fun_total = mean,
+            drop_na = "major")
 @
 \vfill~
 \end{minipage}
@@ -228,7 +228,7 @@ seasons <- c(spring = 60, summer = 152,
 @
 
 <<>>=
-smires(balder, minor = seasons, fun_minor = max)
+char_binary(balder, minor = seasons, fun_minor = max)
 @
 \end{frame}
 

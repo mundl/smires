@@ -11,7 +11,7 @@ discharge <- validate(balder)
 spells <- find_spells(discharge)
 print(spells)
 
-metric(discharge, fun_major = max, fun_total = mean)
+char_con(discharge, fun_major = max, fun_total = mean)
 
 
 discharge %>%

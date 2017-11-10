@@ -12,8 +12,7 @@ is.intermittent(ampneyBrook)
 balder <- validate(balder)
 
 # visualize time series and compute first metric
-metric(balder, plot = T, fun_group = mean, major =
-       fun_total = median)
+char_cont(balder, plot = T, fun_group = mean, fun_total = median)
 
 
 # deriving a binary time series
@@ -26,8 +25,8 @@ ggplot(filter(balder, year(time) == 1976) , aes(time, discharge)) +
 smires(balder, plot = T)
 
 # threshold variation
-a <- smires(ampneyBrook, plot = T)
-a <- smires(ampneyBrook, threshold = 0.1, plot = T)
+a <- char_binary(ampneyBrook, plot = T)
+a <- char_binary(ampneyBrook, threshold = 0.1, plot = T)
 
 
 # mean max duration
@@ -56,7 +55,7 @@ smires(balder, major = 1, minor = intervals$month, drop_na = "group",
        simplify = FALSE, plot = FALSE)
 
 # changing the major interval: start of hydrological year
-b <- smires(balder, major = 32, plot = T)
+b <- char_binary(balder, major = 32, plot = T)
 
 # changing the minor interval: seasonal analysis
 smires(balder, major = 60,
@@ -81,7 +80,7 @@ find_spells(grouped, rule = "termination") %>%
 # single value or distribution
 smires(balder, fun_major = max, fun_total = median, drop_na = "major", major = 32)
 
-b <- smires(balder, fun_major = max, drop_na = "major", major = 32)
+b <- char_binary(balder, fun_major = max, drop_na = "major", major = 32)
 ggplot(b, aes(y = as.numeric(variable), x = state)) +
   geom_boxplot() + coord_flip() +
   labs(y = "Maximum duration in days") +

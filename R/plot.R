@@ -98,7 +98,7 @@ plot_groups <- function(x)
 
 plot_intermittency <- function(x, ...)
 {
-  null <- smires(x, ..., plot = TRUE)
+  null <- char_binary(x, ..., plot = TRUE)
   return(invisible())
 }
 

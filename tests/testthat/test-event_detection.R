@@ -33,12 +33,12 @@ test_that("levels of factor state are in correct order", {
                   discharge = c(NA, rep(0.23, 5), NA, rep(0.8, 4))) %>%
     validate(approx.missing = 0)
 
-  flow <- smires(x, threshold = 0.001, drop_na = "none", complete = FALSE)
+  flow <- char_binary(x, threshold = 0.001, drop_na = "none", complete = FALSE)
   expect_equal(object = levels(flow$state), expected = c("no-flow", "flow"))
   expect_equal(object = as.character(flow$state),
                expected = c(NA, "flow", NA, "flow"))
 
-  noflow <- smires(x, threshold = 1, complete = FALSE)
+  noflow <- char_binary(x, threshold = 1, complete = FALSE)
   expect_equal(object = levels(noflow$state), expected = c("no-flow", "flow"))
   expect_equal(object = as.character(noflow$state),
                expected = c(NA, "no-flow", NA, "no-flow"))

@@ -2,14 +2,14 @@
 # maybe issue a warning, that dropped years will be completed with zeros
 # todo: consider setting drop_na = "group"
 
-smires <- function(x, major = min(minor), minor = NA,
-                   drop_na = "none", rule = "cut", threshold = 0.001,
-                   fun_group = NULL, fun_minor = NULL, fun_major = NULL,
-                   fun_total = NULL,
-                   state = c("no-flow", "flow", NA),
-                   ...,
-                   varname = "variable",
-                   simplify = FALSE, complete = TRUE, plot = FALSE) {
+char_binary <- function(x, major = min(minor), minor = NA,
+                    drop_na = "none", rule = "cut", threshold = 0.001,
+                    fun_group = NULL, fun_minor = NULL, fun_major = NULL,
+                    fun_total = NULL,
+                    state = c("no-flow", "flow", NA),
+                    ...,
+                    varname = "variable",
+                    simplify = FALSE, complete = TRUE, plot = FALSE) {
 
   state <- match.arg(state, several.ok = TRUE)
 
@@ -22,7 +22,7 @@ smires <- function(x, major = min(minor), minor = NA,
     } else if(is.function(fun_major)) {
       "major"
     } else {
-       # No aggregation function specified, setting 'complete = FALSE'.
+      # No aggregation function specified, setting 'complete = FALSE'.
       FALSE
     }
   }
@@ -31,22 +31,29 @@ smires <- function(x, major = min(minor), minor = NA,
     complete <- "none"
   }
 
-  spells <- x %>%
-    group_by_interval(major_interval = major, minor_interval = minor) %>%
+  grouped <- x %>%
+    group_by_interval(major_interval = major, minor_interval = minor)
+
+  spells <- grouped %>%
     # complete spells after dropping NA periods
     find_spells(rule = rule, threshold = threshold, complete = "none") %>%
     arrange(group)
 
-  if(plot) print(plot_groups(spells))
+  if(plot) {
+    maj <- as.numeric(grouped$major)
+    # when taking the log(), replace small observations (zeros) with threshold
+    # grouped$discharge[grouped$discharge < threshold] <- threshold
+    grouped$rescaled <- maj + (.rescale(grouped$discharge) - 0.5)
+
+    p <- plot_groups(spells) +
+      geom_line(data = grouped, aes(x = hday, y = rescaled, group = major),
+                size = 0.2)
+
+    print(p)
+  }
 
   # computing new variables
-  variables <- quos(...)
-  if(length(variables)) {
-    spells <- mutate(spells, !!!variables) %>%
-      rename(var :=!!names(variables)[[1]])
-  } else {
-    spells[, "var"] <- spells[, "duration"]
-  }
+  spells <- .compute_new_vars(spells, ..., default = "duration")
 
   y <- spells %>%
     drop_na_periods(period = drop_na) %>%
@@ -102,34 +109,35 @@ smires <- function(x, major = min(minor), minor = NA,
     if(length(y) == 1 & varname != "variable") names(y) <- varname
   }
 
+  if(length(y) == 0) y <- NA
+
   return(y)
 }
 
-metric <- function(x, major = min(minor), minor = NA,
-                   drop_na = "none", threshold = 0.001,
-                   fun_group = NULL, fun_minor = NULL, fun_major = NULL,
-                   fun_total = NULL,
-                   ...,
-                   # invar = "discharge",
-                   varname = "variable",
-                   simplify = FALSE, plot = FALSE) {
+smires <- function(...)
+{
+  warning("The usage of the function 'metric()' for the calculation of metrics from continous variables is deprecated. Please use 'char_cont()' instead.")
+  char_binary(...)
+}
+
+
+char_cont <- function(x, major = min(minor), minor = NA,
+                      drop_na = "none", threshold = 0.001,
+                      fun_group = NULL, fun_minor = NULL, fun_major = NULL,
+                      fun_total = NULL,
+                      ...,
+                      # invar = "discharge",
+                      varname = "variable",
+                      simplify = FALSE, plot = FALSE) {
 
   grouped <- x %>%
     group_by_interval(major_interval = major, minor_interval = minor)
 
   # computing new variables
-  variables <- quos(...)
-  if(length(variables)) {
-    grouped <- mutate(grouped, !!!variables) %>%
-      rename(var :=!!names(variables)[[1]])
-  } else {
-    grouped[, "var"] <- grouped[, "discharge"]
-  }
+  grouped <- .compute_new_vars(grouped, ...)
 
-
-  # mutate drops arguments
   maj <- as.numeric(grouped$major)
-  grouped$rescaled <- maj + (.rescale(grouped$var) - 0.4)*0.65
+  grouped$rescaled <- maj + (.rescale(grouped$var) - 0.5)#*0.65
 
   if(plot) print(plot_groups(grouped))
 
@@ -147,11 +155,16 @@ metric <- function(x, major = min(minor), minor = NA,
   }
 
   if(is.function(fun_minor)) {
+    # y <- y %>% group_by(minor) %>%
+    #   do(var = fun_minor(.$var)) %>%
+    #   # only needed until unnest() can handle lists
+    #   ungroup() %>%
+    #   mutate_if(is.list, simplify_all) %>%
+    #   unnest()
+
     y <- y %>% group_by(minor) %>%
       do(var = fun_minor(.$var)) %>%
-      # only needed until unnest() can handle lists
-      ungroup() %>%
-      mutate_if(is.list, simplify_all) %>%
+      filter(length(var) > 1) %>%
       unnest()
   }
 
@@ -159,11 +172,16 @@ metric <- function(x, major = min(minor), minor = NA,
     if(is.function(fun_minor)) {
       stop("You can eihter aggregate by minor interval or major interval, not both.")
     }
+    # y <- y %>% group_by(major) %>%
+    #   do(var = fun_major(.$var)) %>%
+    #   # only needed until unnest() can handle lists
+    #   ungroup() %>%
+    #   mutate_if(is.list, simplify_all) %>%
+    #   unnest()
+
     y <- y %>% group_by(major) %>%
-     do(var = fun_major(.$var)) %>%
-      # only needed until unnest() can handle lists
-      ungroup() %>%
-      mutate_if(is.list, simplify_all) %>%
+      do(var = fun_major(.$var)) %>%
+      filter(length(var) >= 1) %>%
       unnest()
   }
 
@@ -182,6 +200,13 @@ metric <- function(x, major = min(minor), minor = NA,
     if(length(y) == 1 & varname != "variable") names(y) <- varname
   }
 
+  if(length(y) == 0) y <- NA
+
   return(y)
 }
 
+metric <- function(...)
+{
+  warning("The usage of the function 'metric()' for the calculation of metrics from continous variables is deprecated. Please use 'char_cont()' instead.")
+  char_cont(...)
+}
