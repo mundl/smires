@@ -1,0 +1,138 @@
+---
+title: "The R package smires -- Datasets"
+author: "Tobias Gauster"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    highlight: pygments
+    number_sections: true
+    toc: true
+    toc_float: true
+    df_print: paged
+    
+---
+
+generated with `r R.version.string` and **smires** version `r packageVersion("smires")`
+
+```{r setup, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r, message=FALSE, cols.print=10, rows.print=15}
+library(smires) 
+smires
+
+table(smires$country)
+```
+
+```{r, message=FALSE}
+hasCoordinates <- smires %>% 
+  select(lon, lat) %>% 
+  complete.cases() %>% 
+  table(dnn = NULL)
+
+hasCoordinates
+
+library(ggplot2)
+basemap(smires) + 
+  geom_point()
+```
+
+Interactive Map with basemap from Openstreet Maps
+```{r}
+library(leaflet)
+
+leaflet(smires) %>% 
+  addTiles() %>% 
+  addProviderTiles(providers$CartoDB.Positron) %>%
+  addMarkers(lng = ~lon, lat = ~lat,
+             clusterOptions = markerClusterOptions()
+  )
+```
+
+
+Compute a few Metrics for all stations with coordinates
+```{r}
+library(purrr)
+
+metrics <- smires %>%
+  filter(complete.cases(lon, lat)) %>%
+  mutate(MAMD = map_dbl(data, MAMD),
+         CVAMD = map_dbl(data, CVAMD))
+```
+
+```{r}
+metrics %>%
+  filter(country == "fr") %>%
+  basemap() + 
+  geom_point(aes(size = MAMD, fill = CVAMD), shape = 21, alpha = 0.7) +
+  scale_size_continuous("Mean annual\nmaximum duration\nin days") + 
+  scale_fill_gradient2("Coefficient\nof Variation")
+
+
+```
+
+```{r}
+ggplot(metrics) + 
+  geom_point(aes(x = CVAMD, y = MAMD, col = country)) +
+  labs(x = "Coefficient of Variation", y = "Mean annual Maximum Duration in days")
+
+```
+
+```{r}
+library(tidyr)
+is_nf_year <- function(x) 
+  char_binary(x = x, 
+              fun_major = function(x) sum(x) > 0,
+              state = "no-flow", varname = "no_flow_year")
+
+nf_year <- smires %>%
+  filter(complete.cases(lon, lat)) %>%
+  mutate(data = map(data, function(x) 
+    filter(x, time >= as.Date("2000-01-01") & time < as.Date("2006-01-01")))) %>%
+  filter(map_int(data, nrow) > 0) %>%
+  mutate(nf = map(data, is_nf_year)) %>%
+  unnest(nf)
+
+
+library(dplyr)
+nf_year  %>%
+  basemap() + 
+  geom_point(aes(col = no_flow_year)) +
+  scale_color_discrete("is intermittent") + 
+  facet_wrap(~major)
+
+```
+
+
+```{r}
+library(purrr)
+library(smires)
+s <- smires[c(1, 43), ]
+
+
+
+m <- s %>%
+  transmute(
+    no_flow_years = map_dbl(data, no_flow_years),
+    MAN = map_dbl(data, MAN),
+    CVAN = map_dbl(data, CVAN),
+    FAN = map(data, FAN),
+    MAMD = map_dbl(data, MAMD),
+    CVAMD = map_dbl(data, CVAMD),
+    FAMD = map(data, FAMD),
+    tau0 = map_dbl(data, tau0),
+    tau0r = map_dbl(data, tau0r),
+    tauE = map_dbl(data, tauE),
+    tauEr = map_dbl(data, tauEr),
+    tau = map_dbl(data, tau),
+    taur = map_dbl(data, taur),
+    k = map_dbl(data, k),
+    ksd = map_dbl(data, ksd),
+    nrv = map_dbl(data, nrv)
+  )
+
+m
+```
+
