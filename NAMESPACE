@@ -27,5 +27,8 @@ importFrom("lfstat", "water_year")
 
 
 
-# S3method(print, multiperiod)
+S3method(print, jday)
+S3method(format, jday)
+
+
 

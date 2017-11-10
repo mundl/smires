@@ -23,6 +23,7 @@
 
 .rescale <- function(x, na.rm = TRUE)
 {
+  if(na.rm) x[!is.finite(x)] <- NA
   (x - min(x, na.rm = na.rm))/diff(range(x, na.rm = na.rm))
 }
 
@@ -177,7 +178,6 @@ attr_smires <- function(x, as.sf = FALSE)
 }
 
 
-
 # setting and retaining all smires attributes
 .get_attr_smires <- function(x, key = NULL)
 {
@@ -243,13 +243,12 @@ enframe_smires <- function(x, as.sf = FALSE)
 }
 
 
-# currently unused
-.format_jday <- function(x)
+format.jday <- function(x, ...)
 {
   nam <- names(x)
   if(is.numeric(x)) {
     if(all(x > 0 & x < 366)){
-      x <- as.Date(x-1, origin = "1970-01-01")
+      x <- as.Date(as.numeric(x)-1, origin = "1970-01-01")
     } else {
       stop("Argument `x` must be either date or an integer inside [1, 365].")
     }
@@ -267,6 +266,13 @@ enframe_smires <- function(x, as.sf = FALSE)
 
   return(y)
 }
+
+type_sum <- function(x)
+{
+  UseMethod("type_sum")
+}
+
+type_sum.jday <- format.jday
 
 
 julian_day <- function(x)
@@ -359,10 +365,18 @@ circular_r <- function(x, lwr = 0, upr = 365)
 
 mean_day <- function(x, lwr = 0, upr = 365)
 {
-  .format_jday(circular_mean(x = x, lwr = lwr, upr = upr))
+  d <- circular_mean(x = x, lwr = lwr, upr = upr)
+  class(d) <- c("jday" , "numeric")
+
+  return(d)
 }
 
-
+print.jday <- function(x, ...)
+{
+  y <- format.jday(x)
+  if(is.na(y)) y <- NA_character_
+  print(y)
+}
 
 melt <- function(x, name = NA) {
 
