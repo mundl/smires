@@ -87,11 +87,13 @@ is_nf_year <- function(x)
               fun_major = function(x) sum(x) > 0,
               state = "no-flow", varname = "no_flow_year")
 
-nf_year <- smires %>%
+smires6 <- smires %>%
   filter(complete.cases(lon, lat)) %>%
   mutate(data = map(data, function(x) 
     filter(x, time >= as.Date("2000-01-01") & time < as.Date("2006-01-01")))) %>%
-  filter(map_int(data, nrow) > 0) %>%
+  filter(map_int(data, nrow) > 0) 
+
+nf_year <- smires6 %>%
   mutate(nf = map(data, is_nf_year)) %>%
   unnest(nf)
 
@@ -131,7 +133,8 @@ m <- s %>%
     k = map_dbl(data, k),
     ksd = map_dbl(data, ksd),
     nrv = map_dbl(data, nrv)
-  )
+  ) %>%
+  mutate_if(is.numeric, round, digits = 2)
 
 m
 ```
