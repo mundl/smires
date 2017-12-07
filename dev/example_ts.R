@@ -239,8 +239,13 @@ it2 <- smires:::.check_coordinates(it2)
 
 
 # Poland, Agnieszka ----
+library(readhyd)
 pl1 <- read.smires("ts/pl/goryczkowy.csv", sep = ";", dec = ",",
-                   metadata = list(country = "pl", source = "Agnieszka"))
+                   metadata = list(country = "pl", source = "Agnieszka",
+                                   station = "Goryczkowy Potok",
+                                   catchment =  1.33,
+                                   lat = dms2dec("49°23'17''22.65"),
+                                   lon = dms2dec("20°6'33.29''")))
 
 
 # Poland, Kazimierz ----
@@ -259,6 +264,9 @@ pl2 <- infile%>%
 
 attr_smires(pl2) <- list(country = "pl", source = "Kazimierz",
                          hydrological.year = "November",
+                         lat = dms2dec("51°26'43.8''N"),
+                         lon = dms2dec("21°27'35.6''E"),
+                         catchment = 82.4,
                          filename = basename(files),
                          dirname = dirname(files))
 
@@ -353,9 +361,6 @@ if(any(!im)) warning("Found ", sum(!im), " non-intermittent rivers: ",
                      paste(smires$sid[!im], collapse = ", "))
 
 smires$intermittent <- im
-
-mask <- is.na(smires$z)
-smires$z[mask] <- smires$elevation[mask]
 
 mask <- is.na(smires$altitude)
 smires$altitude[mask] <- smires$z[mask]
