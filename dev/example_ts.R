@@ -122,7 +122,7 @@ files <- paste0("ts/fr/q_france/EXTRA_QJ_", id, ".txt")
 
 # station meta data
 meta <- read.metadata("ts/fr/q_france/stations.csv", dec = ",", sep = ";")#,
-                      #encoding = "ISO8859-14")
+#encoding = "ISO8859-14")
 meta$epsg <- 27572
 meta <- separate(meta, name, into = c("river", "station"),
                  sep = " \u00e0 | au ") %>%
@@ -206,8 +206,10 @@ gr$discharge <- gr$discharge / 1000
 
 
 # Italy, Guiseppe Puglia -----
-meta <- read.metadata("ts/it/metadata-it1.csv", sep = ";", dec = ".") %>%
-  mutate(country = "it", source = "Guiseppe")
+meta <- read.metadata("ts/it/metadati.csv", sep = ";", dec = ",") %>%
+  mutate(source = "Guiseppe")
+# meta <- read.metadata("ts/it/metadata-it1.csv", sep = ";", dec = ".") %>%
+#   mutate(country = "it", source = "Guiseppe")
 files <- paste0("ts/it/", c("salsola", "celone"), ".csv")
 
 it1  <- read.smires(files, sep = ";", dec = ",", na.strings = "NAV",
@@ -228,10 +230,12 @@ it2 <- gather(infile, key = year, value = discharge, -month, -day) %>%
   filter(!is.na(time)) %>%
   validate(approx.missing = 0, warn = FALSE)
 
-attr_smires(it2) <- list(country = "it", "river" = "Carapelle Torrent",
-                         filename = basename(files),
-                         dirname = dirname(files),
-                         source = "Annamaria")
+meta2 <- filter(meta, filename == "carapelle-torrent.csv")
+attr_smires(it2) <- c(as.list(meta2),
+                      list(dirname = dirname(files),
+                           source = "Annamaria"))
+
+it2 <- smires:::.check_coordinates(it2)
 
 
 # Poland, Agnieszka ----
@@ -356,7 +360,7 @@ smires$z[mask] <- smires$elevation[mask]
 mask <- is.na(smires$altitude)
 smires$altitude[mask] <- smires$z[mask]
 
-cols <- c("sid", "data", "country", "id", "river", "station",
+cols <- c("sid", "data", "country", "id", "river", "station", "catchment",
           "lon", "lat", "altitude", "intermittent", "x", "y","epsg", "provider", "link")
 
 smires <- smires[, cols]

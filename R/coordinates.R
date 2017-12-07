@@ -37,5 +37,10 @@ transform_crs <- function(x, y, from, to)
 
 has_coordinates <- function(x) {
   # simply checks if lat/lon attribute is present
-  complete.cases(attr_smires(x)[, c("lat", "lon")])
+
+  if(all(c("lat", "lon") %in% colnames(x))) {
+    complete.cases(x[, c("lat", "lon")])
+  } else {
+    complete.cases(attr_smires(x)[, c("lat", "lon")])
+  }
 }
