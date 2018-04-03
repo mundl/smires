@@ -3,16 +3,17 @@
 # todo: consider setting drop_na = "group"
 
 char_binary <- function(x, major = min(minor), minor = NA,
-                    drop_na = "none", rule = "cut", threshold = 0.001,
-                    fun_group = NULL, fun_minor = NULL, fun_major = NULL,
-                    fun_total = NULL,
-                    spell.vars = vars(duration),
-                    metric.vars = NULL,
-                    complete = TRUE, plot = FALSE,
-                    varname = NULL,
-                    simplify = FALSE,
-                    state = c("no-flow", "flow", NA)) {
+                        drop_na = "none", rule = "cut", threshold = 0.001,
+                        fun_group = NULL, fun_minor = NULL, fun_major = NULL,
+                        fun_total = NULL,
+                        spell.vars = vars(duration),
+                        metric.vars = NULL,
+                        complete = TRUE, plot = FALSE,
+                        varname = NULL,
+                        simplify = FALSE,
+                        state = c("no-flow", "flow", NA)) {
 
+  spell.vars <- rlang::quos_auto_name(spell.vars)
   if(is.null(metric.vars)) metric.vars <- .guess_metric_var(spell.vars)
 
 
@@ -72,11 +73,50 @@ char_binary <- function(x, major = min(minor), minor = NA,
     .complete_spell(complete = complete, fill = 0) %>%
     arrange(group)
 
- y <- .char_common(data = spells,
-                   fun_group = fun_group, metric.vars = metric.vars,
-                   fun_minor = fun_minor, fun_major = fun_major,
-                   fun_total = fun_total, state = state, simplify = simplify,
-                   varname = varname)
+  y <- .char_common(data = spells,
+                    fun_group = fun_group, metric.vars = metric.vars,
+                    fun_minor = fun_minor, fun_major = fun_major,
+                    fun_total = fun_total, state = state, simplify = simplify,
+                    varname = varname)
+
+  return(y)
+}
+
+char_cont <- function(x, major = min(minor), minor = NA,
+                      drop_na = "none", threshold = 0.001,
+                      fun_group = NULL, fun_minor = NULL, fun_major = NULL,
+                      fun_total = NULL,
+                      metric.vars = vars(discharge),
+                      varname = NULL,
+                      simplify = FALSE, plot = FALSE) {
+
+  metric.vars <- rlang::quos_auto_name(metric.vars)
+
+  grouped <- x %>%
+    group_by_interval(major_interval = major, minor_interval = minor)
+
+  # computing new variables
+  grouped <- .compute_new_vars(grouped, .vars = metric.vars)
+
+  maj <- as.numeric(grouped$major)
+
+  metric.vars <- .guess_metric_var(metric.vars)
+
+  mvar <- pull(select_at(.tbl = grouped, metric.vars)[, 1])
+  grouped$rescaled <- maj + (.rescale(mvar) - 0.5)#*0.65
+
+  if(plot) print(plot_groups(grouped))
+
+  grouped$state <- NA
+
+  y <- .char_common(data = grouped,
+                    fun_group = fun_group, metric.vars = metric.vars,
+                    fun_minor = fun_minor, fun_major = fun_major,
+                    fun_total = fun_total, state = NULL, simplify = simplify,
+                    varname = varname)
+
+  if(length(y) == 1 & !is.null(varname)) names(y) <- varname
+  if(length(y) == 0) y <- NA
 
   return(y)
 }
@@ -170,16 +210,17 @@ char_binary <- function(x, major = min(minor), minor = NA,
   }
 
 
-  if(simplify) y <- .simplify_metric(x = y, metric.vars = metric.vars,
-                                     varname = varname)
+  if(simplify) y <- .simplify_metric(x = y, metric.vars = metric.vars)
 
+  if(length(y) == 1 & !is.null(varname)) names(y) <- varname
   if(length(y) == 0) y <- NA
 
   return(y)
 }
 
-.guess_metric_var <- function(x){
-  x <- rlang::quos_auto_name(x)
+
+.guess_metric_var <- function(x)
+{
 
   for(i in seq_along(x)) {
     na <- names(x)[i]
@@ -189,108 +230,9 @@ char_binary <- function(x, major = min(minor), minor = NA,
   return(x)
 }
 
-smires <- function(...)
+
+.simplify_metric <- function(x, metric.vars)
 {
-  warning("The usage of the function 'smires()' for the calculation of metrics from binary variables is deprecated. Please use 'char_binary()' instead.")
-  char_binary(...)
-}
-
-
-char_cont <- function(x, major = min(minor), minor = NA,
-                      drop_na = "none", threshold = 0.001,
-                      fun_group = NULL, fun_minor = NULL, fun_major = NULL,
-                      fun_total = NULL,
-                      metric.vars = vars(discharge),
-                      varname = NULL,
-                      simplify = FALSE, plot = FALSE) {
-
-  grouped <- x %>%
-    group_by_interval(major_interval = major, minor_interval = minor)
-
-  # computing new variables
-  grouped <- .compute_new_vars(grouped, .vars = metric.vars)
-
-  maj <- as.numeric(grouped$major)
-
-  metric.vars <- .guess_metric_var(metric.vars)
-
-  mvar <- pull(select_at(.tbl = grouped, metric.vars)[, 1])
-  grouped$rescaled <- maj + (.rescale(mvar) - 0.5)#*0.65
-
-  if(plot) print(plot_groups(grouped))
-
-  grouped$state <- NA
-
-  y <- .char_common(data = grouped,
-                    fun_group = fun_group, metric.vars = metric.vars,
-                    fun_minor = fun_minor, fun_major = fun_major,
-                    fun_total = fun_total, state = NULL, simplify = simplify,
-                    varname = varname)
-
-  return(y)
-
-
-  y <- grouped %>%
-    drop_na_periods(period = drop_na)
-
-  if(is.function(fun_group)) {
-    y <- y %>% group_by(group, minor, major) %>%
-      do(var = fun_group(.$var)) %>%
-      # only needed until unnest() can handle lists
-      # https://github.com/tidyverse/tidyr/issues/278
-      ungroup() %>%
-      mutate_if(is.list, simplify_all) %>%
-      unnest()
-  }
-
-  if(is.function(fun_minor)) {
-    # y <- y %>% group_by(minor) %>%
-    #   do(var = fun_minor(.$var)) %>%
-    #   # only needed until unnest() can handle lists
-    #   ungroup() %>%
-    #   mutate_if(is.list, simplify_all) %>%
-    #   unnest()
-
-    y <- y %>% group_by(minor) %>%
-      do(var = fun_minor(.$var)) %>%
-      filter(length(var) > 1) %>%
-      unnest()
-  }
-
-  if(is.function(fun_major)) {
-    if(is.function(fun_minor)) {
-      stop("You can eihter aggregate by minor interval or major interval, not both.")
-    }
-    # y <- y %>% group_by(major) %>%
-    #   do(var = fun_major(.$var)) %>%
-    #   # only needed until unnest() can handle lists
-    #   ungroup() %>%
-    #   mutate_if(is.list, simplify_all) %>%
-    #   unnest()
-
-    y <- y %>% group_by(major) %>%
-      do(var = fun_major(.$var)) %>%
-      filter(length(var) >= 1) %>%
-      unnest()
-  }
-
-  if(is.function(fun_total)) {
-    y <- ungroup(y) %>%
-      summarize(var = fun_total(var))
-  }
-
-  y <- y %>%
-    rename(!!varname := var)%>%
-    ungroup()
-
-  if(simplify) y <- .simplify_metric(x = y, metric.vars = metric.vars,
-                                     varname = varname)
-  if(length(y) == 0) y <- NA
-
-  return(y)
-}
-
-.simplify_metric <- function(x, metric.vars, varname = NULL) {
 
   if(length(metric.vars) != 1) stop("Can only simplify a result with a single 'metric.var'.")
 
@@ -314,7 +256,6 @@ char_cont <- function(x, major = min(minor), minor = NA,
     }
   }
 
-  if(length(value) == 1 & !is.null(varname)) names(value) <- varname
 
   return(value)
 }
@@ -323,4 +264,10 @@ metric <- function(...)
 {
   warning("The usage of the function 'metric()' for the calculation of metrics from continous variables is deprecated. Please use 'char_cont()' instead.")
   char_cont(...)
+}
+
+smires <- function(...)
+{
+  warning("The usage of the function 'smires()' for the calculation of metrics from binary variables is deprecated. Please use 'char_binary()' instead.")
+  char_binary(...)
 }
