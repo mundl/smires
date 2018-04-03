@@ -228,6 +228,21 @@ enframe_smires <- function(x, as.sf = FALSE)
   return(y)
 }
 
+deframe_smires <- function(x)
+{
+  att.cols <- setdiff(colnames(x), "data")
+  if (length(att.cols) == 0) return(x)
+
+  if (!"data" %in% colnames(x)) stop("must have a column named 'data'.")
+
+  for (i in seq_len(nrow(x))) {
+    attr_smires(x$data[[i]]) <- as.list(x[i, att.cols])
+  }
+
+  return(x)
+}
+
+
 
 # date/time related functions ----
 
