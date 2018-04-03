@@ -73,6 +73,8 @@ no_flow_years(ampneyBrook)
 
 
 
+<p> <br> <br> </p>
+ 
 ##  Number of no-flow days
 ```{r, echo = FALSE, results = "asis"}
 tbl <- metrics() %>% 
@@ -81,6 +83,8 @@ tbl <- metrics() %>%
 kable(tbl)
 ```
 
+<p> <br> <br> </p>
+ 
 
 ## Duration
 ```{r, echo = FALSE, results = "asis"}
@@ -93,8 +97,11 @@ kable(tbl)
 
 ```{r}
 MAMD(ampneyBrook)
+FAMD(ampneyBrook)
 ```
 
+<p> <br> <br> </p>
+ 
 
 ## Timing and seasonality
 ```{r, echo = FALSE, results = "asis"}
@@ -110,6 +117,8 @@ tau0(ampneyBrook)
 ```
 
 
+<p> <br> <br> </p>
+ 
 
 # Rate of change before/after no-flow event
 ```{r, echo = FALSE, results = "asis"}

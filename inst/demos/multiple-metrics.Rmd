@@ -1,0 +1,155 @@
+---
+title: "The R package smires -- Computing Metrics for multiple stations"
+author: "Tobias Gauster"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    highlight: pygments
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(knitr.kable.NA = '', width = 90)
+library(dplyr)
+library(smires)
+library(knitr)
+library(lubridate)
+
+load("~/Documents/boku/rpkgs/smires/dev/at_list-columns.rda")
+at_all <- at
+```
+
+
+```{r import}
+at_all
+
+at <- at_all %>%
+  filter(intermittent & years >= 10)
+
+at
+```
+
+
+
+```{r map-intermittent-stations}
+library(ggplot2)
+basemap(at_all) + 
+  geom_point(aes(size = intermittent, col = intermittent)) + 
+  scale_size_manual(values = c("FALSE" = 0.1, "TRUE" = 1)) + 
+  scale_color_manual(values = c("FALSE" = "darkgrey", "TRUE" = "#F8766D"))
+
+```
+
+
+```{r, figure-}
+at$data[[8]]
+plot_intermittency(at$data[[8]])
+```
+
+```{r}
+MAMD(at$data[[8]])
+FAMD(at$data[[8]])
+```
+
+
+```{r}
+library(purrr)
+library(lubridate)
+
+nmonths <- function(x)
+{
+  monnb <- function(d) {
+    lt <- as.POSIXlt(as.Date(d, origin="1900-01-01"))
+    lt$year*12 + lt$mon
+  }
+
+  d <- monnb(max(x, na.rm = T)) - monnb(min(x, na.rm = T))
+  return(as.integer(d))
+}
+
+m1 <- at %>%
+  select(sid, data, lon, lat) %>%
+  mutate(months = map_int(data, function(x) nmonths(x$time)),
+         yearStart = map_dbl(data, function(x) year(min(x$time))),
+         yearEnd   = map_dbl(data, function(x) year(max(x$time))))
+
+m1
+```
+
+```{r}
+basemap(m1) + 
+  geom_point(aes(size = months), alpha = 0.2)
+```
+
+
+```{r}
+library(multidplyr)
+atm <- m1 %>%
+  sample_n(size = 10) %>%
+  group_by(sid) %>%
+  partition()
+
+cluster_library(atm, c("purrr", "smires"))
+
+m2 <- atm %>%
+  mutate(nfyears = map_dbl(data, no_flow_years),
+         MAMD = map_dbl(data, MAMD),
+         MAN = map_dbl(data, MAN),
+         tau0 = map_chr(data, tau0),
+         tauE = map_chr(data, tauE)) %>%
+  collect() %>%
+  ungroup() %>%
+  select(-PARTITION_ID) %>%
+  arrange(sid)
+
+m2 %>%
+  select(sid, MAMD, MAN, tau0, tauE)
+```
+
+
+
+```{r}
+library(sf)
+meta <- attr_smires(m2$data, as.sf = TRUE)
+
+export <- meta %>% 
+  select(-lon, -lat) %>%
+  left_join(m2, by = "sid") %>%
+  transmute(Name = station,
+            Description = "SMIRES Metadata",
+            Link = file.path("https://homepage.boku.ac.at/h0540352/smires/png",
+                             sub(".dat", ".png", filename, fixed = TRUE)),
+            Country = country,
+            River_Basin_District = "",
+            River_Basin = "",
+            River_Name = river,
+            Longitude = lon,
+            Latitude = lat,
+            Coordinate_system = "epsg:4326",
+            Station_Name = station,
+            Legnth_Records_month = months,
+            Year_Start = yearStart,
+            Year_End = yearEnd,
+            Operational = "",
+            Temporal_Resolution = "daily",
+            Drainage_Area_km2 = catchment,
+            `Natural / Weakly altered / Higly modified` = "Higly modified",
+            Comments_Influence = "",
+            Data_avaibility = "http://ehyd.gv.at/",
+            Contact_Name = "t.gauster@boku.ac.at",
+            Altitude_m = altitude,
+            Upload = "t.gauster@boku.ac.at",
+            Monitoring_system = "",
+            Comments_Data_Quality = "Coordinates are not very precise.",
+            `Prop_zero-flow_Year_%` = round(nfyears * 100, 2),
+            MAMD = MAMD, MAN = MAN, tau0 = tau0, tauE = tauE)
+
+export <- export %>%
+  mutate_if(is.character, iconv, from = "", to = "UTF-8")
+
+# st_write(obj = export[,], dsn = "intermittent_austria.kml",
+#          delete_dsn = TRUE)
+
+```
+

@@ -258,21 +258,23 @@ format.jday <- function(x, ...)
 
   day <- as.numeric(format(x, "%d"))
   suffix <- .ordinal_suffix(day)
-  day <- paste0(day, suffix)
+  day <- format(paste0(day, suffix), width = 4, justify = "right")
 
-  y <- paste0(month, " ", day, " (day ", as.numeric(format(x, "%j")), ")")
+  y <- paste0(month, " ", day, " (day ",
+              format(as.numeric(format(x, "%j")), width = 3, justify = "right"), ")")
   names(y) <- nam
 
   return(y)
 }
 
-type_sum <- function(x)
-{
-  UseMethod("type_sum")
-}
+# type_sum <- function(x)
+# {
+#   UseMethod("type_sum")
+# }
+#
+# type_sum.jday <- format.jday
 
-type_sum.jday <- format.jday
-
+# as.character.jday <- format.jday
 
 julian_day <- function(x)
 {
@@ -357,6 +359,9 @@ circular_mean <- function(x, lwr = 0, upr = 365)
 circular_r <- function(x, lwr = 0, upr = 365)
   .circular_stats(x = x, lwr = lwr, upr = upr)["abs"]
 
+circular_sd <- function(x, lwr = 0, upr = 365)
+  .circular_stats(x = x, lwr = lwr, upr = upr)["sd"]
+
 # circular_cv <- function(x, lwr = 0, upr = 365){
 #   y <- .circular_stats(x = x, lwr = lwr, upr = upr)
 #   return(y["sd"]/y["mean"])
@@ -373,7 +378,7 @@ mean_day <- function(x, lwr = 0, upr = 365)
 print.jday <- function(x, ...)
 {
   y <- format.jday(x)
-  if(is.na(y)) y <- NA_character_
+  y <- ifelse(is.na(y),  y <- NA_character_, y)
   print(y)
 }
 
@@ -400,16 +405,12 @@ print.jday <- function(x, ...)
 # }
 
 
-.compute_new_vars <- function(x, ..., default = "discharge")
+.compute_new_vars <- function(x, .vars)
 {
   att <- attr_smires(x)
-  variables <- quos(...)
-  if(length(variables)) {
-    x <- mutate(x, !!!variables) %>%
-      rename(var :=!!names(variables)[[1]])
-  } else {
-    x[, "var"] <- x[, default]
-  }
+  if(length(.vars) == 0) stop("You need to specify 'metric.vars'. ")
+
+  x <- mutate(x, !!!.vars)
 
   # mutate drops attributes
   attr_smires(x) <- att

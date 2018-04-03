@@ -1,20 +1,22 @@
 find_spells <- function(x, threshold = 0.001, rule = "cut", na.rm = TRUE,
-                        warn = TRUE, complete = "none")
+                        warn = TRUE, complete = "none", ...)
 {
   x %>%
     .append_flow_state(threshold = threshold) %>%
     summarize_spell(rule = rule, na.rm = na.rm, warn = warn,
-                    complete = complete)
+                    complete = complete, ...)
 }
 
 summarize_spell <- function(x,
                             rule = c("cut", "duplicate", "onset", "termination"),
-                            na.rm = TRUE, warn = TRUE, complete = "none")
+                            na.rm = TRUE, warn = TRUE, complete = "none",
+                            spell.vars = spell.vars)
 {
   rule <- match.arg(rule)
 
   x %>%
-    .add_spellvars(warn = warn, duplicate = rule != "cut") %>%
+    .add_spellvars(warn = warn, duplicate = rule != "cut",
+                   spell.vars = spell.vars) %>%
     .assign_spell(rule = rule) %>%
     .complete_spell(complete = complete) %>%
     arrange(spell) # sort by spell
@@ -57,7 +59,8 @@ summarize_spell <- function(x,
 
   # retain zero length events
   fill <- list(onset = NA, termination = NA, duration = 0,
-               group = NA, major = NA, minor = NA, var = fill)
+               group = NA, major = NA, minor = NA#, var = fill
+               )
 
 
   x <- ungroup(x)
@@ -75,7 +78,7 @@ summarize_spell <- function(x,
 {
   if(is.null(threshold))
   {
-    x$spell <- seq_len(nrow(x))
+    x$spell <- seq.int(from = 1, to = nrow(x))
   } else {
     att <- attr_smires(x)
 
@@ -117,7 +120,8 @@ summarize_spell <- function(x,
   return(x)
 }
 
-.add_spellvars <- function(x, warn = TRUE, duplicate = FALSE)
+.add_spellvars <- function(x, warn = TRUE, duplicate = FALSE,
+                           spell.vars = spell.vars)
 {
   grouped <- "group" %in% colnames(x)
 
@@ -140,13 +144,19 @@ summarize_spell <- function(x,
               duration = termination - onset)
 
 
+  res <- y %>%
+    summarize(onset = min(time),
+              termination = max(time) + att$dt,
+              duration = termination - onset, !!!spell.vars)
+
   if(duplicate) {
-    res <- y %>% do(data.frame(onset = min(.$time), termination = max(.$time) + att$dt,
-                               group = unique(.$group))) %>%
-      mutate(duration = termination - onset)
-  } else {
-    res <- summarize(y, onset = min(time), termination = max(time) + att$dt,
-                     duration = termination - onset)
+    # duplicate the summary statistics for every group
+    g <- summarise(y, group = list(unique(group))) %>%
+      select(-state) %>%
+      unnest()
+
+    res <- res %>%
+      left_join(g, by = "spell")
   }
 
 

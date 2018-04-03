@@ -6,10 +6,15 @@ char_binary <- function(x, major = min(minor), minor = NA,
                     drop_na = "none", rule = "cut", threshold = 0.001,
                     fun_group = NULL, fun_minor = NULL, fun_major = NULL,
                     fun_total = NULL,
-                    state = c("no-flow", "flow", NA),
-                    ...,
-                    varname = "variable",
-                    simplify = FALSE, complete = TRUE, plot = FALSE) {
+                    spell.vars = vars(duration),
+                    metric.vars = NULL,
+                    complete = TRUE, plot = FALSE,
+                    varname = NULL,
+                    simplify = FALSE,
+                    state = c("no-flow", "flow", NA)) {
+
+  if(is.null(metric.vars)) metric.vars <- .guess_metric_var(spell.vars)
+
 
   state <- match.arg(state, several.ok = TRUE)
 
@@ -34,9 +39,16 @@ char_binary <- function(x, major = min(minor), minor = NA,
   grouped <- x %>%
     group_by_interval(major_interval = major, minor_interval = minor)
 
+  # split variables derived from continous time series and spells
+  # variables <- quos(...)
+  # mask <- grepl("time|discharge", variables)
+  # varCont <- variables[mask]
+  # varSpell <- variables[!mask]
+
   spells <- grouped %>%
     # complete spells after dropping NA periods
-    find_spells(rule = rule, threshold = threshold, complete = "none") %>%
+    find_spells(rule = rule, threshold = threshold, complete = "none",
+                spell.vars = spell.vars) %>%
     arrange(group)
 
   if(plot) {
@@ -53,31 +65,85 @@ char_binary <- function(x, major = min(minor), minor = NA,
   }
 
   # computing new variables
-  spells <- .compute_new_vars(spells, ..., default = "duration")
+  spells <- .compute_new_vars(spells, .vars = metric.vars)
 
-  y <- spells %>%
+  spells <- spells %>%
     drop_na_periods(period = drop_na) %>%
     .complete_spell(complete = complete, fill = 0) %>%
     arrange(group)
 
+ y <- .char_common(data = spells,
+                   fun_group = fun_group, metric.vars = metric.vars,
+                   fun_minor = fun_minor, fun_major = fun_major,
+                   fun_total = fun_total, state = state, simplify = simplify,
+                   varname = varname)
+
+  return(y)
+}
+
+.char_common <- function(data, fun_group, metric.vars,
+                         fun_minor, fun_major, fun_total, state = NULL,
+                         simplify, varname)
+{
+
+  .robustify_function <- function(x) {
+
+    if(is.null(x)) return(NULL)
+
+    .f <- purrr:::as_mapper(x)
+    function(...) {
+      r <- .f(...)
+      if(length(r) == 0) r <- NULL
+      r <- if(is.list(r)) r else list(r)
+
+    }
+  }
+
+  fun_group <- .robustify_function(fun_group)
+  fun_minor <- .robustify_function(fun_minor)
+  fun_major <- .robustify_function(fun_major)
+  fun_total <- .robustify_function(fun_total)
+
+  unnest_jday <- function(x) {
+
+    isList <- logical()
+    for(i in seq_len(ncol(x))) isList[i] <- inherits(pull(x[, i]), "list")
+    listcols <- as.list(x[, isList])
+
+    if(sum(isList) == 0) return(x)
+
+    isjd <- logical(length(isList))
+    isjday <- sapply(listcols, function(x) all(sapply(x, inherits, "jday")))
+    isjd[which(isList)[isjday]] <- TRUE
+
+    if(sum(isjd)) {
+      for(i in which(isjd)) {
+        vec <- unlist(x[, i], use.names = FALSE)
+        class(vec) <- c("jday" , "numeric")
+        x[, i] <- vec
+      }
+    }
+
+    if(any(isList & !isjd)) x <- unnest(x)
+
+    return(x)
+  }
+
+
+  y <- data
+
   if(is.function(fun_group)) {
     y <- y %>% group_by(group, minor, major, state) %>%
-      do(var = fun_group(.$var)) %>%
-      # only needed until unnest() can handle lists
-      # https://github.com/tidyverse/tidyr/issues/278
-      ungroup() %>%
-      mutate_if(is.list, simplify_all) %>%
-      unnest()
+      summarize_at(.vars = metric.vars, .funs = funs(fun_group)) %>%
+      filter_at(.vars = metric.vars, .vars_predicate = all_vars(lengths(.) > 0)) %>%
+      unnest_jday()
   }
 
   if(is.function(fun_minor)) {
     y <- y %>% group_by(minor, state) %>%
-      do(var = fun_minor(.$var)) %>%
-      # only needed until unnest() can handle lists
-      # https://github.com/tidyverse/tidyr/issues/278
-      ungroup() %>%
-      mutate_if(is.list, simplify_all) %>%
-      unnest()
+      summarize_at(.vars = metric.vars, .funs = funs(fun_minor))  %>%
+      filter_at(.vars = metric.vars, .vars_predicate = all_vars(lengths(.) > 0)) %>%
+      unnest_jday()
   }
 
   if(is.function(fun_major)) {
@@ -85,38 +151,47 @@ char_binary <- function(x, major = min(minor), minor = NA,
       stop("You can eihter aggregate by minor interval or major interval, not both.")
     }
     y <- y %>% group_by(major, state) %>%
-      do(var = fun_major(.$var)) %>%
-      # only needed until unnest() can handle lists
-      # https://github.com/tidyverse/tidyr/issues/278
-      ungroup() %>%
-      mutate_if(is.list, simplify_all) %>%
-      unnest()
+      summarize_at(.vars = metric.vars, .funs = funs(fun_major)) %>%
+      filter_at(.vars = metric.vars, .vars_predicate = all_vars(lengths(.) > 0)) %>%
+      unnest_jday()
   }
 
   if(is.function(fun_total)) {
     y <- y %>% group_by(state) %>%
-      summarize(var = fun_total(var))
+      summarize_at(.vars = metric.vars, .funs = funs(fun_total))  %>%
+      filter_at(.vars = metric.vars, .vars_predicate = all_vars(lengths(.) > 0)) %>%
+      unnest_jday()
   }
 
-  y <- y %>%
-    rename(!!varname := var) %>%
-    filter(state %in% !!state) %>%
-    ungroup()
-
-  if(simplify){
-    y <- y[[varname]]
-    if(is.difftime(y)) y <- as.double(y)
-    if(length(y) == 1 & varname != "variable") names(y) <- varname
+  if(!is.null(state)) {
+    y <- y %>%
+      filter(state %in% !!state) %>%
+      ungroup()
   }
+
+
+  if(simplify) y <- .simplify_metric(x = y, metric.vars = metric.vars,
+                                     varname = varname)
 
   if(length(y) == 0) y <- NA
 
   return(y)
 }
 
+.guess_metric_var <- function(x){
+  x <- rlang::quos_auto_name(x)
+
+  for(i in seq_along(x)) {
+    na <- names(x)[i]
+    x[[i]] <- rlang::quo_set_expr(x[[i]], rlang::sym(na))
+  }
+
+  return(x)
+}
+
 smires <- function(...)
 {
-  warning("The usage of the function 'metric()' for the calculation of metrics from continous variables is deprecated. Please use 'char_cont()' instead.")
+  warning("The usage of the function 'smires()' for the calculation of metrics from binary variables is deprecated. Please use 'char_binary()' instead.")
   char_binary(...)
 }
 
@@ -125,21 +200,35 @@ char_cont <- function(x, major = min(minor), minor = NA,
                       drop_na = "none", threshold = 0.001,
                       fun_group = NULL, fun_minor = NULL, fun_major = NULL,
                       fun_total = NULL,
-                      ...,
-                      # invar = "discharge",
-                      varname = "variable",
+                      metric.vars = vars(discharge),
+                      varname = NULL,
                       simplify = FALSE, plot = FALSE) {
 
   grouped <- x %>%
     group_by_interval(major_interval = major, minor_interval = minor)
 
   # computing new variables
-  grouped <- .compute_new_vars(grouped, ...)
+  grouped <- .compute_new_vars(grouped, .vars = metric.vars)
 
   maj <- as.numeric(grouped$major)
-  grouped$rescaled <- maj + (.rescale(grouped$var) - 0.5)#*0.65
+
+  metric.vars <- .guess_metric_var(metric.vars)
+
+  mvar <- pull(select_at(.tbl = grouped, metric.vars)[, 1])
+  grouped$rescaled <- maj + (.rescale(mvar) - 0.5)#*0.65
 
   if(plot) print(plot_groups(grouped))
+
+  grouped$state <- NA
+
+  y <- .char_common(data = grouped,
+                    fun_group = fun_group, metric.vars = metric.vars,
+                    fun_minor = fun_minor, fun_major = fun_major,
+                    fun_total = fun_total, state = NULL, simplify = simplify,
+                    varname = varname)
+
+  return(y)
+
 
   y <- grouped %>%
     drop_na_periods(period = drop_na)
@@ -194,15 +283,40 @@ char_cont <- function(x, major = min(minor), minor = NA,
     rename(!!varname := var)%>%
     ungroup()
 
-  if(simplify){
-    y <- y[[varname]]
-    if(is.difftime(y)) y <- as.double(y)
-    if(length(y) == 1 & varname != "variable") names(y) <- varname
-  }
-
+  if(simplify) y <- .simplify_metric(x = y, metric.vars = metric.vars,
+                                     varname = varname)
   if(length(y) == 0) y <- NA
 
   return(y)
+}
+
+.simplify_metric <- function(x, metric.vars, varname = NULL) {
+
+  if(length(metric.vars) != 1) stop("Can only simplify a result with a single 'metric.var'.")
+
+  y <- ungroup(x) %>%
+    select_at(metric.vars)
+
+  value <- pull(y)
+  if(is.difftime(value)) value <- as.double(value, units = "days")
+
+
+  if(length(value) == 1) {
+    names(value) <- colnames(y)
+  } else {
+    rest <- x[, setdiff(names(x), names(y))]
+    if(ncol(rest) > 1) {
+      same <- sapply(rest, function(x) length(unique(x)) == 1)
+      name <- do.call(paste, c(list(sep = "."), rest[, !same, drop = FALSE]))
+      names(value) <- name
+    } else{
+      names(value) <- rest[, 1]
+    }
+  }
+
+  if(length(value) == 1 & !is.null(varname)) names(value) <- varname
+
+  return(value)
 }
 
 metric <- function(...)

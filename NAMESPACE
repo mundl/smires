@@ -31,4 +31,5 @@ importFrom("grDevices", "extendrange")
 
 S3method(print, jday)
 S3method(format, jday)
-S3method(type_sum, jday)
+#S3method(as.character, jday)
+#S3method(type_sum, jday)

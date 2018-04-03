@@ -105,7 +105,7 @@ FAN <- function(...) {
 
 register_metric(
   name = "Distribution of the annual number of no-flow days",
-  description = "Statistical distribution (cdf) of the annual number of days with no-flow occurrence (when flow is below the no-flow threshold)",
+  description = "Emperical distribution (ecdf) of the annual number of days with no-flow occurrence (when flow is below the no-flow threshold)",
   measure = "Distribution",
   section = "Number of no-flow days",
   acronym = "$FAN$",
@@ -153,7 +153,7 @@ FAMD <- function(...) {
 
 register_metric(
   name = "Distribution of annual maximum duration",
-  description = "Statistical distribution (cdf) of the duration of the longest annual no-flow event (during which flow remains below the no-flow threshold)",
+  description = "Emperical distribution (ecdf) of the duration of the longest annual no-flow event (during which flow remains below the no-flow threshold)",
   measure = "Distribution",
   section = "Duration",
   acronym = "$FAMD$",
@@ -162,10 +162,13 @@ register_metric(
 
 # Timing and Seasonality ----
 
-tau0 <- function(...) {
-  char_binary(..., fun_major = min, fun_total = mean_day, drop_na = "major",
-              jday = julian_day(onset), state = "no-flow", simplify = TRUE,
-              complete = FALSE)
+tau0 <- function(..., format = TRUE) {
+  x <- char_binary(..., fun_major = min, fun_total = mean_day, drop_na = "major",
+              spell.vars= vars(jday = julian_day(onset)), state = "no-flow",
+              simplify = TRUE, complete = FALSE)
+  if(format) x <- format(x)
+
+  return(x)
 }
 
 register_metric(
@@ -175,13 +178,16 @@ register_metric(
   section = "Timing and seasonality",
   acronym = "$\\tau_0$",
   fun = "tau0",
-  args = "fun_major = min, fun_total = mean_day, drop_na = 'major', jday = julian_day(onset), complete = FALSE")
+  args = "fun_major = min, fun_total = mean_day, drop_na = 'major', spell.vars= vars(jday = julian_day(onset)), simplify = TRUE")
 
 #
-tau0r <- function(...) {
-  char_binary(..., fun_major = min, fun_total = circular_r, drop_na = "major",
-              jday = julian_day(onset), state = "no-flow", simplify = TRUE,
-              complete = FALSE)
+tau0r <- function(..., format = TRUE) {
+  x <- char_binary(..., fun_major = min, fun_total = circular_r, drop_na = "major",
+              spell.vars= vars(jday = julian_day(onset)), state = "no-flow",
+              simplify = TRUE, complete = FALSE)
+  if(format) x <- format(x)
+
+  return(x)
 }
 
 register_metric(
@@ -191,29 +197,54 @@ register_metric(
   section = "Timing and seasonality",
   acronym = "$\\tau_{0r}$",
   fun = "tau0r",
-  args = "fun_major = min, fun_total = circular_r, drop_na = 'major', jday = julian_day(onset), complete = FALSE")
+  args = "fun_major = min, fun_total = circular_r, drop_na = 'major', spell.vars= vars(jday = julian_day(onset)), simplify = TRUE, complete = FALSE")
 
 #
-tauE <- function(...) {
-  char_binary(..., fun_major = min, fun_total = mean_day, drop_na = "major",
-              jday = julian_day(termination), state = "no-flow", simplify = TRUE,
+tau0f <- function(..., format = TRUE) {
+  x <- char_binary(..., drop_na = "major",
+                   spell.vars= vars(jday = julian_day(onset)), state = "no-flow",
+                   simplify = TRUE, complete = FALSE)
+  if(format) x <- format(x)
+
+  return(x)
+}
+
+register_metric(
+  name = "Empirical Distribution of onset",
+  description = "Emperical distribution (ecdf) of the onset",
+  measure = "Variability",
+  section = "Timing and seasonality",
+  acronym = "$\\tau_{0f}$",
+  fun = "tau0f",
+  args = " drop_na = 'major', spell.vars= vars(jday = julian_day(onset)), state = 'no-flow', simplify = TRUE, complete = FALSE")
+
+#
+tauE <- function(..., format = TRUE) {
+  x <- char_binary(..., fun_major = min, fun_total = mean_day, drop_na = "major",
+              spell.vars= vars(jday = julian_day(termination)), state = "no-flow", simplify = TRUE,
               complete = FALSE)
+  if(format) x <- format(x)
+
+  return(x)
 }
 
 register_metric(
   name = "Mean termination",
-  description = "Mean Julian date (day-of-year) of the first annual no-flow day (using circular statistics)",
+  description = "Mean Julian date (day-of-year) of the end of the first no-flow spell (using circular statistics)",
   measure = "Location",
   section = "Timing and seasonality",
   acronym = "$\\tau_E$",
   fun = "tauE",
-  args = "fun_major = min, fun_total = mean_day, drop_na = 'major', jday = julian_day(termination), complete = FALSE")
+  args = "fun_major = min, fun_total = mean_day, drop_na = 'major',spell.vars= vars(jday = julian_day(termination)),  simplify = TRUE, complete = FALSE")
 
 #
-tauEr <- function(...) {
-  char_binary(..., fun_major = min, fun_total = circular_r, drop_na = "major",
-              jday = julian_day(termination), state = "no-flow", simplify = TRUE,
+tauEr <- function(..., format = TRUE) {
+  x <- char_binary(..., fun_major = min, fun_total = circular_r, drop_na = "major",
+              spell.vars= vars(jday = julian_day(termination)), state = "no-flow", simplify = TRUE,
               complete = FALSE)
+  if(format) x <- format(x)
+
+  return(x)
 }
 
 register_metric(
@@ -223,16 +254,20 @@ register_metric(
   section = "Timing and seasonality",
   acronym = "$\\tau_{Er}$",
   fun = "tauEr",
-  args = "fun_major = min, fun_total = circular_r, drop_na = 'major', jday = julian_day(termination), complete = FALSE")
+  args = "fun_major = min, fun_total = circular_r, drop_na = 'major', spell.vars= vars(jday = julian_day(termination)), simplify = TRUE, complete = FALSE")
 
 
 #
-tau <- function(x) {
-  .append_flow_state(x) %>%
+tau <- function(x, format = TRUE) {
+  x <- .append_flow_state(x) %>%
     mutate(jday = julian_day(time)) %>%
     filter(state == "no-flow") %>%
     summarize(variable = mean_day(jday)) %>%
     unlist(use.names = FALSE)
+
+  if(format) x <- format(x)
+
+  return(x)
 }
 
 register_metric(
@@ -244,12 +279,15 @@ register_metric(
   fun = "tau")
 
 #
-taur <- function(x) {
-  .append_flow_state(x) %>%
+taur <- function(x, format = TRUE) {
+  x <- .append_flow_state(x) %>%
     mutate(jday = julian_day(time)) %>%
     filter(state == "no-flow") %>%
     summarize(variable = circular_r(jday)) %>%
     unlist(use.names = FALSE)
+  if(format) x <- format(x)
+
+  return(x)
 }
 
 register_metric(
@@ -263,8 +301,9 @@ register_metric(
 
 # Rate of change ----
 k <- function(...) {
-  char_cont(..., fun_major = recession, fun_total = mean, drop_na = "major",
-            simplify = TRUE)
+  char_cont(..., fun_major = recession,
+            fun_total = function(x) mean(x, na.rm = TRUE),
+            drop_na = "major", simplify = TRUE)
 }
 
 register_metric(
@@ -323,7 +362,7 @@ is_reversal <- function(x)
 # this is equivalent to: number of flood peaks or number of low flows periods
 nrv <- function(...) {
   char_cont(..., fun_major = sum, drop_na = "major", fun_total = mean,
-            tp = is_reversal(discharge), simplify = TRUE)
+            metric.vars = vars(tp = is_reversal(discharge)), simplify = TRUE)
 }
 
 register_metric(
@@ -347,3 +386,23 @@ register_metric(
 # }
 
 
+
+
+# rewettening metrics
+
+which_max <- function(x)
+{
+  i <- which.max(x)
+  if(length(i) == 0) i <- NA
+  return(i)
+}
+
+# char_binary(balder, major = 1,
+#             spell.vars = vars(max = max(discharge, na.rm = TRUE),
+#                              dt = which_max(discharge)),
+#             state = "flow")
+# #
+# char_binary(balder, major = 1,
+#             spell.vars = vars(max = max(discharge, na.rm = TRUE),
+#                              Qt5 = discharge[5]),
+#             state = "flow")

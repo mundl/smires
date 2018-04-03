@@ -8,11 +8,16 @@ test_that("quick & dirty check if metrics run", {
 
   expect_equal(round(MAN(balder), 4), c(MAN = 80.8571))
   expect_equal(round(CVAN(balder), 4), c(CVAN = 1.018))
-  expect_equal(FAN(balder), c(54, 181, 207, 0, 0, 72, 52))
+  res <- structure(c(54, 181, 207, 0, 0, 72, 52),
+                   .Names = 1974:1980)
+  expect_equal(FAN(balder), res)
 
   expect_equal(round(MAMD(balder), 4), c(MAMD = 27.5714))
   expect_equal(round(CVAMD(balder), 4), c(CVAMD = 0.9669))
-  expect_equal(FAMD(balder), c(46, 45, 70, 0, 0, 20, 12))
+
+  res <-  structure(c(46, 45, 70, 0, 0, 20, 12),
+                    .Names = 1974:1980)
+  expect_equal(FAMD(balder), res)
 })
 
 

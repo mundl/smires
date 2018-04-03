@@ -132,8 +132,8 @@ group_by_interval <- function(.data, minor_interval = intervals$month,
 
   # use integer arithmetic to get unique group numbers
   # todo: test if group_indices() is faster
-  grp <- with(.data, as.numeric(minor) + as.numeric(major) * 100)
-  .data$group <- as.numeric(factor(grp))
+  grp <- with(.data, as.integer(as.numeric(minor) + as.numeric(major) * 100))
+  .data$group <- as.integer(as.numeric(factor(grp)))
 
   # in leap years, feb 28th occurs twice
   .data$hday <- .date2hday(.data$time, start = major_interval)
