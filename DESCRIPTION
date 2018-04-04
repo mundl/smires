@@ -1,7 +1,7 @@
 Package: smires
 Type: Package
 Title: Science and Management of Intermittent Rivers and Ephemeral Streams
-Version: 0.5
+Version: 0.5.1
 Author: Tobias Gauster 
 Maintainer: Tobias Gauster <t.gauster@boku.ac.at>
 BugReports: https://github.com/mundl/smires/issues
@@ -10,5 +10,5 @@ License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
 Depends:  R (>= 2.10), dplyr (>= 0.7)
-Imports: tidyr, tibble, ggplot2, lubridate, lfstat, rlang, plyr, purrr, sf
+Imports: tidyr (>=0.8.0.9000), tibble, ggplot2, lubridate, lfstat, rlang, plyr, purrr, sf
 Suggests: testthat

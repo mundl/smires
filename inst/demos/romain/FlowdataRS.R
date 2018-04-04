@@ -1,11 +1,19 @@
-library(devtools)
-install_github("mundl/smires")
+#' ---
+#' title: Example Romain
+#' output: pdf_document
+#' ---
 
+# library(devtools)
+# install.packages(c("ggplot2", "purrr", "rlang", "sf"))
+# install_github("hadley/tidyr")
+# install_github("mundl/smires")
+
+#+ message=FALSE,warning=FALSE
 library(tidyverse)
 library(smires)
 
 # import your data
-filename <- "inst/demos/romain/FlowdataRS.csv"
+filename <- "M:/smires/inst/demos/romain/FlowdataRS.csv"
 infile <- filename %>%
   read_csv2(col_types = cols(
     `Time stamp` = col_date(format = "%d.%m.%Y")
@@ -35,6 +43,7 @@ seasons <- intervals$fourSeasons
 # some metrics for a single station -----
 walkern <- station$data[[2]]
 
+#+ fig.height = 10,fig.width = 8
 plot_intermittency(walkern, minor = intervals$fourSeasons)
 
 # table of events, events are per default splitted at season boundaries
@@ -86,6 +95,7 @@ result <- result %>%
   na.omit() %>%
   arrange(station, metric, minor)
 
+#+ fig.height = 6,fig.width = 6
 ggplot(result, aes(x = minor, y = duration, col = station, group = station)) +
   geom_point() +
   geom_path() +
