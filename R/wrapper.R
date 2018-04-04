@@ -130,7 +130,7 @@ char_cont <- function(x, major = min(minor), minor = NA,
 
     if(is.null(x)) return(NULL)
 
-    .f <- purrr:::as_mapper(x)
+    .f <- purrr::as_mapper(x)
     function(...) {
       r <- .f(...)
       if(length(r) == 0) r <- NULL
