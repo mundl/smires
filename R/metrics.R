@@ -42,8 +42,8 @@ register_metric <- function(name, description, section, acronym, fun,
 
 
 # General characteristics ----
-no_flow_years <- function(...) {
-  char_binary(..., rule = "cut", complete = FALSE) %>%
+no_flow_years <- function(..., threshold = 0.001) {
+  char_binary(..., threshold = threshold, rule = "cut", complete = FALSE) %>%
     mutate(year = as.numeric(major)) %>%
     select(state, year) %>%
     distinct() %>%
@@ -61,8 +61,9 @@ register_metric(
 
 
 # Nuber of flow days ----
-MAN <- function(...) {
-  char_binary(..., fun_major = sum, fun_total = mean, drop_na = "major",
+MAN <- function(..., threshold = 0.001) {
+  char_binary(..., threshold = threshold, fun_major = sum, fun_total = mean,
+              drop_na = "major",
               rule = "cut", state = "no-flow", varname = "MAN", simplify = TRUE)
 }
 
@@ -82,8 +83,9 @@ cv <- function(x) {
   sd(x) / mean(x)
 }
 
-CVAN <- function(...) {
-  char_binary(..., fun_major = sum, fun_total = cv, drop_na = "major",
+CVAN <- function(..., threshold = 0.001) {
+  char_binary(..., threshold = threshold, fun_major = sum, fun_total = cv,
+              drop_na = "major",
               rule = "cut", state = "no-flow", varname = "CVAN", simplify = TRUE)
 }
 
@@ -98,8 +100,9 @@ register_metric(
 
 
 #
-FAN <- function(...) {
-  char_binary(..., fun_major = sum, drop_na = "major", rule = "cut",
+FAN <- function(..., threshold = 0.001) {
+  char_binary(..., threshold = threshold, fun_major = sum,
+              drop_na = "major", rule = "cut",
               complete = TRUE, state = "no-flow", varname = "FAN", simplify = TRUE)
 }
 
@@ -115,8 +118,9 @@ register_metric(
 
 
 # Duration -----
-MAMD <- function(...) {
-  char_binary(..., fun_major = max, fun_total = mean, drop_na = "major",
+MAMD <- function(..., threshold = 0.001) {
+  char_binary(..., threshold = threshold, fun_major = max, fun_total = mean,
+              drop_na = "major",
               state = "no-flow", varname = "MAMD", simplify = TRUE)
 }
 
@@ -131,8 +135,9 @@ register_metric(
 
 
 #
-CVAMD <- function(...) {
-  char_binary(..., fun_major = max, fun_total = cv, drop_na = "major",
+CVAMD <- function(..., threshold = 0.001) {
+  char_binary(..., threshold = threshold, fun_major = max, fun_total = cv,
+              drop_na = "major",
               state = "no-flow", varname = "CVAMD", simplify = TRUE)
 }
 
@@ -146,8 +151,9 @@ register_metric(
   args = "fun_major = max, fun_total = mean, drop_na = 'major', rule = 'onset'")
 
 #
-FAMD <- function(...) {
-  char_binary(..., fun_major = max, drop_na = "major", complete = TRUE,
+FAMD <- function(..., threshold = 0.001) {
+  char_binary(..., threshold = threshold, fun_major = max,
+              drop_na = "major", complete = TRUE,
               state = "no-flow", varname = "FAMD", simplify = TRUE)
 }
 
@@ -162,11 +168,12 @@ register_metric(
 
 # Timing and Seasonality ----
 
-tau0 <- function(..., format = TRUE) {
-  x <- char_binary(..., fun_major = min, fun_total = mean_day, drop_na = "major",
-              spell.vars= vars(jday = julian_day(onset)), state = "no-flow",
-              simplify = TRUE, complete = FALSE)
-  if(format) x <- format(x)
+tau0 <- function(..., threshold = 0.001, format = TRUE) {
+  x <- char_binary(..., threshold = threshold,
+                   fun_major = min, fun_total = mean_day, drop_na = "major",
+                   spell.vars = vars(jday = julian_day(onset)), state = "no-flow",
+                   simplify = TRUE, complete = FALSE)
+  if (format) x <- format(x)
 
   return(x)
 }
@@ -181,11 +188,11 @@ register_metric(
   args = "fun_major = min, fun_total = mean_day, drop_na = 'major', spell.vars= vars(jday = julian_day(onset)), simplify = TRUE")
 
 #
-tau0r <- function(..., format = TRUE) {
-  x <- char_binary(..., fun_major = min, fun_total = circular_r, drop_na = "major",
-              spell.vars= vars(jday = julian_day(onset)), state = "no-flow",
-              simplify = TRUE, complete = FALSE)
-  if(format) x <- format(x)
+tau0r <- function(..., threshold = 0.001, format = TRUE) {
+  x <- char_binary(..., threshold = threshold, fun_major = min, fun_total = circular_r, drop_na = "major",
+                   spell.vars = vars(jday = julian_day(onset)), state = "no-flow",
+                   simplify = TRUE, complete = FALSE)
+  if (format) x <- format(x)
 
   return(x)
 }
@@ -200,11 +207,11 @@ register_metric(
   args = "fun_major = min, fun_total = circular_r, drop_na = 'major', spell.vars= vars(jday = julian_day(onset)), simplify = TRUE, complete = FALSE")
 
 #
-tau0f <- function(..., format = TRUE) {
-  x <- char_binary(..., drop_na = "major",
-                   spell.vars= vars(jday = julian_day(onset)), state = "no-flow",
+tau0f <- function(..., threshold = 0.001, format = TRUE) {
+  x <- char_binary(..., threshold = threshold, drop_na = "major",
+                   spell.vars = vars(jday = julian_day(onset)), state = "no-flow",
                    simplify = TRUE, complete = FALSE)
-  if(format) x <- format(x)
+  if (format) x <- format(x)
 
   return(x)
 }
@@ -219,11 +226,12 @@ register_metric(
   args = " drop_na = 'major', spell.vars= vars(jday = julian_day(onset)), state = 'no-flow', simplify = TRUE, complete = FALSE")
 
 #
-tauE <- function(..., format = TRUE) {
-  x <- char_binary(..., fun_major = min, fun_total = mean_day, drop_na = "major",
-              spell.vars= vars(jday = julian_day(termination)), state = "no-flow", simplify = TRUE,
-              complete = FALSE)
-  if(format) x <- format(x)
+tauE <- function(..., threshold = 0.001, format = TRUE) {
+  x <- char_binary(..., threshold = threshold,
+                   fun_major = min, fun_total = mean_day, drop_na = "major",
+                   spell.vars = vars(jday = julian_day(termination)),
+                   state = "no-flow", simplify = TRUE, complete = FALSE)
+  if (format) x <- format(x)
 
   return(x)
 }
@@ -238,11 +246,12 @@ register_metric(
   args = "fun_major = min, fun_total = mean_day, drop_na = 'major',spell.vars= vars(jday = julian_day(termination)),  simplify = TRUE, complete = FALSE")
 
 #
-tauEr <- function(..., format = TRUE) {
-  x <- char_binary(..., fun_major = min, fun_total = circular_r, drop_na = "major",
-              spell.vars= vars(jday = julian_day(termination)), state = "no-flow", simplify = TRUE,
-              complete = FALSE)
-  if(format) x <- format(x)
+tauEr <- function(..., threshold = 0.001, format = TRUE) {
+  x <- char_binary(..., threshold = threshold, fun_major = min,
+                   fun_total = circular_r, drop_na = "major",
+                   spell.vars = vars(jday = julian_day(termination)),
+                   state = "no-flow", simplify = TRUE, complete = FALSE)
+  if (format) x <- format(x)
 
   return(x)
 }
@@ -258,14 +267,14 @@ register_metric(
 
 
 #
-tau <- function(x, format = TRUE) {
-  x <- .append_flow_state(x) %>%
+tau <- function(x, threshold = 0.001, format = TRUE) {
+  x <- .append_flow_state(x, threshold = threshold) %>%
     mutate(jday = julian_day(time)) %>%
     filter(state == "no-flow") %>%
     summarize(variable = mean_day(jday)) %>%
     unlist(use.names = FALSE)
 
-  if(format) x <- format(x)
+  if (format) x <- format(x)
 
   return(x)
 }
@@ -279,13 +288,13 @@ register_metric(
   fun = "tau")
 
 #
-taur <- function(x, format = TRUE) {
-  x <- .append_flow_state(x) %>%
+taur <- function(x, threshold = 0.001, format = TRUE) {
+  x <- .append_flow_state(x, threshold = threshold) %>%
     mutate(jday = julian_day(time)) %>%
     filter(state == "no-flow") %>%
     summarize(variable = circular_r(jday)) %>%
     unlist(use.names = FALSE)
-  if(format) x <- format(x)
+  if (format) x <- format(x)
 
   return(x)
 }
@@ -336,7 +345,7 @@ is_turning_point <- function(x)
 
   # fill zeros with last observation
   nonzero <- delta != 0
-  d1 <- c(NA, delta[nonzero])[cumsum(nonzero)+1]
+  d1 <- c(NA, delta[nonzero])[cumsum(nonzero) + 1]
 
   pairs <- embed(d1, 2)[, 2:1]
   isTP <- (pairs[, 1] != pairs[, 2])
@@ -393,7 +402,7 @@ register_metric(
 which_max <- function(x)
 {
   i <- which.max(x)
-  if(length(i) == 0) i <- NA
+  if (length(i) == 0) i <- NA
   return(i)
 }
 

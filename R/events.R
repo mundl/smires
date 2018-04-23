@@ -1,10 +1,11 @@
 find_spells <- function(x, threshold = 0.001, rule = "cut", na.rm = TRUE,
-                        warn = TRUE, complete = "none", ...)
+                        warn = TRUE, complete = "none",
+                        spell.vars = vars(duration), ...)
 {
   x %>%
     .append_flow_state(threshold = threshold) %>%
     summarize_spell(rule = rule, na.rm = na.rm, warn = warn,
-                    complete = complete, ...)
+                    complete = complete, spell.vars = spell.vars, ...)
 }
 
 summarize_spell <- function(x,

@@ -68,7 +68,7 @@ totals <- char_binary(ampneyBrook, major = 91, fun_major = sum, fun_total = mean
 totals
 ```
 
-This yields us the approximately `r round(totals$variable[totals$state == "no-flow"], 1)` days for the *mean annual number of no-flow days*  and on average around `r round(totals$variable[totals$state == "flow"], 1)` *flow days* per years.
+This yields us the approximately `r round(totals$duration[totals$state == "no-flow"], 1)` days for the *mean annual number of no-flow days*  and on average around `r round(totals$duration[totals$state == "flow"], 1)` *flow days* per years.
 
 # Summary
 In order to facilitate the computation of every possible metric the aggregation intervals and the aggregation functions can be supplied as arguments to the function `smries()`. 

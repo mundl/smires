@@ -14,18 +14,18 @@ char_binary <- function(x, major = min(minor), minor = NA,
                         state = c("no-flow", "flow", NA)) {
 
   spell.vars <- rlang::quos_auto_name(spell.vars)
-  if(is.null(metric.vars)) metric.vars <- .guess_metric_var(spell.vars)
+  if (is.null(metric.vars)) metric.vars <- .guess_metric_var(spell.vars)
 
 
   state <- match.arg(state, several.ok = TRUE)
 
-  if(isTRUE(complete)) {
+  if (isTRUE(complete)) {
     # guess which periods should be completed
-    complete <- if(is.function(fun_group)) {
+    complete <- if (is.function(fun_group)) {
       "group"
-    } else if(is.function(fun_minor)) {
+    } else if (is.function(fun_minor)) {
       "minor"
-    } else if(is.function(fun_major)) {
+    } else if (is.function(fun_major)) {
       "major"
     } else {
       # No aggregation function specified, setting 'complete = FALSE'.
@@ -33,7 +33,7 @@ char_binary <- function(x, major = min(minor), minor = NA,
     }
   }
 
-  if(complete == FALSE) {
+  if (complete == FALSE) {
     complete <- "none"
   }
 
@@ -52,7 +52,7 @@ char_binary <- function(x, major = min(minor), minor = NA,
                 spell.vars = spell.vars) %>%
     arrange(group)
 
-  if(plot) {
+  if (plot) {
     maj <- as.numeric(grouped$major)
     # when taking the log(), replace small observations (zeros) with threshold
     # grouped$discharge[grouped$discharge < threshold] <- threshold
@@ -96,17 +96,26 @@ char_cont <- function(x, major = min(minor), minor = NA,
     group_by_interval(major_interval = major, minor_interval = minor)
 
   # computing new variables
-  grouped <- .compute_new_vars(grouped, .vars = metric.vars)
+  grouped <- .compute_new_vars(grouped, .vars = metric.vars) %>%
+    drop_na_periods(period = drop_na) %>%
+    arrange(group)
 
-  maj <- as.numeric(grouped$major)
-
+  # after we calculating the new variables, use new names
   metric.vars <- .guess_metric_var(metric.vars)
 
-  mvar <- pull(select_at(.tbl = grouped, metric.vars)[, 1])
-  grouped$rescaled <- maj + (.rescale(mvar) - 0.5)#*0.65
+  if (plot) {
+    maj <- as.numeric(grouped$major)
 
-  if(plot) print(plot_groups(grouped))
+    metric.vars <- .guess_metric_var(metric.vars)
 
+    mvar <- pull(select_at(.tbl = grouped, metric.vars)[, 1])
+    p <- grouped %>%
+      mutate(rescaled = maj + (.rescale(mvar) - 0.5))#*0.65
+
+    print(plot_groups(p))
+  }
+
+  # hack because we expect to have a column named state... :(
   grouped$state <- NA
 
   y <- .char_common(data = grouped,
@@ -115,8 +124,8 @@ char_cont <- function(x, major = min(minor), minor = NA,
                     fun_total = fun_total, state = NULL, simplify = simplify,
                     varname = varname)
 
-  if(length(y) == 1 & !is.null(varname)) names(y) <- varname
-  if(length(y) == 0) y <- NA
+  if (length(y) == 1 & !is.null(varname)) names(y) <- varname
+  if (length(y) == 0) y <- NA
 
   return(y)
 }
@@ -128,13 +137,13 @@ char_cont <- function(x, major = min(minor), minor = NA,
 
   .robustify_function <- function(x) {
 
-    if(is.null(x)) return(NULL)
+    if (is.null(x)) return(NULL)
 
     .f <- purrr::as_mapper(x)
     function(...) {
       r <- .f(...)
-      if(length(r) == 0) r <- NULL
-      r <- if(is.list(r)) r else list(r)
+      if (length(r) == 0) r <- NULL
+      r <- if (is.list(r)) r else list(r)
 
     }
   }
@@ -147,24 +156,24 @@ char_cont <- function(x, major = min(minor), minor = NA,
   unnest_jday <- function(x) {
 
     isList <- logical()
-    for(i in seq_len(ncol(x))) isList[i] <- inherits(pull(x[, i]), "list")
+    for (i in seq_len(ncol(x))) isList[i] <- inherits(pull(x[, i]), "list")
     listcols <- as.list(x[, isList])
 
-    if(sum(isList) == 0) return(x)
+    if (sum(isList) == 0) return(x)
 
     isjd <- logical(length(isList))
     isjday <- sapply(listcols, function(x) all(sapply(x, inherits, "jday")))
     isjd[which(isList)[isjday]] <- TRUE
 
-    if(sum(isjd)) {
-      for(i in which(isjd)) {
+    if (sum(isjd)) {
+      for (i in which(isjd)) {
         vec <- unlist(x[, i], use.names = FALSE)
         class(vec) <- c("jday" , "numeric")
         x[, i] <- vec
       }
     }
 
-    if(any(isList & !isjd)) x <- unnest(x)
+    if (any(isList & !isjd)) x <- unnest(x)
 
     return(x)
   }
@@ -172,22 +181,22 @@ char_cont <- function(x, major = min(minor), minor = NA,
 
   y <- data
 
-  if(is.function(fun_group)) {
+  if (is.function(fun_group)) {
     y <- y %>% group_by(group, minor, major, state) %>%
       summarize_at(.vars = metric.vars, .funs = funs(fun_group)) %>%
       filter_at(.vars = metric.vars, .vars_predicate = all_vars(lengths(.) > 0)) %>%
       unnest_jday()
   }
 
-  if(is.function(fun_minor)) {
+  if (is.function(fun_minor)) {
     y <- y %>% group_by(minor, state) %>%
       summarize_at(.vars = metric.vars, .funs = funs(fun_minor))  %>%
       filter_at(.vars = metric.vars, .vars_predicate = all_vars(lengths(.) > 0)) %>%
       unnest_jday()
   }
 
-  if(is.function(fun_major)) {
-    if(is.function(fun_minor)) {
+  if (is.function(fun_major)) {
+    if (is.function(fun_minor)) {
       stop("You can eihter aggregate by minor interval or major interval, not both.")
     }
     y <- y %>% group_by(major, state) %>%
@@ -196,24 +205,27 @@ char_cont <- function(x, major = min(minor), minor = NA,
       unnest_jday()
   }
 
-  if(is.function(fun_total)) {
+  if (is.function(fun_total)) {
     y <- y %>% group_by(state) %>%
       summarize_at(.vars = metric.vars, .funs = funs(fun_total))  %>%
       filter_at(.vars = metric.vars, .vars_predicate = all_vars(lengths(.) > 0)) %>%
       unnest_jday()
   }
 
-  if(!is.null(state)) {
+  if (!is.null(state)) {
     y <- y %>%
       filter(state %in% !!state) %>%
       ungroup()
   }
 
+  # hack to get rid of NA states for continous variables
+  if (all(is.na(y$state))) y <- select(y, -state)
 
-  if(simplify) y <- .simplify_metric(x = y, metric.vars = metric.vars)
 
-  if(length(y) == 1 & !is.null(varname)) names(y) <- varname
-  if(length(y) == 0) y <- NA
+  if (simplify) y <- .simplify_metric(x = y, metric.vars = metric.vars)
+
+  if (length(y) == 1 & !is.null(varname)) names(y) <- varname
+  if (length(y) == 0) y <- NA
 
   return(y)
 }
@@ -222,7 +234,7 @@ char_cont <- function(x, major = min(minor), minor = NA,
 .guess_metric_var <- function(x)
 {
 
-  for(i in seq_along(x)) {
+  for (i in seq_along(x)) {
     na <- names(x)[i]
     x[[i]] <- rlang::quo_set_expr(x[[i]], rlang::sym(na))
   }
@@ -234,20 +246,20 @@ char_cont <- function(x, major = min(minor), minor = NA,
 .simplify_metric <- function(x, metric.vars)
 {
 
-  if(length(metric.vars) != 1) stop("Can only simplify a result with a single 'metric.var'.")
+  if (length(metric.vars) != 1) stop("Can only simplify a result with a single 'metric.var'.")
 
   y <- ungroup(x) %>%
     select_at(metric.vars)
 
   value <- pull(y)
-  if(is.difftime(value)) value <- as.double(value, units = "days")
+  if (is.difftime(value)) value <- as.double(value, units = "days")
 
 
-  if(length(value) == 1) {
+  if (length(value) == 1) {
     names(value) <- colnames(y)
   } else {
     rest <- x[, setdiff(names(x), names(y))]
-    if(ncol(rest) > 1) {
+    if (ncol(rest) > 1) {
       same <- sapply(rest, function(x) length(unique(x)) == 1)
       name <- do.call(paste, c(list(sep = "."), rest[, !same, drop = FALSE]))
       names(value) <- name

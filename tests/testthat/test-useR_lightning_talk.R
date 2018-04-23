@@ -26,7 +26,7 @@ test_that("Results are identical to the ones in rnw/pdf", {
                       .Label = c("1974", "1975", "1976", "1977", "1978", "1979", "1980"),
                       class = c("ordered", "factor")),
     variable = c(4.72, 3.955, 5.471, 5.334, 7.757, 6.753, 5.885)),
-    .Names = c("major", "variable"),
+    .Names = c("major", "discharge"),
     row.names = c(NA, -7L),
     class = c("tbl_df", "tbl", "data.frame"))
 
@@ -42,7 +42,7 @@ test_that("Results are identical to the ones in rnw/pdf", {
   expected <- structure(list(
     state = structure(c(1L, 2L, NA), .Label = c("no-flow", "flow"), class = "factor"),
     variable = structure(c(37, 84.4286, 122.5), units = "days", class = "difftime")),
-    .Names = c("state", "variable"),
+    .Names = c("state", "duration"),
     row.names = c("1", "2", "3"),
     class = c("tbl_df", "tbl", "data.frame"))
 
@@ -66,7 +66,7 @@ test_that("Results are identical to the ones in rnw/pdf", {
     variable = structure(c(70, 92, 45, 47, 46, 44, 56, 90),
                          units = "days",
                          class = "difftime")),
-    .Names = c("minor",  "state", "variable"),
+    .Names = c("minor",  "state", "duration"),
     row.names = c(NA, -8L),
     class = c("tbl_df", "tbl", "data.frame"))
 

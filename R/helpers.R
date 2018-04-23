@@ -262,7 +262,7 @@ format.jday <- function(x, ...)
   nam <- names(x)
   if(is.numeric(x)) {
     if(all(x > 0 & x < 366)){
-      x <- as.Date(as.numeric(x)-1, origin = "1970-01-01")
+      x <- as.Date(as.numeric(x) - 1, origin = "1970-01-01")
     } else {
       stop("Argument `x` must be either date or an integer inside [1, 365].")
     }
