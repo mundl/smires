@@ -153,7 +153,9 @@ char_cont <- function(x, major = min(minor), minor = NA,
   fun_major <- .robustify_function(fun_major)
   fun_total <- .robustify_function(fun_total)
 
-  unnest_jday <- function(x) {
+  unnest_jday <- function(x)
+    {
+    if (nrow(x) == 0) return(x)
 
     isList <- logical()
     for (i in seq_len(ncol(x))) isList[i] <- inherits(pull(x[, i]), "list")
@@ -255,16 +257,20 @@ char_cont <- function(x, major = min(minor), minor = NA,
   if (is.difftime(value)) value <- as.double(value, units = "days")
 
 
+  # name the vector after the variable when of length one
   if (length(value) == 1) {
     names(value) <- colnames(y)
   } else {
+    # use only varying variables for names
     rest <- x[, setdiff(names(x), names(y))]
-    if (ncol(rest) > 1) {
+    if (ncol(rest) == 1) {
+      # trivial, just one additional variable
+      names(value) <- rest[, 1]
+    } else{
+      # remove columns which are not varying
       same <- sapply(rest, function(x) length(unique(x)) == 1)
       name <- do.call(paste, c(list(sep = "."), rest[, !same, drop = FALSE]))
       names(value) <- name
-    } else{
-      names(value) <- rest[, 1]
     }
   }
 

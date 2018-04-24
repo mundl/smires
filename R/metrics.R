@@ -26,10 +26,9 @@ register_metric <- function(name, description, section, acronym, fun,
 
   # check if functions exists
   if(acronym %in% metrics()$Acronym)
-    stop("Acronym ", acronym, " does is already in use.")
+    stop("Acronym ", acronym, " is already in use.")
 
-
-  current <- data_frame(Name = name,
+   current <- data_frame(Name = name,
                         Acronym = acronym,
                         Function = fun,
                         Description = description,
@@ -270,9 +269,14 @@ register_metric(
 tau <- function(x, threshold = 0.001, format = TRUE) {
   x <- .append_flow_state(x, threshold = threshold) %>%
     mutate(jday = julian_day(time)) %>%
-    filter(state == "no-flow") %>%
-    summarize(variable = mean_day(jday)) %>%
-    unlist(use.names = FALSE)
+    filter(state == "no-flow")
+
+  x <- if (nrow(x) == 0) {
+    NA
+  } else {x %>%
+      summarize(variable = mean_day(jday)) %>%
+      unlist(use.names = FALSE)
+  }
 
   if (format) x <- format(x)
 
@@ -291,9 +295,15 @@ register_metric(
 taur <- function(x, threshold = 0.001, format = TRUE) {
   x <- .append_flow_state(x, threshold = threshold) %>%
     mutate(jday = julian_day(time)) %>%
-    filter(state == "no-flow") %>%
+    filter(state == "no-flow")
+
+  x <- if (nrow(x) == 0) {
+    NA
+  } else {x %>%
     summarize(variable = circular_r(jday)) %>%
     unlist(use.names = FALSE)
+  }
+
   if (format) x <- format(x)
 
   return(x)

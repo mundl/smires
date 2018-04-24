@@ -11,145 +11,105 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 options(knitr.kable.NA = '', width = 90)
-library(dplyr)
-library(smires)
-library(knitr)
-library(lubridate)
 
-load("~/Documents/boku/rpkgs/smires/dev/at_list-columns.rda")
-at_all <- at
+
+# load("~/Documents/boku/rpkgs/smires/dev/at_list-columns.rda")
+# load("M:/smires/dev/at_list-columns.r")
+#at <- at_all <- smires
 ```
 
 
-```{r import}
+```{r import, eval=FALSE, include=FALSE}
 at_all
 
-at <- at_all %>%
-  filter(intermittent & years >= 10)
+# at <- at_all %>%
+#  filter(intermittent & years >= 10)
 
 at
 ```
 
-
-
-```{r map-intermittent-stations}
-library(ggplot2)
-basemap(at_all) + 
-  geom_point(aes(size = intermittent, col = intermittent)) + 
-  scale_size_manual(values = c("FALSE" = 0.1, "TRUE" = 1)) + 
-  scale_color_manual(values = c("FALSE" = "darkgrey", "TRUE" = "#F8766D"))
-
-```
-
-
-```{r, figure-}
-at$data[[8]]
-plot_intermittency(at$data[[8]])
-```
-
-```{r}
-MAMD(at$data[[8]])
-FAMD(at$data[[8]])
-```
-
-
-```{r}
+```{r, message=FALSE, warning=FALSE}
+library(dplyr)
 library(purrr)
+library(smires)
+library(knitr)
 library(lubridate)
+library(ggplot2)
 
-nmonths <- function(x)
+smires
+
+```
+
+
+
+```{r, figure-intermittence, fig.height=12}
+smires$data[[19]]
+plot_intermittency(smires$data[[19]])
+```
+
+Compute a single metrics for a single station, eg. station number 19.
+```{r}
+MAMD(smires$data[[19]])
+FAMD(smires$data[[19]])
+```
+
+Compute several metrics for all stations. One can use self-written functions and predifined smires metrics.
+```{r}
+
+nmonths <- function(x, ...)
 {
+  x <- x$time
   monnb <- function(d) {
-    lt <- as.POSIXlt(as.Date(d, origin="1900-01-01"))
+    lt <- as.POSIXlt(as.Date(d, origin = "1900-01-01"))
     lt$year*12 + lt$mon
   }
-
+  
   d <- monnb(max(x, na.rm = T)) - monnb(min(x, na.rm = T))
   return(as.integer(d))
 }
 
-m1 <- at %>%
-  select(sid, data, lon, lat) %>%
-  mutate(months = map_int(data, function(x) nmonths(x$time)),
-         yearStart = map_dbl(data, function(x) year(min(x$time))),
-         yearEnd   = map_dbl(data, function(x) year(max(x$time))))
 
-m1
+f <- list(months = nmonths, 
+          MAN = MAN,
+          yearStart = function(x, ...) year(min(x$time)),
+          yearEnd   = function(x, ...) year(max(x$time)))
+
+m1 <- multiple_metrics(smires, .funs = f)
+
+select(m1, months, MAN, yearStart, yearEnd)
 ```
 
+
+For a few stations there are no coordinates.
 ```{r}
 basemap(m1) + 
-  geom_point(aes(size = months), alpha = 0.2)
+  geom_point(aes(size = MAN, col = MAN), alpha = 0.2)
 ```
 
 
+Compute all IRES metrics but just for a few stations.
 ```{r}
-library(multidplyr)
-atm <- m1 %>%
+set.seed(2804)
+m2 <- smires %>%
+  select(sid, data, lon, lat) %>%
   sample_n(size = 10) %>%
-  group_by(sid) %>%
-  partition()
-
-cluster_library(atm, c("purrr", "smires"))
-
-m2 <- atm %>%
-  mutate(nfyears = map_dbl(data, no_flow_years),
-         MAMD = map_dbl(data, MAMD),
-         MAN = map_dbl(data, MAN),
-         tau0 = map_chr(data, tau0),
-         tauE = map_chr(data, tauE)) %>%
-  collect() %>%
-  ungroup() %>%
-  select(-PARTITION_ID) %>%
-  arrange(sid)
-
-m2 %>%
-  select(sid, MAMD, MAN, tau0, tauE)
+  all_metrics() %>%
+  print()
 ```
 
 
-
-```{r}
+Exporting the data as a kml file (for upload Google Maps). Change filename to `.shp` for ESRI Shapefile. 
+```{r, message=FALSE}
 library(sf)
 meta <- attr_smires(m2$data, as.sf = TRUE)
 
 export <- meta %>% 
   select(-lon, -lat) %>%
   left_join(m2, by = "sid") %>%
-  transmute(Name = station,
-            Description = "SMIRES Metadata",
-            Link = file.path("https://homepage.boku.ac.at/h0540352/smires/png",
-                             sub(".dat", ".png", filename, fixed = TRUE)),
-            Country = country,
-            River_Basin_District = "",
-            River_Basin = "",
-            River_Name = river,
-            Longitude = lon,
-            Latitude = lat,
-            Coordinate_system = "epsg:4326",
-            Station_Name = station,
-            Legnth_Records_month = months,
-            Year_Start = yearStart,
-            Year_End = yearEnd,
-            Operational = "",
-            Temporal_Resolution = "daily",
-            Drainage_Area_km2 = catchment,
-            `Natural / Weakly altered / Higly modified` = "Higly modified",
-            Comments_Influence = "",
-            Data_avaibility = "http://ehyd.gv.at/",
-            Contact_Name = "t.gauster@boku.ac.at",
-            Altitude_m = altitude,
-            Upload = "t.gauster@boku.ac.at",
-            Monitoring_system = "",
-            Comments_Data_Quality = "Coordinates are not very precise.",
-            `Prop_zero-flow_Year_%` = round(nfyears * 100, 2),
-            MAMD = MAMD, MAN = MAN, tau0 = tau0, tauE = tauE)
-
-export <- export %>%
   mutate_if(is.character, iconv, from = "", to = "UTF-8")
 
-# st_write(obj = export[,], dsn = "intermittent_austria.kml",
-#          delete_dsn = TRUE)
+st_write(obj = export[,], dsn = "intermittent_austria.kml",
+         delete_dsn = TRUE)
 
 ```
 

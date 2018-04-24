@@ -201,9 +201,15 @@ attr_smires <- function(x, as.sf = FALSE)
 
 .attr_as_sf <- function(x)
 {
-  if(!all(c("lon", "lat") %in% colnames(x))) {
+  if (!all(c("lon", "lat") %in% colnames(x))) {
     warning("Object '", deparse(substitute(x)), "' does not contain coordinates.")
     return(x)
+  }
+
+  complete <- is.finite(x$lat) & is.finite(x$lon)
+  if (!all(complete)) {
+    warning(sum(!complete), " station(s) without coordinates. Dropping them.")
+    x <- x[complete, ]
   }
 
   y <- st_as_sf(x, coords = c("lon", "lat"), crs = 4326)
