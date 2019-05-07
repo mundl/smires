@@ -118,7 +118,8 @@ group_by_interval <- function(.data, minor_interval = intervals$month,
     pos <- rowSums(outer(day, as.numeric(minor_interval), FUN = ">="))
     pos[pos == 0] <- length(minor_interval)
     n <- length(minor_interval)
-    lvls <- names(minor_interval)[(seq(idx-1, length.out = n) %% n) + 1]
+    # bug? idx possibly undefinded
+    lvls <- names(minor_interval)[(seq(idx - 1, length.out = n) %% n) + 1]
     .data$minor <- factor(names(minor_interval)[pos], levels = lvls,
                           ordered = TRUE, exclude = NULL)
 

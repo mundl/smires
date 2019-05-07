@@ -70,7 +70,7 @@ char_binary <- function(x, major = min(minor), minor = NA,
 
   spells <- spells %>%
     drop_na_periods(period = drop_na) %>%
-    .complete_spell(complete = complete, fill = 0) %>%
+    .complete_spell(complete = complete) %>%
     arrange(group)
 
   y <- .char_common(data = spells,
@@ -111,6 +111,8 @@ char_cont <- function(x, major = min(minor), minor = NA,
     mvar <- pull(select_at(.tbl = grouped, metric.vars)[, 1])
     p <- grouped %>%
       mutate(rescaled = maj + (.rescale(mvar) - 0.5))#*0.65
+
+    attr(p, "smires") <- attr(grouped, "smires")
 
     print(plot_groups(p))
   }

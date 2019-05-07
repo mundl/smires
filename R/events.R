@@ -56,6 +56,7 @@ summarize_spell <- function(x,
 .complete_spell <- function(x, complete = c("none", "major", "minor", "group"),
                             fill = NA)
 {
+  if (!is.na(fill)) message("Argument 'fill' is currently not used. ")
   complete <- match.arg(complete)
 
   # retain zero length events
@@ -65,10 +66,11 @@ summarize_spell <- function(x,
 
 
   x <- ungroup(x)
+  # it is only safe to complete years that do not have NA values
   y <- switch(complete,
-              major = complete(x, state, major, fill = fill),
-              minor = complete(x, state, minor, fill = fill),
-              group = complete(x, state, group, fill = fill),
+              major = complete(x, state, nesting(major), fill = fill),
+              minor = complete(x, state, nesting(minor), fill = fill),
+              group = complete(x, state, nesting(group), fill = fill),
               x)
 
   return(y)
