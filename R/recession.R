@@ -73,7 +73,7 @@
 
 
 recession <- function(x, span = 5, smooth = 0, length = c(4, 7), drop.first = 2,
-                cut.at.NA = TRUE, threshold = median(x, na.rm = TRUE)) {
+                cut.at.NA = TRUE, threshold = Inf) {
 
   seg <- .rsegment(x = x, span = span, smooth = smooth)
 
